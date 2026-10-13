@@ -79,42 +79,19 @@ describe('Test composable: useUiDesign', () => {
       );
     });
 
-    it('should ignore non-configurable properties for a component', () => {
+    it.each(['label', 'fab'])('should not return %s', (prop) => {
       const { ui } = useUiDesign();
-      const result = ui('custom', 'q-btn');
 
-      expect('label' in result).toBe(false);
+      const result = ui('custom', 'q-btn');
+      expect(prop in result).toBe(false);
     });
 
-    it('should ignore configurable properties if no default fallback', () => {
-      const { ui } = useUiDesign();
-      const result = ui('custom', 'q-btn');
-
-      expect('fab' in result).toBe(false);
-    });
-
-    it('should throw error if component property value is null', () => {
+    it.each([null, { nested: false }])('should throw for %o', (flat) => {
       vi.mocked(uiDesignService.getUiDesign).mockReturnValue({
         ...configuration,
         custom: {
           ...configuration.custom,
-          'q-btn': { flat: null },
-        },
-      });
-
-      const { ui } = useUiDesign();
-
-      expect(() => ui('custom', 'q-btn')).toThrowError(
-        "[UiDesign] Value for 'custom.q-btn.flat' is a nested object or null, expected a primitive."
-      );
-    });
-
-    it('should throw error if component property value is a nested object', () => {
-      vi.mocked(uiDesignService.getUiDesign).mockReturnValue({
-        ...configuration,
-        custom: {
-          ...configuration.custom,
-          'q-btn': { flat: { nested: false } },
+          'q-btn': { flat },
         },
       });
 

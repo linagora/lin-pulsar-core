@@ -1207,11 +1207,6 @@ export type LinidQComponentProps =
   | LinidQTreeProps;
 
 /**
- * Union type of all supported third-party component props subsets.
- */
-export type LinidThirdPartyComponentProps = LinidDraggableProps;
-
-/**
  * Valid Quasar component names for type-safe UI design retrieval.
  */
 export type QComponentName =

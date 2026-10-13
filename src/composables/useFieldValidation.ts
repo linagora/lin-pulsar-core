@@ -55,7 +55,17 @@ function hasTranslatedError(error: unknown): error is AxiosError {
  * @param value - A single file, the files of a multiple selection, or an empty value.
  * @returns The selected files, empty when the value is empty.
  */
-function toFiles(value: File | File[] | null | undefined): File[] {
+/**
+ * Represents a single file, a list of files, or an empty value.
+ */
+type FileValue = File | File[] | null | undefined;
+
+/**
+ * Converts a file value to a normalized array of files.
+ * @param value - A single file, the files of a multiple selection, or an empty value.
+ * @returns The selected files, empty when the value is empty.
+ */
+function toFiles(value: FileValue): File[] {
   if (value == null) {
     return [];
   }

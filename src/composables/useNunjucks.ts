@@ -30,7 +30,7 @@ import { getNunjucksEnv } from '../services/nunjucksService';
 /**
  * Matches a template made of a single Nunjucks expression and captures that expression.
  */
-const SINGLE_EXPRESSION = /^\s*\{\{\s*([^{}]+?)\s*\}\}\s*$/;
+const SINGLE_EXPRESSION = /^\s*\{\{\s*([^\s{}]+?)\s*\}\}\s*$/;
 
 /**
  * Matches a path segment that is safe to resolve, that is a plain identifier.

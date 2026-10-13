@@ -14,6 +14,7 @@ export default defineConfigWithVueTs(
     ignores: [
       'dist/',
       'coverage/',
+      'eslint.sonarjs.config.js',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
     ],

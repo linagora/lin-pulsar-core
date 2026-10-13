@@ -26,7 +26,7 @@ describe('Test composable: useNotify', () => {
       color: 'green',
     };
     Notify(payload);
-    expect(events.length).toBe(1);
+    expect(events).toHaveLength(1);
     expect(events[0]).toEqual({
       key: 'notify',
       data: payload,
@@ -37,7 +37,7 @@ describe('Test composable: useNotify', () => {
     const { Notify } = useNotify();
     Notify({ type: 'positive', message: 'First' });
     Notify({ type: 'negative', message: 'Second' });
-    expect(events.length).toBe(2);
+    expect(events).toHaveLength(2);
     expect(events[0].data.message).toBe('First');
     expect(events[1].data.message).toBe('Second');
   });

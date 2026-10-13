@@ -83,7 +83,7 @@ describe('Test service: linidEntityService', () => {
     it('should call valid endpoint and retrieve expected data', async () => {
       const result = await deleteEntityById('id', '1');
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
       expect(mockHttpClient.delete).toHaveBeenCalledWith('/test-endpoint/1');
     });
   });
@@ -94,7 +94,7 @@ describe('Test service: linidEntityService', () => {
 
       const result = await validate('id', 'name', 'value');
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
       expect(mockHttpClient.post).toHaveBeenCalledWith(
         '/test-endpoint/validate/name',
         'value',

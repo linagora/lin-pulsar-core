@@ -29,7 +29,7 @@ import { computed } from 'vue';
 import { getUiDesign } from '../services/uiDesignService';
 import type {
   LinidQComponentProps,
-  LinidThirdPartyComponentProps,
+  LinidDraggableProps,
   QComponentName,
   ThirdPartyComponentName,
   UiDesign,
@@ -52,22 +52,31 @@ const ALL_COMPONENT_PROPS = {
  * @param path - The path string, e.g., 'namespace.key.subkey'.
  * @returns The value at the given path, or undefined if not found.
  */
+/**
+ * Represents a UI design value or a namespace of design values.
+ */
+type UiDesignResult = UiDesignValue | UiDesignNamespace;
+
+/**
+ * Retrieves a nested value from an object using dot-separated keys.
+ * @param obj - The object to traverse.
+ * @param path - The path string, e.g., 'namespace.key.subkey'.
+ * @returns The value at the given path, or undefined if not found.
+ */
 function getNested(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: Record<string, any>,
   path: string
-): UiDesignValue | UiDesignNamespace | undefined {
-  return path
-    .split('.')
-    .reduce<UiDesignValue | UiDesignNamespace | undefined>((acc, key) => {
-      if (acc && typeof acc === 'object') {
-        return (
-          acc as Record<string, UiDesignValue | UiDesignNamespace | undefined>
-        )[key];
-      }
+): UiDesignResult | undefined {
+  return path.split('.').reduce<UiDesignResult | undefined>((acc, key) => {
+    if (acc && typeof acc === 'object') {
+      return (
+        acc as Record<string, UiDesignValue | UiDesignNamespace | undefined>
+      )[key];
+    }
 
-      return undefined;
-    }, obj);
+    return undefined;
+  }, obj);
 }
 
 /**
@@ -135,7 +144,7 @@ export function useUiDesign() {
    * @param overrideProps - Optional partial props to override the retrieved values.
    * @returns An object containing the component props with correct types.
    */
-  function ui<T extends LinidQComponentProps | LinidThirdPartyComponentProps>(
+  function ui<T extends LinidQComponentProps | LinidDraggableProps>(
     uiNamespace: string,
     component: QComponentName | ThirdPartyComponentName,
     overrideProps?: Partial<T>
