@@ -171,28 +171,19 @@ describe('Test mapper: useCommonMapper', () => {
       expect(formatDate('', 'YYYY-MM-DD')).toBe('');
     });
 
-    it('should parse the date with inputFormat when provided', () => {
+    it.each([
+      ['30/06/2024', '2024-06-30'],
+      ['not-a-valid-date', ''],
+      ['31/02/2024', ''],
+      ['2024-07-20T12:34:56.000Z', ''],
+    ])('should handle inputFormat parsing for %s', (value, expected) => {
+      const outputFormat = 'YYYY-MM-DD';
+      const inputFormat = 'DD/MM/YYYY';
       const { formatDate } = useCommonMapper();
 
-      const result = formatDate('30/06/2024', 'YYYY-MM-DD', 'DD/MM/YYYY');
+      const result = formatDate(value, outputFormat, inputFormat);
 
-      expect(result).toBe('2024-06-30');
-    });
-
-    it('should return "" when the value does not match inputFormat', () => {
-      const { formatDate } = useCommonMapper();
-
-      const result = formatDate('not-a-valid-date', 'YYYY-MM-DD', 'DD/MM/YYYY');
-
-      expect(result).toBe('');
-    });
-
-    it('should return "" for a well-formed but calendrically invalid date matching inputFormat', () => {
-      const { formatDate } = useCommonMapper();
-
-      const result = formatDate('31/02/2024', 'YYYY-MM-DD', 'DD/MM/YYYY');
-
-      expect(result).toBe('');
+      expect(result).toBe(expected);
     });
 
     it('should format a Date instance using dayjs default parsing when no inputFormat is given', () => {
@@ -202,18 +193,6 @@ describe('Test mapper: useCommonMapper', () => {
       const result = formatDate(new Date(Date.UTC(2024, 6, 20)), 'YYYY-MM-DD');
 
       expect(result).toBe('2024-07-20');
-    });
-
-    it('should return "" when the value is otherwise parseable but does not match inputFormat', () => {
-      const { formatDate } = useCommonMapper();
-
-      const result = formatDate(
-        '2024-07-20T12:34:56.000Z',
-        'YYYY-MM-DD',
-        'DD/MM/YYYY'
-      );
-
-      expect(result).toBe('');
     });
   });
 

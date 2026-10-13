@@ -19,53 +19,23 @@ describe('Test class: LinidFilterValue', () => {
   });
 
   describe('test method: fromString', () => {
-    it('parses a plain value with no operator and no negation', () => {
-      const result = LinidFilterValue.fromString('paris');
+    it.each([
+      { input: 'paris', isNegation: false, operator: '', value: 'paris' },
+      { input: 'lk_paris', isNegation: false, operator: 'lk_', value: 'paris' },
+      { input: 'gt_18', isNegation: false, operator: 'gt_', value: '18' },
+      { input: 'lt_18', isNegation: false, operator: 'lt_', value: '18' },
+      { input: 'not_paris', isNegation: true, operator: '', value: 'paris' },
+      { input: 'not_lk_paris', isNegation: true, operator: 'lk_', value: 'paris' },
+    ])(
+      'parses "$input" -> isNegation=$isNegation, operator="$operator", value="$value"',
+      ({ input, isNegation, operator, value }) => {
+        const result = LinidFilterValue.fromString(input);
 
-      expect(result.isNegation).toBe(false);
-      expect(result.operator).toBe('');
-      expect(result.value).toBe('paris');
-    });
-
-    it('parses a "like" operator', () => {
-      const result = LinidFilterValue.fromString('lk_paris');
-
-      expect(result.isNegation).toBe(false);
-      expect(result.operator).toBe('lk_');
-      expect(result.value).toBe('paris');
-    });
-
-    it('parses a "greater than" operator', () => {
-      const result = LinidFilterValue.fromString('gt_18');
-
-      expect(result.isNegation).toBe(false);
-      expect(result.operator).toBe('gt_');
-      expect(result.value).toBe('18');
-    });
-
-    it('parses a "lower than" operator', () => {
-      const result = LinidFilterValue.fromString('lt_18');
-
-      expect(result.isNegation).toBe(false);
-      expect(result.operator).toBe('lt_');
-      expect(result.value).toBe('18');
-    });
-
-    it('parses a negated value with no operator', () => {
-      const result = LinidFilterValue.fromString('not_paris');
-
-      expect(result.isNegation).toBe(true);
-      expect(result.operator).toBe('');
-      expect(result.value).toBe('paris');
-    });
-
-    it('parses a negated value with an operator', () => {
-      const result = LinidFilterValue.fromString('not_lk_paris');
-
-      expect(result.isNegation).toBe(true);
-      expect(result.operator).toBe('lk_');
-      expect(result.value).toBe('paris');
-    });
+        expect(result.isNegation).toBe(isNegation);
+        expect(result.operator).toBe(operator);
+        expect(result.value).toBe(value);
+      }
+    );
 
     it('leaves the item undefined, as it is not part of the expression', () => {
       const result = LinidFilterValue.fromString('not_lk_paris');
