@@ -734,18 +734,18 @@ export default defineBoot(async ({ router }) => {
 });
 ```
 
-`init()` performs the complete setup, in order: it registers the given remotes and shares the Module Federation instance with the corelib, makes the given host-local components available to zones, loads each module configuration file and extra zone file in a fault-tolerant way (a broken entry is skipped), loads every module's lifecycle entry point through Module Federation (`lifecycleRemote`), then executes the five phases in sequence for all modules. During the CONFIGURE phase it registers the routes exposed by each module (`routesRemote`) on the provided router and merges the module i18n messages (`i18nRemote`); during the POST_INIT phase it registers the zones declared in each module configuration. Finally, it registers the zones of the extra zone files.
+`init()` performs the complete setup, in order: it registers the given remotes and shares the Module Federation instance with the corelib, makes the given host-local components available to zones and module configurations, loads each module configuration file and extra zone file in a fault-tolerant way (a broken entry is skipped), loads every module's lifecycle entry point (`lifecycleRemote`), then executes the five phases in sequence for all modules. During the CONFIGURE phase it registers the routes exposed by each module (`routesRemote`) on the provided router and merges the module i18n messages (`i18nRemote`); during the POST_INIT phase it registers the zones declared in each module configuration. Finally, it registers the zones of the extra zone files.
 
 Options:
 
-| Option            | Required | Description                                                                         |
-| ----------------- | -------- | ----------------------------------------------------------------------------------- |
-| `router`          | yes      | Host Vue Router instance, used to register module routes.                           |
-| `remotes`         | yes      | Module Federation remotes to register (`{ name, entry }` entries).                  |
-| `modules`         | yes      | URLs of the module configuration files to load (e.g. `/modules/AccountsPage.json`). |
-| `extraZones`      | no       | URLs of additional zone definition files to load (see below).                       |
-| `localComponents` | no       | Host-local components to make available to zones, indexed by name.                  |
-| `hooks`           | no       | Host-side overrides of the phase runners (see below).                               |
+| Option            | Required | Description                                                                                 |
+| ----------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `router`          | yes      | Host Vue Router instance, used to register module routes.                                   |
+| `remotes`         | yes      | Module Federation remotes to register (`{ name, entry }` entries).                          |
+| `modules`         | yes      | URLs of the module configuration files to load (e.g. `/modules/AccountsPage.json`).         |
+| `extraZones`      | no       | URLs of additional zone definition files to load (see below).                               |
+| `localComponents` | no       | Host-local components to make available to zones and module configurations, indexed by name. |
+| `hooks`           | no       | Host-side overrides of the phase runners (see below).                                       |
 
 Example with literal values:
 
@@ -768,6 +768,53 @@ await linidModuleFederation.init({
   localComponents: { ExportApplicationScriptBtn },
 });
 ```
+
+### Referencing Local Components in Module Configuration
+
+The `lifecycleRemote`, `routesRemote` and `i18nRemote` configuration properties, and any property consumed as a route
+component (such as `options.layout` and `options.page` for a page module), accept a `ModuleComponentRef`: a plain
+string or a `FederatedLinidZoneEntry` for an element exposed through Module Federation, or a
+`ComponentLinidZoneEntry` for an element registered through the `localComponents` option. A local reference is
+resolved without any Module Federation loading, and an unregistered name produces an error.
+
+```json
+{
+  "instanceId": "moduleTimeEntriesPage",
+  "remoteName": "catalogUI",
+  "entity": "accounts",
+  "lifecycleRemote": { "type": "component", "component": "timeEntriesLifecycle" },
+  "routesRemote": { "type": "component", "component": "timeEntriesRoutes" },
+  "i18nRemote": { "type": "federated", "plugin": "catalogUI/EmptyI18n" },
+  "apiEndpoint": "time-entries",
+  "basePath": "/time-entries",
+  "zones": [],
+  "options": {
+    "layout": "catalogUI/BaseLayout",
+    "page": { "type": "component", "component": "timeEntriesPage" },
+    "pagePath": ""
+  }
+}
+```
+
+The referenced elements are registered by the host alongside its zone components:
+
+```typescript
+await linidModuleFederation.init({
+  router,
+  remotes: appConfig.remotes,
+  modules: appConfig.modules,
+  localComponents: {
+    timeEntriesLifecycle,
+    timeEntriesRoutes,
+    timeEntriesPage: TimeEntriesPage,
+  },
+});
+```
+
+A route definition consumes such a property through a single-expression Nunjucks template (e.g.
+`component: '{{ config.options.page }}'`): when the configuration value behind the expression is a zone entry, the
+entry is resolved directly instead of being rendered as a string, so existing string-based configurations keep
+working unchanged.
 
 ### Loading Extra Zones
 

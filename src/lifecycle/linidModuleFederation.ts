@@ -36,17 +36,22 @@ import {
 } from '../services/federationService';
 import { getI18nInstance } from '../services/i18nService';
 import { registerModuleHostConfiguration } from '../services/linidModuleConfigurationService';
-import { registerLocalComponents } from '../services/localComponentService';
+import {
+  getLocalComponent,
+  registerLocalComponents,
+} from '../services/localComponentService';
 import { getNunjucksEnv } from '../services/nunjucksService';
-import { merge, renameKeys } from '../services/objectService';
+import { getNestedValue, merge, renameKeys } from '../services/objectService';
 import { useLinidZoneStore } from '../stores/linidZoneStore';
 import type {
   LinidModuleFederationInitOptions,
   LinidModuleFederationPhaseRunner,
 } from '../types/linidModuleFederation';
 import type { LinidRoute } from '../types/linidRoute';
+import type { LinidZoneEntry } from '../types/linidZone';
 import type {
   FederatedModule,
+  ModuleComponentRef,
   ModuleHostConfig,
   ModuleZoneDefinition,
   RemoteModule,
@@ -97,6 +102,35 @@ async function fetchJsonFiles<T>(
 }
 
 /**
+ * Checks that a value is a zone entry: an object carrying either the `federated` type with a `plugin` name, or the
+ * `component` type with a `component` name.
+ * @param value - The value to check.
+ * @returns `true` when the value is a valid zone entry.
+ */
+function isLinidZoneEntry(value: unknown): value is LinidZoneEntry {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const { type, plugin, component } = value as Record<string, unknown>;
+
+  return (
+    (type === 'federated' && typeof plugin === 'string') ||
+    (type === 'component' && typeof component === 'string')
+  );
+}
+
+/**
+ * Checks that a value is a reference to a module element: a string identifying an element exposed through module
+ * federation, or a zone entry.
+ * @param value - The value to check.
+ * @returns `true` when the value is a valid module element reference.
+ */
+function isModuleComponentRef(value: unknown): value is ModuleComponentRef {
+  return typeof value === 'string' || isLinidZoneEntry(value);
+}
+
+/**
  * Checks that a value is a zone definition: an object carrying a `zone` name and exactly one of a `plugin` or a
  * `component` name.
  * @param value - The value to check.
@@ -120,9 +154,23 @@ function isModuleZoneDefinition(value: unknown): value is ModuleZoneDefinition {
 }
 
 /**
+ * Module host configuration fields holding a plain string.
+ */
+const MODULE_CONFIG_STRING_FIELDS = ['instanceId', 'remoteName', 'basePath'];
+
+/**
+ * Module host configuration fields holding a module element reference.
+ */
+const MODULE_CONFIG_REF_FIELDS = [
+  'lifecycleRemote',
+  'routesRemote',
+  'i18nRemote',
+];
+
+/**
  * Checks that a value is a module host configuration: an object carrying the string fields consumed by the host
- * (`instanceId`, `remoteName`, `lifecycleRemote`, `routesRemote`, `i18nRemote`, `basePath`) and, when set, valid zone
- * definitions.
+ * (`instanceId`, `remoteName`, `basePath`), valid module element references (`lifecycleRemote`, `routesRemote`,
+ * `i18nRemote`) and, when set, valid zone definitions.
  * @param value - The value to check.
  * @returns `true` when the value is a valid module host configuration.
  */
@@ -134,17 +182,14 @@ function isModuleHostConfig(
   }
 
   const config = value as Record<string, unknown>;
-  const stringFields = [
-    'instanceId',
-    'remoteName',
-    'lifecycleRemote',
-    'routesRemote',
-    'i18nRemote',
-    'basePath',
-  ];
 
   return (
-    stringFields.every((field) => typeof config[field] === 'string') &&
+    MODULE_CONFIG_STRING_FIELDS.every(
+      (field) => typeof config[field] === 'string'
+    ) &&
+    MODULE_CONFIG_REF_FIELDS.every((field) =>
+      isModuleComponentRef(config[field])
+    ) &&
     (config.zones === undefined ||
       (Array.isArray(config.zones) &&
         config.zones.every(isModuleZoneDefinition)))
@@ -205,55 +250,116 @@ function registerZones(zones: ModuleZoneDefinition[]): void {
 }
 
 /**
- * Loads route definitions exposed by a remote federated module.
+ * Loads the module element identified by a reference.
  *
- * This function attempts to dynamically import the remote module's route entry point and extract its default export.
+ * A string or a federated entry is loaded through module federation, while a component entry is resolved against the
+ * locally registered components, without any module federation loading.
+ * @param ref - The reference identifying the module element.
+ * @returns A promise resolving to the referenced element, or `undefined` when the federated element exposes nothing.
+ * @throws {Error} When a component entry references a name that is not registered.
+ */
+async function loadModuleElement<T>(
+  ref: ModuleComponentRef
+): Promise<T | undefined> {
+  if (typeof ref === 'string' || ref.type === 'federated') {
+    const remote = typeof ref === 'string' ? ref : ref.plugin;
+    const module =
+      await getModuleFederation().loadRemote<FederatedModule<T>>(remote);
+
+    return module?.default;
+  }
+
+  const component = getLocalComponent(ref.component);
+
+  if (component === undefined) {
+    throw new Error(
+      `[LinID CoreLib] Local component "${ref.component}" is not registered.`
+    );
+  }
+
+  return component as T;
+}
+
+/**
+ * Loads route definitions exposed by a module.
  *
- * If the remote module does not expose any routes (or the export is missing or empty), the function returns `null` to
- * signal that no routes should be registered for this module.
- * @param config - The host configuration describing the remote module, including its remote name and instance metadata.
+ * This function resolves the module's route entry reference, either through module federation or against the locally
+ * registered components.
+ *
+ * If the module does not expose any routes (or the export is missing or empty), the function returns `null` to signal
+ * that no routes should be registered for this module.
+ * @param config - The host configuration describing the module, including its remote name and instance metadata.
  * @returns A promise resolving to the list of routes exposed by the module, or `null` if the module defines no routes.
  */
 async function getRoutes(
   config: ModuleHostConfig<unknown>
 ): Promise<LinidRoute[] | null> {
-  const routes = await getModuleFederation().loadRemote<
-    FederatedModule<LinidRoute[]>
-  >(config.routesRemote);
+  const routes = await loadModuleElement<LinidRoute[]>(config.routesRemote);
 
-  if (!routes?.default || routes.default.length === 0) {
+  if (!routes || routes.length === 0) {
     return null;
   }
 
-  return routes.default;
+  return routes;
 }
 
 /**
- * Fetches i18n messages from a remote module.
- * @param config - Configuration object for the remote module.
+ * Fetches i18n messages from a module.
+ * @param config - Configuration object for the module.
  * @returns A promise that resolves to the i18n messages object. Returns an empty object if no messages are found.
  */
 async function getI18nMessages(
   config: ModuleHostConfig<unknown>
 ): Promise<object> {
-  const messages = await getModuleFederation().loadRemote<
-    FederatedModule<object>
-  >(config.i18nRemote);
+  return (await loadModuleElement<object>(config.i18nRemote)) ?? {};
+}
 
-  if (!messages?.default) {
-    return {};
+/**
+ * Matches a Nunjucks template holding a single dotted `config` expression (e.g. `{{ config.options.page }}`), and
+ * captures its property path.
+ */
+const CONFIG_EXPRESSION_PATTERN = /^\{\{\s*config((?:\.\w+)+)\s*\}\}$/;
+
+/**
+ * Resolves a route component reference against the module host configuration.
+ *
+ * A zone entry is returned as-is. A string holding a single `config` expression whose configuration value is a zone
+ * entry resolves to that entry, which is what allows configuration properties such as `options.layout` and
+ * `options.page` to reference local components. Any other string is rendered through Nunjucks, giving a federated
+ * element identifier as before.
+ * @param component - The component reference declared by the route.
+ * @param config - Module host configuration used for resolution and templating.
+ * @returns The resolved reference: a zone entry, or a federated element identifier.
+ */
+function resolveRouteComponentRef(
+  component: ModuleComponentRef,
+  config: ModuleHostConfig<unknown>
+): ModuleComponentRef {
+  if (typeof component !== 'string') {
+    return component;
   }
 
-  return messages.default;
+  const path = CONFIG_EXPRESSION_PATTERN.exec(component)?.[1];
+  const value = path
+    ? getNestedValue(
+        config as unknown as Record<string, unknown>,
+        path.slice(1)
+      )
+    : undefined;
+
+  return isLinidZoneEntry(value)
+    ? value
+    : getNunjucksEnv().renderString(component, { config });
 }
 
 /**
  * Converts a LinidRoute to a Vue Router RouteRecordRaw.
  *
- * Applies Nunjucks templating to paths and loads components asynchronously via Module Federation.
+ * Applies Nunjucks templating to paths and loads components asynchronously, either via Module Federation or from the
+ * locally registered components.
  * @param route - The LinidRoute to convert.
  * @param config - Module host configuration for templating.
- * @returns Promise resolving to Vue Router route record.
+ * @returns The Vue Router route record.
  */
 export function toRouteRecordRaw(
   route: LinidRoute,
@@ -262,10 +368,18 @@ export function toRouteRecordRaw(
   return {
     name: route.name,
     path: getNunjucksEnv().renderString(route.path, { config }),
-    component: async () =>
-      (await getModuleFederation().loadRemote<FederatedModule<Component>>(
-        getNunjucksEnv().renderString(route.component, { config })
-      ))!.default,
+    component: async () => {
+      const ref = resolveRouteComponentRef(route.component, config);
+      const component = await loadModuleElement<Component>(ref);
+
+      if (!component) {
+        throw new Error(
+          `[LinID CoreLib] Route component could not be loaded: ${JSON.stringify(ref)}.`
+        );
+      }
+
+      return component;
+    },
     children:
       route.children?.map((child) => toRouteRecordRaw(child, config)) || [],
     meta: route.meta
@@ -540,13 +654,13 @@ async function init(options: LinidModuleFederationInitOptions): Promise<void> {
   const loadedModules = new Map<string, RemoteModule<unknown>>();
 
   for (const configuration of configurations) {
-    const module = await getModuleFederation().loadRemote<
-      FederatedModule<RemoteModule<unknown>>
-    >(configuration.lifecycleRemote);
+    const module = await loadModuleElement<RemoteModule<unknown>>(
+      configuration.lifecycleRemote
+    );
 
     loadedModules.set(
       configuration.instanceId,
-      module?.default as RemoteModule<unknown>
+      module as RemoteModule<unknown>
     );
   }
 

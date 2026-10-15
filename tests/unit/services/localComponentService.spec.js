@@ -1,4 +1,5 @@
 import {
+  getLocalComponent,
   registerLocalComponent,
   registerLocalComponents,
   resolveLocalComponent,
@@ -48,6 +49,24 @@ describe('Test service: localComponentService', () => {
 
     it('should register nothing when given no component', () => {
       expect(() => registerLocalComponents({})).not.toThrow();
+    });
+  });
+
+  describe('Test function: getLocalComponent', () => {
+    it('should return the value registered under a known name', () => {
+      const localRoutes = [{ path: '/local', component: 'LocalPage' }];
+      registerLocalComponent('RegisteredRoutes', localRoutes);
+
+      expect(getLocalComponent('RegisteredRoutes')).toBe(localRoutes);
+    });
+
+    it('should return undefined for an unknown name, without warning', () => {
+      const warn = vi
+        .spyOn(globalThis.console, 'warn')
+        .mockImplementation(() => {});
+
+      expect(getLocalComponent('NeverRegistered')).toBeUndefined();
+      expect(warn).not.toHaveBeenCalled();
     });
   });
 

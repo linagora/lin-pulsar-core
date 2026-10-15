@@ -94,6 +94,7 @@ export {
   setNestedValue,
 } from './services/objectService';
 export {
+  getLocalComponent,
   registerLocalComponent,
   registerLocalComponents,
   resolveLocalComponent,
@@ -144,6 +145,8 @@ export type {
 
 export type {
   FederatedModule,
+  LocalComponent,
+  ModuleComponentRef,
   ModuleHostConfig,
   ModuleZoneDefinition,
   RemoteModule,

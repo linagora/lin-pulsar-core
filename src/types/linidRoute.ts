@@ -24,6 +24,8 @@
  * LinID Identity Manager software.
  */
 
+import type { ModuleComponentRef } from './module';
+
 /**
  * Represents a route exposed by a remote module, supporting recursive children for nested routing.
  * This mirrors Vue Router’s route structure, except that `component`
@@ -43,8 +45,13 @@ export interface LinidRoute {
   name?: string;
   /** Absolute or nested route path (e.g. "/admin" or "settings"). */
   path: string;
-  /** Remote component name, resolved through Module Federation (e.g. "remoteA/ComponentX"). */
-  component: string;
+  /**
+   * Component reference: a remote component name resolved through Module Federation (e.g. "remoteA/ComponentX"), or
+   * a zone entry referencing a federated or locally registered component. A string may be a Nunjucks template; when
+   * the template is a single expression resolving to a zone entry in the host configuration (e.g.
+   * "{{ config.options.page }}"), the entry itself is used as the reference.
+   */
+  component: ModuleComponentRef;
   /** Optional list of child routes for nested routing. */
   children?: LinidRoutes;
   /** Optional metadata associated with the route. */

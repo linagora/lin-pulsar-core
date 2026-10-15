@@ -26,11 +26,12 @@
 
 import type { Component } from 'vue';
 import { markRaw } from 'vue';
+import type { LocalComponent } from '../types/module';
 
 /**
- * Components made available to zones, indexed by the name used to reference them.
+ * Components made available to zones and module configurations, indexed by the name used to reference them.
  */
-const availableLocalComponents: Record<string, Component> = {};
+const availableLocalComponents: Record<string, LocalComponent> = {};
 
 /**
  * Makes a component available to zones under the given name.
@@ -44,7 +45,10 @@ const availableLocalComponents: Record<string, Component> = {};
  * @param name - The name under which the component can be referenced.
  * @param component - The component to make available to zones.
  */
-export function registerLocalComponent(name: string, component: Component) {
+export function registerLocalComponent(
+  name: string,
+  component: LocalComponent
+) {
   availableLocalComponents[name] = markRaw(component);
 }
 
@@ -55,10 +59,25 @@ export function registerLocalComponent(name: string, component: Component) {
  * the host application to declare all its local components in a single call.
  * @param components - The components to make available, indexed by name.
  */
-export function registerLocalComponents(components: Record<string, Component>) {
+export function registerLocalComponents(
+  components: Record<string, LocalComponent>
+) {
   Object.entries(components).forEach(([name, component]) =>
     registerLocalComponent(name, component)
   );
+}
+
+/**
+ * Returns the value registered under the given name, if any.
+ *
+ * Unlike {@link resolveLocalComponent}, unknown names are not resolved against
+ * globally registered components: the caller is expected to treat them as an
+ * error.
+ * @param name - The name of the registered value to retrieve.
+ * @returns The registered value, or `undefined` when unknown.
+ */
+export function getLocalComponent(name: string): LocalComponent | undefined {
+  return availableLocalComponents[name];
 }
 
 /**
@@ -71,7 +90,7 @@ export function registerLocalComponents(components: Record<string, Component>) {
  * @returns The registered component, or the name itself when unknown.
  */
 export function resolveLocalComponent(name: string): Component | string {
-  const component = availableLocalComponents[name];
+  const component = getLocalComponent(name) as Component | undefined;
 
   if (!component) {
     console.warn(
