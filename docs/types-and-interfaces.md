@@ -1035,6 +1035,10 @@ See description in [Ui design documentation](./ui-design.md#5-typescript-support
 
 See description in [Ui design documentation](./ui-design.md#5-typescript-support).
 
+### LinidHtmlAttrs
+
+See description in [Ui design documentation](./ui-design.md#32-html-attributes-class-and-style).
+
 ### LinidQBtnProps
 
 See description in [Ui design documentation](./ui-design.md#q-btn).

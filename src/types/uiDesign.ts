@@ -1165,6 +1165,21 @@ export type LinidDraggableProps = {
 };
 
 /**
+ * List of the HTML attributes every component accepts, read next to its props by `ui()`.
+ */
+export const HTML_ATTRS = ['class', 'style'] as const;
+
+/**
+ * HTML attributes a design entry can set on any component: Vue forwards them to its root element.
+ */
+export interface LinidHtmlAttrs {
+  /** CSS classes added to the component root element (e.g. "text-negative"). */
+  class?: string;
+  /** Inline style added to the component root element (e.g. "font-style: italic"). */
+  style?: string;
+}
+
+/**
  * Union type of all supported Quasar component props subsets.
  */
 export type LinidQComponentProps =

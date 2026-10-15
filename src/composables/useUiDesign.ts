@@ -28,6 +28,7 @@ import type { ComputedRef } from 'vue';
 import { computed } from 'vue';
 import { getUiDesign } from '../services/uiDesignService';
 import type {
+  LinidHtmlAttrs,
   LinidQComponentProps,
   LinidDraggableProps,
   QComponentName,
@@ -37,6 +38,7 @@ import type {
   UiDesignValue,
 } from '../types/uiDesign';
 import {
+  HTML_ATTRS,
   Q_COMPONENT_PROPS,
   THIRD_PARTY_COMPONENT_PROPS,
 } from '../types/uiDesign';
@@ -116,14 +118,16 @@ function getUiDesignValue(
  */
 function getComponentProps<T>(
   component: QComponentName | ThirdPartyComponentName
-): Array<keyof T> {
+): Array<keyof (T & LinidHtmlAttrs)> {
   if (!(component in ALL_COMPONENT_PROPS)) {
     throw new Error(
       `[UiDesign] The component '${component}' is not supported for UI design retrieval.`
     );
   }
 
-  return ALL_COMPONENT_PROPS[component] as Array<keyof T>;
+  return [...ALL_COMPONENT_PROPS[component], ...HTML_ATTRS] as Array<
+    keyof (T & LinidHtmlAttrs)
+  >;
 }
 
 /**
@@ -137,27 +141,28 @@ export function useUiDesign() {
   const cfg: ComputedRef<UiDesign> = computed(() => getUiDesign());
 
   /**
-   * Retrieve typed props for a component from a UI namespace.
+   * Retrieve typed props for a component from a UI namespace, along with the `class` and `style`
+   * HTML attributes every component accepts.
    * @template T - The component name type.
    * @param uiNamespace - The UI namespace to fetch properties from.
    * @param component - The component name (e.g., 'q-btn', 'q-input').
    * @param overrideProps - Optional partial props to override the retrieved values.
-   * @returns An object containing the component props with correct types.
+   * @returns An object containing the component props and HTML attributes with correct types.
    */
   function ui<T extends LinidQComponentProps | LinidDraggableProps>(
     uiNamespace: string,
     component: QComponentName | ThirdPartyComponentName,
-    overrideProps?: Partial<T>
-  ): T {
+    overrideProps?: Partial<T & LinidHtmlAttrs>
+  ): T & LinidHtmlAttrs {
     const keys = getComponentProps<T>(component);
-    const result = {} as T;
+    const result = {} as T & LinidHtmlAttrs;
 
     for (const key of keys) {
       const value =
         overrideProps?.[key] ??
         getUiDesignValue(cfg.value, uiNamespace, `${component}.${String(key)}`);
       if (value !== undefined) {
-        result[key] = value as T[typeof key];
+        result[key] = value as (T & LinidHtmlAttrs)[typeof key];
       }
     }
 

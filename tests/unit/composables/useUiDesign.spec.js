@@ -33,6 +33,12 @@ describe('Test composable: useUiDesign', () => {
         draggable: {
           animation: 300,
         },
+        styled: {
+          'q-btn': {
+            class: 'text-negative',
+            style: 'font-style: italic',
+          },
+        },
       },
     };
     beforeEach(() => {
@@ -79,7 +85,47 @@ describe('Test composable: useUiDesign', () => {
       );
     });
 
-    it.each(['label', 'fab'])('should not return %s', (prop) => {
+    it('should read the class and style attributes of a component', () => {
+      const { ui } = useUiDesign();
+      const result = ui('custom.styled', 'q-btn');
+      expect(result.class).toEqual('text-negative');
+      expect(result.style).toEqual('font-style: italic');
+      expect(result.color).toEqual('primary');
+    });
+
+    it('should fall back to the default namespace for the class attribute', () => {
+      vi.mocked(uiDesignService.getUiDesign).mockReturnValue({
+        ...configuration,
+        default: {
+          ...configuration.default,
+          'q-btn': { ...configuration.default['q-btn'], class: 'q-mx-sm' },
+        },
+      });
+      const { ui } = useUiDesign();
+      expect(ui('custom', 'q-btn').class).toEqual('q-mx-sm');
+      expect(ui('custom.styled', 'q-btn').class).toEqual('text-negative');
+    });
+
+    it('should override the class attribute', () => {
+      const { ui } = useUiDesign();
+      const result = ui('custom.styled', 'q-btn', { class: 'text-positive' });
+      expect(result.class).toEqual('text-positive');
+      expect(result.style).toEqual('font-style: italic');
+    });
+
+    it('should read the class attribute of a third-party component', () => {
+      vi.mocked(uiDesignService.getUiDesign).mockReturnValue({
+        ...configuration,
+        custom: {
+          ...configuration.custom,
+          draggable: { animation: 300, class: 'sortable' },
+        },
+      });
+      const { ui } = useUiDesign();
+      expect(ui('custom', 'draggable').class).toEqual('sortable');
+    });
+
+    it.each(['label', 'fab', 'class', 'style'])('should not return %s', (prop) => {
       const { ui } = useUiDesign();
 
       const result = ui('custom', 'q-btn');
