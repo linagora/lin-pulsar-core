@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.107](https://github.com/linagora/linid-im-front-corelib/compare/v0.0.106...v0.0.107) (2026-10-15)
+
+
+### Features
+
+* support local components in module configuration ([b460eab](https://github.com/linagora/linid-im-front-corelib/commit/b460eabb25acc04d687e8fd38632aa31daa3700d))
+
 ### [0.0.106](https://github.com/linagora/linid-im-front-corelib/compare/v0.0.105...v0.0.106) (2026-10-08)
 
 

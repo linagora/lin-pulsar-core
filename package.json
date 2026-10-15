@@ -1,6 +1,6 @@
 {
   "name": "@linagora/linid-im-front-corelib",
-  "version": "0.0.106",
+  "version": "0.0.107",
   "description": "Core library of the LinID Identity Manager project. Provides shared types, services, components, and utilities for front-end and plugin, enabling consistent integration across the LinID ecosystem.",
   "type": "module",
   "files": [
