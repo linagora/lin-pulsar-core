@@ -1486,11 +1486,12 @@ Declares which components can be referenced **by name** by a zone entry, and res
 
 Zone entries of type `component` carry a name rather than a component reference, which allows them to be declared from a module configuration file. This service is what turns such a name back into a component.
 
-| Function                                              | Description                                             |
-| ----------------------------------------------------- | ------------------------------------------------------- |
-| [`registerLocalComponent`](#registerlocalcomponent)   | Makes a component available to zones under a given name |
-| [`registerLocalComponents`](#registerlocalcomponents) | Makes several components available to zones at once     |
-| [`resolveLocalComponent`](#resolvelocalcomponent)     | Resolves the component registered under a given name    |
+| Function                                              | Description                                               |
+| ----------------------------------------------------- | --------------------------------------------------------- |
+| [`registerLocalComponent`](#registerlocalcomponent)   | Makes a component available to zones under a given name   |
+| [`registerLocalComponents`](#registerlocalcomponents) | Makes several components available to zones at once       |
+| [`getLocalComponent`](#getlocalcomponent)             | Returns the value registered under a given name, if any   |
+| [`resolveLocalComponent`](#resolvelocalcomponent)     | Resolves the component registered under a given name      |
 
 ---
 
@@ -1521,6 +1522,24 @@ registerLocalComponents({
   QBanner,
   QSeparator,
 });
+```
+
+---
+
+### `getLocalComponent`
+
+Returns the value registered under the given name, or `undefined` when the name is unknown.
+
+Unlike `resolveLocalComponent`, unknown names are **not** resolved against globally registered components and no warning is logged: the caller is expected to treat `undefined` as an error. This is what the module configuration loading uses to resolve `component` references (`lifecycleRemote`, `routesRemote`, `i18nRemote`, route components), where an unregistered name must fail loudly instead of falling back.
+
+```ts
+import { getLocalComponent } from '@linagora/linid-im-front-corelib';
+
+// Returns the registered value
+getLocalComponent('UserRolesCard');
+
+// Returns undefined
+getLocalComponent('UnknownCard');
 ```
 
 ---

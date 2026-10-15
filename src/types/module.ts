@@ -24,7 +24,25 @@
  * LinID Identity Manager software.
  */
 
+import type { Component } from 'vue';
+import type { LinidZoneEntry } from './linidZone';
 import type { ModuleLifecycleHooks } from './moduleLifecycle';
+
+/**
+ * A value registrable under a local name: a Vue component, or any module element referenced from a module
+ * configuration (lifecycle implementation, route definitions, i18n messages).
+ */
+export type LocalComponent = Component | object;
+
+/**
+ * Reference to a module element (lifecycle, routes, i18n messages or component) in a module configuration.
+ *
+ * A plain string references an element exposed through Module Federation (e.g. `catalogUI/PageLifecycle`), as does a
+ * {@link FederatedLinidZoneEntry}. A {@link ComponentLinidZoneEntry} references an element registered locally through
+ * the `localComponents` initialization option, without any Module Federation loading. The `props` field of an entry is
+ * not used for module element references.
+ */
+export type ModuleComponentRef = string | LinidZoneEntry;
 
 /**
  * Remote module interface.
@@ -83,28 +101,28 @@ export interface ModuleHostConfig<T> {
   remoteName: string;
 
   /**
-   * Module Federation exposed module used to load the lifecycle implementation.
+   * Reference to the element used to load the lifecycle implementation.
    *
-   * This remote should expose a module implementing the module lifecycle hooks
+   * The referenced element should implement the module lifecycle hooks
    * contract and is typically loaded during the module initialization phase.
    */
-  lifecycleRemote: string;
+  lifecycleRemote: ModuleComponentRef;
 
   /**
-   * Module Federation exposed module used to load the route definitions.
+   * Reference to the element used to load the route definitions.
    *
-   * This remote should expose the routes contributed by the module so they can
-   * be registered by the host application.
+   * The referenced element should hold the routes contributed by the module so
+   * they can be registered by the host application.
    */
-  routesRemote: string;
+  routesRemote: ModuleComponentRef;
 
   /**
-   * Module Federation exposed module used to load internationalization resources.
+   * Reference to the element used to load internationalization resources.
    *
-   * This remote should expose the module translations, locale definitions, or
-   * i18n registration logic consumed by the host application.
+   * The referenced element should hold the module translations, locale
+   * definitions, or i18n registration logic consumed by the host application.
    */
-  i18nRemote: string;
+  i18nRemote: ModuleComponentRef;
 
   /**
    * Name of the entity used in the host configuration.

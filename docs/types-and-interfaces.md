@@ -160,6 +160,40 @@ export const MyComponent = defineComponent({/* ... */});
 export default defineComponent({/* ... */});
 ```
 
+### LocalComponent
+
+A value registrable under a local name through the `localComponents` initialization option: a Vue component, or any
+module element referenced from a module configuration (lifecycle implementation, route definitions, i18n messages).
+
+```ts
+export type LocalComponent = Component | object;
+```
+
+### ModuleComponentRef
+
+Reference to a module element (lifecycle, routes, i18n messages or component) in a module configuration.
+
+```ts
+export type ModuleComponentRef = string | LinidZoneEntry;
+```
+
+A plain string references an element exposed through Module Federation (e.g. `catalogUI/PageLifecycle`), as does a
+`FederatedLinidZoneEntry`:
+
+```json
+{ "type": "federated", "plugin": "catalogUI/PageLifecycle" }
+```
+
+A `ComponentLinidZoneEntry` references an element registered locally through the `localComponents` initialization
+option, without any Module Federation loading:
+
+```json
+{ "type": "component", "component": "timeEntriesLifecycle" }
+```
+
+A component entry referencing a name that is not registered produces an error. The `props` field of an entry is not
+used for module element references.
+
 ### ModuleHostConfig
 
 Defines the configuration provided to a remote module by the host application.
@@ -187,28 +221,28 @@ export interface ModuleHostConfig<T> {
   remoteName: string;
 
   /**
-   * Module Federation exposed module used to load the lifecycle implementation.
+   * Reference to the element used to load the lifecycle implementation.
    *
-   * This remote should expose a module implementing the module lifecycle hooks
+   * The referenced element should implement the module lifecycle hooks
    * contract and is typically loaded during the module initialization phase.
    */
-  lifecycleRemote: string;
+  lifecycleRemote: ModuleComponentRef;
 
   /**
-   * Module Federation exposed module used to load the route definitions.
+   * Reference to the element used to load the route definitions.
    *
-   * This remote should expose the routes contributed by the module so they can
-   * be registered by the host application.
+   * The referenced element should hold the routes contributed by the module so
+   * they can be registered by the host application.
    */
-  routesRemote: string;
+  routesRemote: ModuleComponentRef;
 
   /**
-   * Module Federation exposed module used to load internationalization resources.
+   * Reference to the element used to load internationalization resources.
    *
-   * This remote should expose the module translations, locale definitions, or
-   * i18n registration logic consumed by the host application.
+   * The referenced element should hold the module translations, locale
+   * definitions, or i18n registration logic consumed by the host application.
    */
-  i18nRemote: string;
+  i18nRemote: ModuleComponentRef;
 
   /**
    * Name of the entity used in the host configuration.
@@ -619,8 +653,13 @@ export interface LinidRoute {
   name?: string;
   /** Absolute or nested route path (e.g. "/admin" or "settings"). */
   path: string;
-  /** Remote component name, resolved through Module Federation (e.g. "remoteA/ComponentX"). */
-  component: string;
+  /**
+   * Component reference: a remote component name resolved through Module Federation (e.g. "remoteA/ComponentX"), or
+   * a zone entry referencing a federated or locally registered component. A string may be a Nunjucks template; when
+   * the template is a single expression resolving to a zone entry in the host configuration (e.g.
+   * "{{ config.options.page }}"), the entry itself is used as the reference.
+   */
+  component: ModuleComponentRef;
   /** Optional list of child routes for nested routing. */
   children?: LinidRoutes;
   /** Optional metadata associated with the route. */

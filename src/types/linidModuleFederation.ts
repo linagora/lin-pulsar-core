@@ -24,9 +24,8 @@
  * LinID Identity Manager software.
  */
 
-import type { Component } from 'vue';
 import type { Router } from 'vue-router';
-import type { ModuleHostConfig, RemoteModule } from './module';
+import type { LocalComponent, ModuleHostConfig, RemoteModule } from './module';
 import type {
   ModuleLifecyclePhase,
   ModuleLifecycleResult,
@@ -88,9 +87,12 @@ export interface LinidModuleFederationInitOptions {
   extraZones?: string[];
 
   /**
-   * Host-local components to make available to zones, indexed by name.
+   * Host-local components to make available to zones and module configurations, indexed by name.
+   *
+   * Besides Vue components, any module element referenced from a module configuration (lifecycle implementation,
+   * route definitions, i18n messages) can be registered here.
    */
-  localComponents?: Record<string, Component>;
+  localComponents?: Record<string, LocalComponent>;
 
   /**
    * Optional host-side hooks on the phase runners.

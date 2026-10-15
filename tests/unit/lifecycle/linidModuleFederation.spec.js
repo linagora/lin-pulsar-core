@@ -32,6 +32,7 @@ vi.mock('src/services/linidModuleConfigurationService', () => ({
 }));
 
 vi.mock('src/services/localComponentService', () => ({
+  getLocalComponent: vi.fn(),
   registerLocalComponents: vi.fn(),
 }));
 
@@ -216,6 +217,10 @@ describe('Test object: linidModuleFederation', () => {
     it('should skip a module whose configuration file holds an invalid configuration', async () => {
       const files = {
         '/modules/no-lifecycle.json': { ...config, lifecycleRemote: undefined },
+        '/modules/bad-ref.json': {
+          ...config,
+          lifecycleRemote: { type: 'component' },
+        },
         '/modules/bad-zones.json': { ...config, zones: ['bad'] },
       };
       vi.stubGlobal(
@@ -281,6 +286,144 @@ describe('Test object: linidModuleFederation', () => {
         added: 'value',
         existing: 'kept',
       });
+    });
+
+    it('should load elements referenced by federated entries through module federation', async () => {
+      stubFetch({
+        ...config,
+        lifecycleRemote: { type: 'federated', plugin: 'testModule/lifecycle' },
+      });
+
+      await linidModuleFederation.init({ router, remotes, modules });
+
+      expect(loadRemote).toHaveBeenCalledWith('testModule/lifecycle');
+      expect(remoteModule.setup).toHaveBeenCalledTimes(1);
+    });
+
+    it('should resolve elements referenced by component entries against local components', async () => {
+      stubFetch({
+        ...config,
+        lifecycleRemote: { type: 'component', component: 'localLifecycle' },
+        routesRemote: { type: 'component', component: 'localRoutes' },
+        i18nRemote: { type: 'component', component: 'localI18n' },
+      });
+      const locals = {
+        localLifecycle: remoteModule,
+        localRoutes: [
+          { name: 'local-route', path: '/local', component: 'localPage' },
+        ],
+        localI18n: { 'en-US': { added: 'value' } },
+      };
+      vi.mocked(localComponentService.getLocalComponent).mockImplementation(
+        (name) => locals[name]
+      );
+
+      await linidModuleFederation.init({ router, remotes, modules });
+
+      expect(loadRemote).not.toHaveBeenCalled();
+      expect(remoteModule.setup).toHaveBeenCalledTimes(1);
+      expect(router.addRoute.mock.calls[0][0]).toMatchObject({
+        name: 'local-route',
+        path: '/local',
+      });
+      expect(setLocaleMessage).toHaveBeenCalledWith('en-US', {
+        added: 'value',
+        existing: 'kept',
+      });
+    });
+
+    it('should reject when a component entry references an unregistered local component', async () => {
+      stubFetch({
+        ...config,
+        lifecycleRemote: { type: 'component', component: 'missing' },
+      });
+      vi.mocked(localComponentService.getLocalComponent).mockReturnValue(
+        undefined
+      );
+
+      await expect(
+        linidModuleFederation.init({ router, remotes, modules })
+      ).rejects.toThrow('Local component "missing" is not registered');
+    });
+
+    it('should load a federated route component referenced by a string', async () => {
+      stubFetch(config);
+      const pageComponent = { name: 'RemotePage' };
+      loadRemote.mockImplementation(async (remote) => {
+        if (remote === 'testModule/lifecycle') {
+          return { default: remoteModule };
+        }
+        if (remote === 'testModule/routes') {
+          return {
+            default: [{ path: '/test-module', component: 'testModule/Page' }],
+          };
+        }
+        if (remote === 'testModule/Page') {
+          return { default: pageComponent };
+        }
+        return { default: {} };
+      });
+
+      await linidModuleFederation.init({ router, remotes, modules });
+
+      const record = router.addRoute.mock.calls[0][0];
+      await expect(record.component()).resolves.toBe(pageComponent);
+      expect(loadRemote).toHaveBeenCalledWith('testModule/Page');
+    });
+
+    it('should resolve a route component through a config expression holding a component entry', async () => {
+      stubFetch({
+        ...config,
+        options: { page: { type: 'component', component: 'localPage' } },
+      });
+      loadRemote.mockImplementation(async (remote) => {
+        if (remote === 'testModule/lifecycle') {
+          return { default: remoteModule };
+        }
+        if (remote === 'testModule/routes') {
+          return {
+            default: [
+              { path: '/test-module', component: '{{ config.options.page }}' },
+            ],
+          };
+        }
+        return { default: {} };
+      });
+      const pageComponent = { name: 'LocalPage' };
+      vi.mocked(localComponentService.getLocalComponent).mockReturnValue(
+        pageComponent
+      );
+
+      await linidModuleFederation.init({ router, remotes, modules });
+
+      const record = router.addRoute.mock.calls[0][0];
+      await expect(record.component()).resolves.toBe(pageComponent);
+      expect(localComponentService.getLocalComponent).toHaveBeenCalledWith(
+        'localPage'
+      );
+    });
+
+    it('should reject a route component whose federated element exposes nothing', async () => {
+      stubFetch(config);
+      loadRemote.mockImplementation(async (remote) => {
+        if (remote === 'testModule/lifecycle') {
+          return { default: remoteModule };
+        }
+        if (remote === 'testModule/routes') {
+          return {
+            default: [{ path: '/test-module', component: 'testModule/Page' }],
+          };
+        }
+        if (remote === 'testModule/Page') {
+          return {};
+        }
+        return { default: {} };
+      });
+
+      await linidModuleFederation.init({ router, remotes, modules });
+
+      const record = router.addRoute.mock.calls[0][0];
+      await expect(record.component()).rejects.toThrow('could not be loaded');
     });
 
     it('should register configured zones as components or federated plugins', async () => {
