@@ -95,6 +95,36 @@ const btnProps = ui<LinidQBtnProps>('custom', 'q-btn');
 - `component` must be a valid Quasar component name (e.g., `q-btn`, `q-tabs`) or a supported third-party component
   name (e.g., `draggable`). See [Section 6](#6-supported-quasar-components-and-props) for Quasar components and
   [Section 7](#7-supported-third-party-components-and-props) for third-party components.
+- Besides its supported props, every component accepts the `class` and `style` HTML attributes, resolved the same way.
+  See [Section 3.2](#32-html-attributes-class-and-style).
+
+### 3.2 HTML Attributes: `class` and `style`
+
+Any component entry can carry a `class` and a `style` string next to its props. They are not Quasar props: Vue forwards
+them to the root element of the component the result is bound to, so they apply to **every** supported component,
+whatever its prop list.
+
+```json
+{
+  "custom": {
+    "q-item-label": {
+      "caption": true,
+      "class": "text-negative",
+      "style": "font-style: italic"
+    }
+  }
+}
+```
+
+```ts
+const captionProps = ui<LinidQItemLabelProps>('custom', 'q-item-label');
+// { caption: true, class: 'text-negative', style: 'font-style: italic' }
+```
+
+- Both are read from the namespace first and fall back to the `default` namespace, like any prop
+- Both are **strings**: an object or array form throws, as any nested value does
+- When the component already has a static `class` in the template, Vue merges the two
+- The returned type is the component props type intersected with `LinidHtmlAttrs`
 
 ---
 
@@ -194,6 +224,16 @@ The `UiDesign` interface provides type safety:
 
 ```ts
 import { LinidQTreeProps } from './uiDesign';
+
+/**
+ * HTML attributes a design entry can set on any component: Vue forwards them to its root element.
+ */
+export interface LinidHtmlAttrs {
+  /** CSS classes added to the component root element (e.g. "text-negative"). */
+  class?: string;
+  /** Inline style added to the component root element (e.g. "font-style: italic"). */
+  style?: string;
+}
 
 /**
  * Represents a single primitive value in the UI configuration.
@@ -339,7 +379,8 @@ Quasar [source code](https://github.com/quasarframework/quasar/blob/dev/ui/types
 
 Inside `default` namespace, ensure that all keys for the components you plan to use are defined. Here the list of
 supported
-components and their props:
+components and their props. Every one of them also accepts the `class` and `style` attributes described in
+[Section 3.2](#32-html-attributes-class-and-style).
 
 ### q-btn
 
