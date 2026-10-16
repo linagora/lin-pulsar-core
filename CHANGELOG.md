@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.109](https://github.com/linagora/linid-im-front-corelib/compare/v0.0.108...v0.0.109) (2026-10-16)
+
+
+### Features
+
+* read the class and style attributes from the design configuration ([6027526](https://github.com/linagora/linid-im-front-corelib/commit/602752683256710432626e7c19945f1b99a3eedd))
+
 ### [0.0.108](https://github.com/linagora/linid-im-front-corelib/compare/v0.0.107...v0.0.108) (2026-10-16)
 
 
