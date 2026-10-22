@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   delete-comments:
     name: Delete bot comment(s)
@@ -137,6 +141,8 @@ jobs:
   security-sast:
     name: Security - SAST
     runs-on: linagora
+    container:
+      image: node:22-bookworm
     permissions:
       security-events: write
       contents: read
@@ -185,6 +191,8 @@ jobs:
       image: node:22-bookworm
     needs: [ build ]
     permissions:
+      contents: read
+      issues: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
@@ -210,6 +218,10 @@ jobs:
   next-version-hint:
     name: SemVer impact
     runs-on: linagora
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     needs: [ build ]
     steps:
       - uses: actions/checkout@v7
