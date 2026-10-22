@@ -609,7 +609,7 @@ const phaseRunners: Record<
  *
  * This function performs the complete federation setup so the host has nothing else to do:
  *
- * 1. Registers the given remotes and shares the Module Federation instance with the lin-pulsar-core.
+ * 1. Registers the given remotes and shares the Module Federation instance with lin-pulsar-core.
  * 2. Makes the given host-local components available to zones.
  * 3. Loads the given module configuration files and extra zone files.
  * 4. Dynamically loads each remote module's lifecycle entry point.

@@ -213,7 +213,7 @@ interface QuasarPagination {
 ```ts
 interface Page<T> {
   content: T[];
-  number: number;       // 0-based page index
+  number: number; // 0-based page index
   size: number;
   totalElements: number;
   totalPages: number;

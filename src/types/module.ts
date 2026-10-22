@@ -37,7 +37,7 @@ export type LocalComponent = Component | object;
 /**
  * Reference to a module element (lifecycle, routes, i18n messages or component) in a module configuration.
  *
- * A plain string references an element exposed through Module Federation (e.g. `catalogUI/PageLifecycle`), as does a
+ * A plain string references an element exposed through Module Federation (e.g. `linPulsar/PageLifecycle`), as does a
  * {@link FederatedLinPulsarZoneEntry}. A {@link ComponentLinPulsarZoneEntry} references an element registered locally through
  * the `localComponents` initialization option, without any Module Federation loading. The `props` field of an entry is
  * not used for module element references.
@@ -55,7 +55,7 @@ export interface RemoteModule<T> extends ModuleLifecycleHooks<T> {
   /**
    * Unique identifier for the module.
    *
-   * Should be in kebab-case and match the ID in the module configuration.
+   * Should match the ID in the module configuration.
    */
   id: string;
 
@@ -80,10 +80,10 @@ export interface RemoteModule<T> extends ModuleLifecycleHooks<T> {
 }
 
 /**
- * Module configuration in the host (module-<name>.json).
+ * Module configuration in the host (modules/<ModuleName>.json).
  *
  * This is what the host provides to each module during the configuration phase.
- * The host reads this from `module-<name>.json` files.
+ * The host reads this from `modules/<ModuleName>.json` files.
  * @template T Type of the module-specific options.
  */
 export interface ModuleHostConfig<T> {
@@ -94,7 +94,7 @@ export interface ModuleHostConfig<T> {
   instanceId: string;
 
   /**
-   * Module Federation remote name (must match a key in remotes.json).
+   * Module Federation remote name (must match the `name` of an entry of the `remotes` configuration).
    *
    * This is the name used to load the remote module via Module Federation.
    */

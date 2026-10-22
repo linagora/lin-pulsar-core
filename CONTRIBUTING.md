@@ -38,16 +38,15 @@ We follow the **Conventional Commits** specification:
 
 ### **Accepted types**
 
-* **feat** – Introduces, updates, or removes a feature in the API or UI
-* **fix** – Resolves a bug in the API or UI originating from a previous feature
-* **refactor** – Rewrites or restructures code without changing API or UI behavior
-* **perf** – A specialized refactor focused on improving performance
-* **style** – Addresses code style issues (e.g., whitespace, formatting, missing semicolons) without affecting behavior
-* **test** – Adds missing tests or updates existing tests
-* **docs** – Documentation-only changes
-* **build** – Modifies build-related components (tooling, dependencies, versioning, CI/CD, etc.)
-* **ops** – Changes to operational or infrastructure components (deployment, backup, recovery, etc.)
-* **chore** – Miscellaneous maintenance tasks (e.g., updating `.gitignore`)
+- **feat** – Introduces, updates, or removes a feature in the API or UI
+- **fix** – Resolves a bug in the API or UI originating from a previous feature
+- **refactor** – Rewrites or restructures code without changing API or UI behavior
+- **perf** – A specialized refactor focused on improving performance
+- **style** – Addresses code style issues (e.g., whitespace, formatting, missing semicolons) without affecting behavior
+- **test** – Adds missing tests or updates existing tests
+- **docs** – Documentation-only changes
+- **build** – Modifies build-related components (tooling, dependencies, versioning, CI/CD, etc.)
+- **chore** – Miscellaneous maintenance tasks (e.g., updating `.gitignore`)
 
 ### **Examples**
 
@@ -90,23 +89,8 @@ Please keep this folder organized and up to date.
 
 We use **Mermaid** for architecture diagrams, flowcharts, sequence diagrams, etc.
 
-* Source files must be `.md` or `.mmd`
-* They must be stored in the `docs` directory
-* Generated images must be committed together with source files
-
-### **Install Mermaid CLI**
-
-```bash
-npm install -g @mermaid-js/mermaid-cli
-```
-
-### **Generate a PNG**
-
-```bash
-mmdc -i docs/diagram.mmd -o docs/diagram.png
-```
-
-💡 Any modification to a Mermaid diagram **must include** regeneration of the corresponding PNG.
+- Diagrams are written directly in the Markdown files, in a ` ```mermaid ` code block
+- GitHub renders them natively: no generated image needs to be committed
 
 ---
 
@@ -241,23 +225,27 @@ Any file without the appropriate header will be reported as a lint error.
 
 ---
 
-# **🧪 E2E & Integration Testing**
+# **🚀 Releases (standard-version)**
 
-Full E2E testing documentation is **Coming soon… ⏳**
-This library will later integrate with the linOpenFactory front-end test runner.
-
----
-
-# **🚀 Releases (Semantic Release)**
-
-Releases are fully automated using **Semantic Release**.
+Releases are fully automated by the `Release` workflow, using **standard-version**.
 
 When a merge is performed into `main`:
 
-* The version bump is automatically calculated from commit messages
-* `package.json` is updated
-* A changelog entry is generated
-* A Git tag is created
+- The version bump is calculated from the commit messages since the last tag
+- `package.json` is updated
+- A changelog entry is generated in `CHANGELOG.md`
+- A Git tag is created and pushed
+- The library is built and published to npm as `@linagora/lin-pulsar-core`
+
+While the library is in `0.x`, the bump follows these rules:
+
+| Commit                                  | Example bump      |
+| --------------------------------------- | ----------------- |
+| `fix:` / `feat:`                        | `0.1.0` → `0.1.1` |
+| `feat!:` or a `BREAKING CHANGE:` footer | `0.1.0` → `0.2.0` |
+
+Any breaking change must come with a migration guide in [`docs/migrations`](docs/migrations), named
+`<previous version>-<new version>.md`.
 
 ⚠ No manual intervention is needed.
 

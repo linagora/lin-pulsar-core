@@ -79,8 +79,8 @@ export interface ModuleLifecycleResult {
   /**
    * Whether the phase completed successfully.
    *
-   * If false, the module will continue through remaining phases but
-   * the error will be logged.
+   * If false, the module still continues through the remaining phases:
+   * the host does not use the result.
    */
   success: boolean;
 
@@ -121,7 +121,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this to receive and validate the host configuration for your module.
    * This is where you should check that all required configuration is present.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    *                 Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -132,7 +132,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this to initialize any resources
    * your module needs to function.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    *                 Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -143,7 +143,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this to perform final checks and emit ready state.
    * At this point, all other modules have completed initialization.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    *                 Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -154,7 +154,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this for cross-module integrations and final setup that requires
    * all modules to be ready.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    *                 Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */

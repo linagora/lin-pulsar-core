@@ -36,7 +36,7 @@ import type {
  */
 export interface LinPulsarRemoteConfig {
   /**
-   * Unique name of the remote (e.g. `catalogUI`).
+   * Unique name of the remote (e.g. `linPulsar`).
    */
   name: string;
 

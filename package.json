@@ -25,8 +25,8 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "lint:sonarjs": "eslint . --max-warnings 0 --config eslint.sonarjs.config.js",
-    "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,ts,vue,json,css,scss,md}\"",
+    "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss,md}\" \"docs/**/*.md\" README.md CONTRIBUTING.md",
+    "format:check": "prettier --check \"src/**/*.{js,ts,vue,json,css,scss,md}\" \"docs/**/*.md\" README.md CONTRIBUTING.md",
     "type-check": "vue-tsc --noEmit",
     "validate": "pnpm type-check && pnpm lint && pnpm format:check && pnpm lint:sonarjs"
   },

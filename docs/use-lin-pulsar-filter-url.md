@@ -51,7 +51,10 @@ import { useRoute, useRouter } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 
-const { setFiltersInUrl, getFiltersFromUrl } = useLinPulsarFilterUrl(router, route);
+const { setFiltersInUrl, getFiltersFromUrl } = useLinPulsarFilterUrl(
+  router,
+  route
+);
 ```
 
 ---
@@ -65,7 +68,7 @@ const { setFiltersInUrl, getFiltersFromUrl } = useLinPulsarFilterUrl(router, rou
 - All other query params are **replaced** by the serialization of `filters`.
 
 ```ts
-import { LinPulsarFilter } from '../filters/linPulsarFilter';
+import { LinPulsarFilter } from '@linagora/lin-pulsar-core';
 
 const filters: LinPulsarFilter[] = [/* ... LinPulsarFilter instances ... */];
 
@@ -111,7 +114,10 @@ import { useLinPulsarFilterUrl } from '@linagora/lin-pulsar-core';
 
 const router = useRouter();
 const route = useRoute();
-const { setFiltersInUrl, getFiltersFromUrl } = useLinPulsarFilterUrl(router, route);
+const { setFiltersInUrl, getFiltersFromUrl } = useLinPulsarFilterUrl(
+  router,
+  route
+);
 
 const filters = ref<LinPulsarFilter[]>([]);
 

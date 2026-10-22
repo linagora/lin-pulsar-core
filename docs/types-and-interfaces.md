@@ -30,7 +30,8 @@ export interface ComponentLinPulsarZoneEntry extends BaseLinPulsarZoneEntry {
   component: string;
 }
 
-export type LinPulsarZoneEntry = FederatedLinPulsarZoneEntry | ComponentLinPulsarZoneEntry;
+export type LinPulsarZoneEntry =
+  FederatedLinPulsarZoneEntry | ComponentLinPulsarZoneEntry;
 ```
 
 **Usage:**
@@ -40,25 +41,22 @@ export type LinPulsarZoneEntry = FederatedLinPulsarZoneEntry | ComponentLinPulsa
 - The `type` discriminant removes any ambiguity on the available properties and keeps the model extensible for
   future entry kinds.
 
----
+### LinPulsarZoneResolvedEntry
 
-## 🧱 LinPulsarZoneState
-
-Represents the state of the Pinia store that manages all plugin zones.
+A zone entry once resolved for rendering by `LinPulsarZoneRenderer`: the component to render and its props.
 
 ```ts
-interface LinPulsarZoneState {
-  /** Map of zone names to their registered entries */
-  zones: Record<string, LinPulsarZoneEntry[]>;
+export interface LinPulsarZoneResolvedEntry {
+  /** Async component loaded from the federated plugin, or component resolved from its name. */
+  component: Component | string;
+
+  /** Optional props passed to the rendered component. */
+  props?: Record<string, unknown>;
 }
 ```
 
-- `zones` is a reactive object.
-- Each key corresponds to a zone, each value is an array of entries for that zone.
-- A zone key only exists once at least one entry has been registered for it: reading an unregistered zone yields
-  `undefined`, not an empty array. Use the store's `hasZoneEntries(zone)` getter rather than inspecting `zones`
-  directly to know whether a zone will render content — see
-  [Checking Whether a Zone Has Entries](./components-plugin-zones.md#-checking-whether-a-zone-has-entries-haszoneentries).
+- Unresolved component names are kept as strings, so that Vue resolves them globally.
+- Only useful to code rendering zones itself: `LinPulsarZoneRenderer` already performs this resolution.
 
 ---
 
@@ -84,26 +82,26 @@ export interface LinPulsarUser {
 
 **Usage:**
 
-- Populated by the `linPulsarUserStore` from an OIDC ID token's claims.
+- Populated by the host application in `useLinPulsarUserStore`, from the claims of an OIDC ID token.
 - Consumed by components that need to display or check user identity and roles.
 
----
-
-## 🧱 LinPulsarUserState
-
-Represents the state of the Pinia store that manages user authentication.
+Authentication is the responsibility of the host application: lin-pulsar-core performs no login, logout or token
+handling. Once the user is authenticated, the host fills the store through `useLinPulsarUserStore()`, and remotes read
+the user from the same store, along with its `isAuthenticated` flag (set to `true` once the user claims are loaded):
 
 ```ts
-interface LinPulsarUserState {
-  /** Current authenticated user information. */
-  user: LinPulsarUser;
-  /** Flag indicating whether the user is authenticated. */
-  isAuthenticated: boolean;
-}
+import { storeToRefs } from 'pinia';
+import { useLinPulsarUserStore } from '@linagora/lin-pulsar-core';
+
+// Host side, after a successful OIDC login (claims of the ID token)
+useLinPulsarUserStore().setUserFromClaims(user.profile);
+
+// Remote side
+const { user, isAuthenticated } = storeToRefs(useLinPulsarUserStore());
 ```
 
-- `user` is populated via `setUserFromClaims()` after a successful OIDC login.
-- `isAuthenticated` is set to `true` after the user claims are loaded.
+`setUserFromClaims()` maps the `sub`, `email`, `name` and `roles` claims to `username`, `email`, `fullName` and
+`roles`.
 
 ---
 
@@ -136,7 +134,7 @@ export interface FederatedModule<T> {
 
 **Usage:**
 
-- Used internally by [`loadAsyncComponent`](./helpers.md#loadasynccomponent) to ensure type safety when loading
+- Used internally by [`loadAsyncComponent`](./services.md#loadasynccomponent) to ensure type safety when loading
   federated components.
 
 **Remote modules must export a default component:**
@@ -169,6 +167,55 @@ module element referenced from a module configuration (lifecycle implementation,
 export type LocalComponent = Component | object;
 ```
 
+### LinPulsarRemoteConfig
+
+A Module Federation remote, as declared in the `remotes` entry of the application `config.json`.
+
+```ts
+export interface LinPulsarRemoteConfig {
+  /** Unique name of the remote (e.g. `linPulsar`). */
+  name: string;
+
+  /** URL of the remote manifest (e.g. `http://localhost:5001/mf-manifest.json`). */
+  entry: string;
+}
+```
+
+### LinPulsarModuleFederationInitOptions
+
+Options of `linPulsarModuleFederation.init()`, described in
+[Host Responsibilities](./module-lifecycle.md#host-responsibilities).
+
+```ts
+export interface LinPulsarModuleFederationInitOptions {
+  /** Host application router, used to register the routes exposed by the modules. */
+  router: Router;
+
+  /** Module Federation remotes to register before loading any module. */
+  remotes: LinPulsarRemoteConfig[];
+
+  /** URLs of the module configuration files to load. */
+  modules: string[];
+
+  /** URLs of additional zone definition files to load. */
+  extraZones?: string[];
+
+  /** Host-local components available to zones and module configurations, indexed by name. */
+  localComponents?: Record<string, LocalComponent>;
+
+  /** Host-side hooks executed after the default behavior of their phase. */
+  hooks?: Partial<
+    Record<ModuleLifecyclePhase, LinPulsarModuleFederationPhaseRunner>
+  >;
+}
+
+export type LinPulsarModuleFederationPhaseRunner = (
+  module: RemoteModule<unknown>,
+  config: ModuleHostConfig<unknown>,
+  router: Router
+) => Promise<ModuleLifecycleResult>;
+```
+
 ### ModuleComponentRef
 
 Reference to a module element (lifecycle, routes, i18n messages or component) in a module configuration.
@@ -177,11 +224,11 @@ Reference to a module element (lifecycle, routes, i18n messages or component) in
 export type ModuleComponentRef = string | LinPulsarZoneEntry;
 ```
 
-A plain string references an element exposed through Module Federation (e.g. `catalogUI/PageLifecycle`), as does a
+A plain string references an element exposed through Module Federation (e.g. `linPulsar/PageLifecycle`), as does a
 `FederatedLinPulsarZoneEntry`:
 
 ```json
-{ "type": "federated", "plugin": "catalogUI/PageLifecycle" }
+{ "type": "federated", "plugin": "linPulsar/PageLifecycle" }
 ```
 
 A `ComponentLinPulsarZoneEntry` references an element registered locally through the `localComponents` initialization
@@ -200,10 +247,10 @@ Defines the configuration provided to a remote module by the host application.
 
 ```ts
 /**
- * Module configuration in the host (module-<name>.json).
+ * Module configuration in the host (modules/<ModuleName>.json).
  *
  * This is what the host provides to each module during the configuration phase.
- * The host reads this from `module-<name>.json` files.
+ * The host reads this from `modules/<ModuleName>.json` files.
  * @template T Type of the module-specific options
  */
 export interface ModuleHostConfig<T> {
@@ -214,7 +261,7 @@ export interface ModuleHostConfig<T> {
   instanceId: string;
 
   /**
-   * Module Federation remote name (must match a key in remotes.json).
+   * Module Federation remote name (must match the `name` of an entry of the `remotes` configuration).
    *
    * This is the name used to load the remote module via Module Federation.
    */
@@ -299,7 +346,7 @@ export interface RemoteModule<T> extends ModuleLifecycleHooks<T> {
   /**
    * Unique identifier for the module.
    *
-   * Should be in kebab-case and match the ID in the module configuration.
+   * Should match the ID in the module configuration.
    */
   id: string;
 
@@ -379,9 +426,9 @@ export type ModuleZoneDefinition<T = Record<string, unknown>> =
 
 **Usage:**
 
-- Declared in `module-<name>.json` configuration files in the `zones` array.
+- Declared in `modules/<ModuleName>.json` configuration files in the `zones` array.
 - Allows modules to inject UI elements into predefined zones exposed by other modules.
-- The `zone` field identifies the target zone (e.g., "user-details", "sidebar").
+- The `zone` field identifies the target zone (e.g., "entity-details", "sidebar").
 - The `plugin` field specifies which federated element to render.
 - The `component` field specifies which component to render by name, and requires that name to have been made
   available to zones through `registerLocalComponent`.
@@ -392,15 +439,18 @@ export type ModuleZoneDefinition<T = Record<string, unknown>> =
 
 ```json
 {
-  "instanceId": "moduleRoles-instance",
-  "remoteName": "moduleRoles",
-  "entity": "roles",
-  "apiEndpoint": "/api/roles",
-  "basePath": "/roles",
+  "instanceId": "moduleComments-instance",
+  "remoteName": "moduleComments",
+  "entity": "comments",
+  "apiEndpoint": "/api/comments",
+  "lifecycleRemote": "linPulsar/PageLifecycle",
+  "routesRemote": "linPulsar/PageRoutes",
+  "i18nRemote": "linPulsar/EmptyI18n",
+  "basePath": "/comments",
   "zones": [
     {
-      "zone": "user-details",
-      "plugin": "moduleRoles/RoleCardPlugin",
+      "zone": "entity-details",
+      "plugin": "moduleComments/CommentsCardPlugin",
       "props": {
         "showAvatar": true
       }
@@ -436,7 +486,7 @@ customized by consumers.
 | `File`        | File picker (QFile)                     |
 | `Tree`        | Tree node picker (QTree)                |
 
-> **Note:** The available input types depend on the inputs defined in `lin-pulsar`. Custom plugins
+> **Note:** The available input types depend on the inputs defined in the `linPulsar` catalog. Custom remotes
 > can extend these types.
 
 #### Generic Parameter
@@ -596,7 +646,7 @@ export interface LinPulsarApiErrorResponseBody {
 
 **Usage:**
 
-- Used by [`useFieldValidation`](./field-validation.md#validatefromapivalue) to extract error messages from backend
+- Used by [`useFieldValidation`](./field-validation.md#51-backend-validation) to extract error messages from backend
   validation responses
 - Returned by all linOpenFactory API endpoints for HTTP errors
 - The `error` field contains the already-internationalized error message ready for display
@@ -617,25 +667,6 @@ try {
     console.log(errorBody.errorKey); // e.g., "validation.email.invalid"
     console.log(errorBody.errorContext); // e.g., { email: "test@" }
   }
-}
-```
-
----
-
-## 🗃️ LinPulsarConfigurationState
-
-Represents the state of the Pinia store that manages entity and route configurations.
-
-```ts
-interface LinPulsarConfigurationState {
-  /** List of entity configurations fetched from the backend. */
-  entities: LinPulsarEntityConfiguration[];
-  /** List of api endpoint configurations fetched from the backend. */
-  apiEndpoints: LinPulsarApiEndpointConfiguration[];
-  /** Indicates if the configuration is currently being loaded. */
-  loading: boolean;
-  /** Error message if the configuration fetch failed. */
-  error: string | null;
 }
 ```
 
@@ -679,7 +710,7 @@ export interface LinPulsarRoute {
 ## 📄 Pagination & Page Types
 
 Utility types used to represent **paginated API responses**, **standard pagination**, and **Quasar QTable events**.
-Defined in `src/type/page.ts`.
+Defined in `src/types/page.ts`.
 
 ---
 
@@ -913,8 +944,8 @@ export interface ModuleLifecycleResult {
   /**
    * Whether the phase completed successfully.
    *
-   * If false, the module will continue through remaining phases but
-   * the error will be logged.
+   * If false, the module still continues through the remaining phases:
+   * the host does not use the result.
    */
   success: boolean;
 
@@ -966,7 +997,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this to receive and validate the host configuration for your module.
    * This is where you should check that all required configuration is present.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    *                 Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -977,7 +1008,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this to initialize any resources
    * your module needs to function.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    * Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -988,7 +1019,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this to perform final checks and emit ready state.
    * At this point, all other modules have completed initialization.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    * Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -999,7 +1030,7 @@ export interface ModuleLifecycleHooks<T> {
    *
    * Use this for cross-module integrations and final setup that requires
    * all modules to be ready.
-   * @param config - Module-specific configuration from host (from module-<name>.json).
+   * @param config - Module-specific configuration from host (from modules/<ModuleName>.json).
    * Contains module-specific options of type T.
    * @returns Promise resolving to the lifecycle result.
    */
@@ -1139,7 +1170,7 @@ See description in [Ui design documentation](./ui-design.md#q-dialog).
 
 See description in [Ui design documentation](./ui-design.md#q-spinner).
 
-### LinPulsarQBtnDropDownProps
+### LinPulsarQBtnDropdownProps
 
 See description in [Ui design documentation](./ui-design.md#q-btn-dropdown).
 
@@ -1195,10 +1226,6 @@ See description in [Ui design documentation](./ui-design.md#q-scroll-area).
 
 See description in [Ui design documentation](./ui-design.md#5-typescript-support).
 
-### LinPulsarThirdPartyComponentProps
-
-See description in [Ui design documentation](./ui-design.md#5-typescript-support).
-
 ### LinPulsarDraggableProps
 
 See description in [Ui design documentation](./ui-design.md#draggable).
@@ -1246,18 +1273,18 @@ const nodeTypes: TreeNodeType[] = [
 Represents a node in the tree structure. Nodes are recursive — each node can contain child nodes.
 
 ```ts
-export type TreeNode = {
+export type TreeNode<T> = {
   /** The type of the node, used to differentiate node categories. */
   type: string;
 
   /** Unique key identifying the node within the tree. */
   key: string;
 
-  /** The value associated with the node, which can be a string, number, or an object for complex nodes. */
-  value: string | number | Record<string, unknown>;
+  /** The value associated with the node. */
+  value: T;
 
   /** Child nodes nested under this node. */
-  nodes: TreeNode[];
+  nodes: TreeNode<T>[];
 
   /** Additional actions. */
   extraActions?: string[];
@@ -1269,7 +1296,7 @@ export type TreeNode = {
 ```ts
 import type { TreeNode } from '@linagora/lin-pulsar-core';
 
-const nodes: TreeNode[] = [
+const nodes: TreeNode<string>[] = [
   {
     type: 'group',
     key: 'group-1',
@@ -1293,8 +1320,8 @@ const nodes: TreeNode[] = [
 ## 🔽 Dropdown types
 
 Types describing the contract of the federated `DropdownButton` component, exposed by
-`lin-pulsar`. They are kept in lin-pulsar-core so any host application can build typed menus and listen to
-typed click payloads without depending on the plugin internals.
+the `linPulsar` catalog. They are kept in lin-pulsar-core so any host application can build typed menus and listen to
+typed click payloads without depending on the catalog internals.
 
 Defined in `src/types/dropdownButton.ts`.
 
@@ -1381,7 +1408,7 @@ function onClick(payload: DropdownClickPayload<AccountAction>): void {
 
 Types describing how a raw value is formatted before display. Because field and column definitions must survive JSON
 serialization and a Module Federation boundary, a formatter is designated by **name**, never by function. The name is
-resolved at render time by the [`useValueFormatter`](./use-value-formatter.md) composable.
+resolved at render time by the [`useValueFormatter`](./value-formatter.md) composable.
 
 Defined in `src/types/formatter.ts`.
 
@@ -1423,10 +1450,10 @@ export interface FormatterConfiguration {
 - Both fields are optional: a definition without `formatter` displays the raw value.
 - `formatter` is typed `string`, not a union of the registered names: an unregistered name is **not** rejected at
   compile time and surfaces only at runtime, as the raw value being displayed. The registry itself is closed — see
-  [Adding a formatter](./use-value-formatter.md#adding-a-formatter).
+  [Adding a formatter](./value-formatter.md#adding-a-formatter).
 - `formatOptions` is intentionally untyped (`Record<string, unknown>`), since the expected keys depend on the
   formatter that is requested. The per-formatter requirements are documented in
-  [Available formatters](./use-value-formatter.md#available-formatters).
+  [Available formatters](./value-formatter.md#available-formatters).
 
 **Example:**
 
@@ -1449,24 +1476,6 @@ const column: ColumnDefinition = {
 ---
 
 ## 🖼️ LinPulsar Ui Store types
-
-### LinPulsarUiState
-
-Represents the state of the Pinia store that manages UI-related configurations.
-
-```ts
-interface LinPulsarUiState {
-  /** List of main navigation menu items. */
-  mainNavigationItems: NavigationMenuItem[];
-  /** Internationalization state: active locale and available languages. */
-  i18n: {
-    /** Currently active locale code (e.g. "fr-FR"). */
-    locale: string;
-    /** List of available locale codes declared in the configuration. */
-    languages: string[];
-  };
-}
-```
 
 ### NavigationMenuItem
 
@@ -1506,8 +1515,8 @@ export const LIN_PULSAR_FILTER_OR_SEPARATOR = '|';
 export const LIN_PULSAR_FILTER_NEGATION_PREFIX = 'not_';
 ```
 
-| Constant                       | Value    | Meaning                                                             |
-| ------------------------------ | -------- | ------------------------------------------------------------------- |
+| Constant                            | Value    | Meaning                                                                 |
+| ----------------------------------- | -------- | ----------------------------------------------------------------------- |
 | `LIN_PULSAR_FILTER_OR_SEPARATOR`    | `'\|'`   | Separates value expressions combined with OR within a `LinPulsarFilter` |
 | `LIN_PULSAR_FILTER_NEGATION_PREFIX` | `'not_'` | Prefix marking a `LinPulsarFilterValue` expression as negated           |
 
@@ -1551,11 +1560,11 @@ export interface LinPulsarFilterDynamicLabelOptions {
 }
 ```
 
-| Property            | Type      | Description                                                                              |
-| ------------------- | --------- | ---------------------------------------------------------------------------------------- |
-| `multipleRequests`  | `boolean` | Whether to perform one request per value. Defaults to `false` (one request for all)      |
-| `url`               | `string`  | Nunjucks URL template: `{{ value }}` when `multipleRequests`, `{{ values }}` otherwise   |
-| `responseItemsPath` | `string`  | Path to the collection of items in the response. Only when `multipleRequests` is `false` |
+| Property            | Type      | Description                                                                                  |
+| ------------------- | --------- | -------------------------------------------------------------------------------------------- |
+| `multipleRequests`  | `boolean` | Whether to perform one request per value. Defaults to `false` (one request for all)          |
+| `url`               | `string`  | Nunjucks URL template: `{{ value }}` when `multipleRequests`, `{{ values }}` otherwise       |
+| `responseItemsPath` | `string`  | Path to the collection of items in the response. Only when `multipleRequests` is `false`     |
 | `valuePath`         | `string`  | Path, within an item, to the attribute matching `LinPulsarFilterValue.value`. Same condition |
 
 **Example:**
@@ -1660,14 +1669,18 @@ export class LinPulsarFilterSet {
 ```ts
 import { LinPulsarFilter, LinPulsarFilterSet } from '@linagora/lin-pulsar-core';
 
-const favorite = new LinPulsarFilterSet('My Active Projects', [
+const favorite = new LinPulsarFilterSet('id', 'My Active Projects', [
   LinPulsarFilter.fromString('status', 'active|pending'),
 ]);
 
 favorite.toString();
 // 'status=active|pending'
 
-LinPulsarFilterSet.fromString('My Active Projects', 'status=active|pending');
+LinPulsarFilterSet.fromString(
+  'id',
+  'My Active Projects',
+  'status=active|pending'
+);
 // LinPulsarFilterSet { label: 'My Active Projects', filters: [...] }
 ```
 
@@ -1706,7 +1719,11 @@ const preference = {
   value: 'status=active|pending&createdAt=gt_2026-01-01',
 };
 
-const filterSet = LinPulsarFilterSet.fromString(preference.label, preference.value);
+const filterSet = LinPulsarFilterSet.fromString(
+  preference.id,
+  preference.label,
+  preference.value
+);
 
 // LinPulsarFilterSet { label: 'My Active Projects', filters: [...] }
 ```
@@ -1715,93 +1732,105 @@ const filterSet = LinPulsarFilterSet.fromString(preference.label, preference.val
 
 ## 🧰 Summary
 
-| Type / Interface                 | Purpose                                                                                          |
-| -------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `LinPulsarZoneEntry`                 | Defines the contract for a plugin component                                                      |
-| `LinPulsarZoneState`                 | Defines the structure of the zone store                                                          |
-| `FederatedModule`                | Defines the structure of a federated component module                                            |
-| `ModuleHostConfig`               | Configuration provided to remote modules                                                         |
-| `RemoteModule`                   | Defines the structure of a remote module                                                         |
-| `AttributeInputType`             | Input type union: Text, Number, Boolean, Date, List, DynamicList, TextArea, Email, File, Tree    |
-| `LinPulsarAttributeConfiguration`    | Generic interface describing an entity attribute                                                 |
-| `ValidatorName`                  | Available validator names for field validation                                                   |
-| `LinPulsarEntityConfiguration`       | Describes an entity and its attributes                                                           |
-| `LinPulsarApiErrorResponseBody`      | Standard error response structure from linOpenFactory APIs                                                |
-| `LinPulsarApiEndpointConfiguration`  | Describes a REST route                                                                           |
-| `LinPulsarConfigurationState`        | Defines the structure of the configuration store                                                 |
-| `LinPulsarRoute`                     | Defines the structure of a route (recursive children)                                            |
-| `LinPulsarRoutes`                    | Array of LinPulsarRoute for nested routes                                                            |
-| `Page<T>`                        | Paginated API response                                                                           |
-| `Pagination`                     | Backend pagination model                                                                         |
-| `QTableRequestEvent`             | Quasar table server-side request payload                                                         |
-| `QuasarPagination`               | Quasar-specific pagination structure                                                             |
-| `QueryFilter`                    | Flexible query parameter map                                                                     |
-| `ModuleLifecyclePhase`           | Enum of module lifecycle phases                                                                  |
-| `ModuleLifecycleResult`          | Result of a lifecycle phase execution                                                            |
-| `ModuleLifecycleHooks`           | Lifecycle hooks for remote modules                                                               |
-| `UiDesignValue`                  | Single primitive value in the UI configuration                                                   |
-| `UiDesignNamespace`              | Namespace with key-value pairs of UI configuration values                                        |
-| `UiDesign`                       | The full UI design configuration                                                                 |
-| `QComponentName`                 | Valid Quasar component names for type-safe UI design                                             |
-| `LinPulsarQComponentProps`           | All supported Quasar component props subsets                                                     |
-| `ThirdPartyComponentName`        | Valid third-party component names for type-safe UI design                                        |
-| `LinPulsarThirdPartyComponentProps`  | All supported third-party component props subsets                                                |
-| `LinPulsarDraggableProps`            | vue-draggable-next (SortableJS) component properties supported by Ui Design                      |
-| `LinPulsarQBtnProps`                 | QBtn component properties supported by Ui Design                                                 |
-| `LinPulsarQTabsProps`                | QTabs component properties supported by Ui Design                                                |
-| `LinPulsarQRouteTabProps`            | QRouteTab component properties supported by Ui Design                                            |
-| `LinPulsarQHeaderProps`              | QHeader component properties supported by Ui Design                                              |
-| `LinPulsarQToolbarProps`             | QToolbar component properties supported by Ui Design                                             |
-| `LinPulsarQToolbarTitleProps`        | QToolbarTitle component properties supported by Ui Design                                        |
-| `LinPulsarQAvatarProps`              | QAvatar component properties supported by Ui Design                                              |
-| `LinPulsarQBadgeProps`               | QBadge component properties supported by Ui Design                                               |
-| `LinPulsarQTableProps`               | QTable component properties supported by Ui Design                                               |
-| `LinPulsarQCardProps`                | QCard component properties supported by Ui Design                                                |
-| `LinPulsarQCardActionsProps`         | QCardActions component properties supported by Ui                                                |
-| `LinPulsarQCardSectionProps`         | QCardSection component properties supported by Ui Design                                         |
-| `LinPulsarQIconProps`                | QIcon component properties supported by Ui Design                                                |
-| `LinPulsarQChipProps`                | QChip component properties supported by Ui Design                                                |
-| `LinPulsarQCheckboxProps`            | QCheckbox component properties supported by Ui Design                                            |
-| `LinPulsarQToggleProps`              | QToggle component properties supported by Ui Design                                              |
-| `LinPulsarQInputProps`               | QInput component properties supported by Ui Design                                               |
-| `LinPulsarQDateProps`                | QDate component properties supported by Ui Design                                                |
-| `LinPulsarQImgProps`                 | QImg component properties supported by Ui Design                                                 |
-| `LinPulsarQFieldProps`               | QField component properties supported by Ui Design                                               |
-| `LinPulsarQFileProps`                | QFile component properties supported by Ui Design                                                |
-| `LinPulsarQFormProps`                | QForm component properties supported by Ui Design                                                |
-| `LinPulsarQSelectProps`              | QSelect component properties supported by Ui Design                                              |
-| `LinPulsarQSeparatorProps`           | QSeparator component properties supported by Ui Design                                           |
-| `LinPulsarQSpinnerProps`             | QSpinner component properties supported by Ui Design                                             |
-| `LinPulsarQBtnDropdownProps`         | QBtnDropdown component properties supported by Ui Design                                         |
-| `LinPulsarQListProps`                | QList component properties supported by Ui Design                                                |
-| `LinPulsarQItemProps`                | QItem component properties supported by Ui Design                                                |
-| `LinPulsarQItemSectionProps`         | QItemSection component properties supported by Ui Design                                         |
-| `LinPulsarQItemLabelProps`           | QItemLabel component properties supported by Ui Design                                           |
-| `LinPulsarQDialogProps`              | QDialog component properties supported by Ui Design                                              |
-| `LinPulsarQBannerProps`              | QBanner component properties supported by Ui Design                                              |
-| `LinPulsarQMenuProps`                | QMenu component properties supported by Ui Design                                                |
-| `LinPulsarQTreeProps`                | QTree component properties supported by Ui Design                                                |
-| `LinPulsarQSplitterProps`            | QSplitter component properties supported by Ui Design                                            |
-| `LinPulsarQOptionGroupProps`         | QOptionGroup component properties supported by Ui Design                                         |
-| `LinPulsarQScrollAreaProps`          | QScrollArea component properties supported by Ui Design                                          |
-| `TreeNode`                       | Represents a node in the tree structure (recursive)                                              |
-| `TreeNodeType`                   | Describes a node type and its default actions                                                    |
-| `MenuItem`                       | Generic menu entry consumed by the federated DropdownButton                                      |
-| `DropdownClickPayload`           | Generic click payload emitted by the federated DropdownButton                                    |
-| `LinPulsarUiState`                   | Defines the structure of the UI store                                                            |
-| `LinPulsarUser`                      | Represents an authenticated user in the system                                                   |
-| `LinPulsarUserState`                 | Defines the structure of the user store                                                          |
-| `NavigationMenuItem`             | Describes a main navigation menu item                                                            |
-| `LinPulsarFilterType`                | Union type for filter categories: date, text, number, list, tree                                 |
-| `LinPulsarFilterOperator`            | Union type for filter value comparison operators                                                 |
-| `LIN_PULSAR_FILTER_OR_SEPARATOR`      | Runtime constant (`'\|'`) separating values combined with OR in a filter expression              |
-| `LIN_PULSAR_FILTER_NEGATION_PREFIX`   | Runtime constant (`'not_'`) marking a filter value expression as negated                         |
-| `LinPulsarFilter<T>`                 | Generic class representing a filter, converted to a query parameter value                        |
-| `LinPulsarFilterDynamicLabelOptions` | Configuration describing how to resolve the item displayed behind each filter value              |
-| `LinPulsarFilterSet`                 | Class representing a saved filter set (favorite search): a label and its `LinPulsarFilter[]`         |
-| `LinPulsarFilterSetUserPreference`   | Represents the persisted form of a saved filter set (favorite search) stored in user preferences |
-| `ValueFormatter`                 | Contract every formatter implementation must satisfy (internal, not re-exported)                 |
-| `FormatterConfiguration`         | Formatting properties mixed into field and column definitions                                    |
+| Type / Interface                       | Purpose                                                                                          |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `LinPulsarZoneEntry`                   | Defines the contract for a plugin component                                                      |
+| `BaseLinPulsarZoneEntry`               | Base model shared by all zone entry variants                                                     |
+| `ComponentLinPulsarZoneEntry`          | Zone entry referencing a component by name                                                       |
+| `FederatedLinPulsarZoneEntry`          | Zone entry referencing a component loaded through Module Federation                              |
+| `LinPulsarZoneResolvedEntry`           | Zone entry resolved for rendering (component and props)                                          |
+| `LinPulsarRemoteConfig`                | Module Federation remote declared in the application configuration                               |
+| `LinPulsarModuleFederationInitOptions` | Options of `linPulsarModuleFederation.init()`                                                    |
+| `LinPulsarModuleFederationPhaseRunner` | Host-side runner of a single lifecycle phase for one federated module                            |
+| `FederatedModule`                      | Defines the structure of a federated component module                                            |
+| `ModuleHostConfig`                     | Configuration provided to remote modules                                                         |
+| `RemoteModule`                         | Defines the structure of a remote module                                                         |
+| `ModuleComponentRef`                   | Reference to a module element (lifecycle, routes, i18n messages or component)                    |
+| `ModuleZoneDefinition`                 | Definition of a UI zone injection declared in a module configuration                             |
+| `LocalComponent`                       | Value registrable under a local name: a Vue component or any module element                      |
+| `ModulePageLifecycleOptions`           | Creation options of the page module lifecycle factory                                            |
+| `ModulePageLifecycleHostOptions`       | Host-provided options understood by the default page module lifecycle                            |
+| `AttributeInputType`                   | Input type union: Text, Number, Boolean, Date, List, DynamicList, TextArea, Email, File, Tree    |
+| `LinPulsarAttributeConfiguration`      | Generic interface describing an entity attribute                                                 |
+| `ValidatorName`                        | Available validator names for field validation                                                   |
+| `LinPulsarEntityConfiguration`         | Describes an entity and its attributes                                                           |
+| `LinPulsarApiErrorResponseBody`        | Standard error response structure from linOpenFactory APIs                                       |
+| `LinPulsarApiEndpointConfiguration`    | Describes a REST route                                                                           |
+| `LinPulsarRoute`                       | Defines the structure of a route (recursive children)                                            |
+| `LinPulsarRoutes`                      | Array of LinPulsarRoute for nested routes                                                        |
+| `Page<T>`                              | Paginated API response                                                                           |
+| `Pagination`                           | Backend pagination model                                                                         |
+| `QTableRequestEvent`                   | Quasar table server-side request payload                                                         |
+| `QuasarPagination`                     | Quasar-specific pagination structure                                                             |
+| `QueryFilter`                          | Flexible query parameter map                                                                     |
+| `ModuleLifecyclePhase`                 | Enum of module lifecycle phases                                                                  |
+| `ModuleLifecycleResult`                | Result of a lifecycle phase execution                                                            |
+| `ModuleLifecycleHooks`                 | Lifecycle hooks for remote modules                                                               |
+| `UiDesignValue`                        | Single primitive value in the UI configuration                                                   |
+| `UiDesignNamespace`                    | Namespace with key-value pairs of UI configuration values                                        |
+| `UiDesign`                             | The full UI design configuration                                                                 |
+| `QComponentName`                       | Valid Quasar component names for type-safe UI design                                             |
+| `LinPulsarQComponentProps`             | All supported Quasar component props subsets                                                     |
+| `LinPulsarHtmlAttrs`                   | HTML attributes (`class`, `style`) a design entry can set on any component                       |
+| `ThirdPartyComponentName`              | Valid third-party component names for type-safe UI design                                        |
+| `LinPulsarDraggableProps`              | vue-draggable-next (SortableJS) component properties supported by Ui Design                      |
+| `LinPulsarQBtnProps`                   | QBtn component properties supported by Ui Design                                                 |
+| `LinPulsarQTabsProps`                  | QTabs component properties supported by Ui Design                                                |
+| `LinPulsarQRouteTabProps`              | QRouteTab component properties supported by Ui Design                                            |
+| `LinPulsarQHeaderProps`                | QHeader component properties supported by Ui Design                                              |
+| `LinPulsarQToolbarProps`               | QToolbar component properties supported by Ui Design                                             |
+| `LinPulsarQToolbarTitleProps`          | QToolbarTitle component properties supported by Ui Design                                        |
+| `LinPulsarQAvatarProps`                | QAvatar component properties supported by Ui Design                                              |
+| `LinPulsarQBadgeProps`                 | QBadge component properties supported by Ui Design                                               |
+| `LinPulsarQTableProps`                 | QTable component properties supported by Ui Design                                               |
+| `LinPulsarQCardProps`                  | QCard component properties supported by Ui Design                                                |
+| `LinPulsarQCardActionsProps`           | QCardActions component properties supported by Ui                                                |
+| `LinPulsarQCardSectionProps`           | QCardSection component properties supported by Ui Design                                         |
+| `LinPulsarQIconProps`                  | QIcon component properties supported by Ui Design                                                |
+| `LinPulsarQChipProps`                  | QChip component properties supported by Ui Design                                                |
+| `LinPulsarQCheckboxProps`              | QCheckbox component properties supported by Ui Design                                            |
+| `LinPulsarQToggleProps`                | QToggle component properties supported by Ui Design                                              |
+| `LinPulsarQInputProps`                 | QInput component properties supported by Ui Design                                               |
+| `LinPulsarQDateProps`                  | QDate component properties supported by Ui Design                                                |
+| `LinPulsarQImgProps`                   | QImg component properties supported by Ui Design                                                 |
+| `LinPulsarQFieldProps`                 | QField component properties supported by Ui Design                                               |
+| `LinPulsarQFileProps`                  | QFile component properties supported by Ui Design                                                |
+| `LinPulsarQFormProps`                  | QForm component properties supported by Ui Design                                                |
+| `LinPulsarQSelectProps`                | QSelect component properties supported by Ui Design                                              |
+| `LinPulsarQSeparatorProps`             | QSeparator component properties supported by Ui Design                                           |
+| `LinPulsarQSpinnerProps`               | QSpinner component properties supported by Ui Design                                             |
+| `LinPulsarQBtnDropdownProps`           | QBtnDropdown component properties supported by Ui Design                                         |
+| `LinPulsarQListProps`                  | QList component properties supported by Ui Design                                                |
+| `LinPulsarQItemProps`                  | QItem component properties supported by Ui Design                                                |
+| `LinPulsarQItemSectionProps`           | QItemSection component properties supported by Ui Design                                         |
+| `LinPulsarQItemLabelProps`             | QItemLabel component properties supported by Ui Design                                           |
+| `LinPulsarQDialogProps`                | QDialog component properties supported by Ui Design                                              |
+| `LinPulsarQBannerProps`                | QBanner component properties supported by Ui Design                                              |
+| `LinPulsarQMenuProps`                  | QMenu component properties supported by Ui Design                                                |
+| `LinPulsarQTreeProps`                  | QTree component properties supported by Ui Design                                                |
+| `LinPulsarQSplitterProps`              | QSplitter component properties supported by Ui Design                                            |
+| `LinPulsarQOptionGroupProps`           | QOptionGroup component properties supported by Ui Design                                         |
+| `LinPulsarQScrollAreaProps`            | QScrollArea component properties supported by Ui Design                                          |
+| `LinPulsarQLayoutProps`                | QLayout component properties supported by Ui Design                                              |
+| `TreeNode`                             | Represents a node in the tree structure (recursive)                                              |
+| `TreeNodeType`                         | Describes a node type and its default actions                                                    |
+| `MenuItem`                             | Generic menu entry consumed by the federated DropdownButton                                      |
+| `DropdownClickPayload`                 | Generic click payload emitted by the federated DropdownButton                                    |
+| `LinPulsarUser`                        | Represents an authenticated user in the system                                                   |
+| `NavigationMenuItem`                   | Describes a main navigation menu item                                                            |
+| `UiEvent`                              | Event carried by the shared `uiEventSubject`                                                     |
+| `DialogEvent`                          | Payload of the dialog events handled by `useDialog`                                              |
+| `LinPulsarFilterType`                  | Union type for filter categories: date, text, number, list, tree                                 |
+| `LinPulsarFilterOperator`              | Union type for filter value comparison operators                                                 |
+| `LIN_PULSAR_FILTER_OR_SEPARATOR`       | Runtime constant (`'\|'`) separating values combined with OR in a filter expression              |
+| `LIN_PULSAR_FILTER_NEGATION_PREFIX`    | Runtime constant (`'not_'`) marking a filter value expression as negated                         |
+| `LinPulsarFilter<T>`                   | Generic class representing a filter, converted to a query parameter value                        |
+| `LinPulsarFilterDynamicLabelOptions`   | Configuration describing how to resolve the item displayed behind each filter value              |
+| `LinPulsarFilterSet`                   | Class representing a saved filter set (favorite search): a label and its `LinPulsarFilter[]`     |
+| `LinPulsarFilterSetUserPreference`     | Represents the persisted form of a saved filter set (favorite search) stored in user preferences |
+| `ValueFormatter`                       | Contract every formatter implementation must satisfy (internal, not re-exported)                 |
+| `FormatterConfiguration`               | Formatting properties mixed into field and column definitions                                    |
+| `RenderResult`                         | Return type of the Nunjucks `render`, computed from the input type                               |
 
 These types enforce **consistency and type safety** across all front-end modules and plugins.
 
