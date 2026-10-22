@@ -44,7 +44,7 @@ Example structure:
 The UI design must be initialized **once** by the host application, typically during boot.
 
 ```ts
-import { setUiDesign } from '@linagora/linid-im-front-corelib';
+import { setUiDesign } from '@linagora/lin-pulsar-core';
 import designConfig from 'public/design.json';
 
 setUiDesign(designConfig);
@@ -73,14 +73,14 @@ components.
 </template>
 
 <script setup lang="ts">
-import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { useUiDesign } from '@linagora/lin-pulsar-core';
 import { QBtnProps } from 'quasar';
 
 // Retrieve the getComponentProps() function from the composable
 const { ui } = useUiDesign();
 
 // Get typed props for the 'q-btn' component from the 'custom' namespace
-const btnProps = ui<LinidQBtnProps>('custom', 'q-btn');
+const btnProps = ui<LinPulsarQBtnProps>('custom', 'q-btn');
 </script>
 ```
 
@@ -117,14 +117,14 @@ whatever its prop list.
 ```
 
 ```ts
-const captionProps = ui<LinidQItemLabelProps>('custom', 'q-item-label');
+const captionProps = ui<LinPulsarQItemLabelProps>('custom', 'q-item-label');
 // { caption: true, class: 'text-negative', style: 'font-style: italic' }
 ```
 
 - Both are read from the namespace first and fall back to the `default` namespace, like any prop
 - Both are **strings**: an object or array form throws, as any nested value does
 - When the component already has a static `class` in the template, Vue merges the two
-- The returned type is the component props type intersected with `LinidHtmlAttrs`
+- The returned type is the component props type intersected with `LinPulsarHtmlAttrs`
 
 ---
 
@@ -211,7 +211,7 @@ console.log(ui('custom.other', 'q-btn', { color: 'negative', size: 'lg' }));
  *   textColor: 'accent',  // from default
  *   color: 'negative',    // overridden
  *   size: 'lg',           // overridden
- *  ...                    // other LinidQBtnProps props from default
+ *  ...                    // other LinPulsarQBtnProps props from default
  * }
  */
 ```
@@ -223,12 +223,12 @@ console.log(ui('custom.other', 'q-btn', { color: 'negative', size: 'lg' }));
 The `UiDesign` interface provides type safety:
 
 ```ts
-import { LinidQTreeProps } from './uiDesign';
+import { LinPulsarQTreeProps } from './uiDesign';
 
 /**
  * HTML attributes a design entry can set on any component: Vue forwards them to its root element.
  */
-export interface LinidHtmlAttrs {
+export interface LinPulsarHtmlAttrs {
   /** CSS classes added to the component root element (e.g. "text-negative"). */
   class?: string;
   /** Inline style added to the component root element (e.g. "font-style: italic"). */
@@ -318,44 +318,44 @@ export type QComponentName =
 /**
  * Union type of all supported Quasar component props subsets.
  */
-export type LinidQComponentProps =
-  | LinidQAvatarProps
-  | LinidQBadgeProps
-  | LinidQBannerProps
-  | LinidQBtnProps
-  | LinidQBtnDropdownProps
-  | LinidQCardProps
-  | LinidQCardActionsProps
-  | LinidQCardSectionProps
-  | LinidQCheckboxProps
-  | LinidQChipProps
-  | LinidQDateProps
-  | LinidQDialogProps
-  | LinidQFieldProps
-  | LinidQFileProps
-  | LinidQFormProps
-  | LinidQHeaderProps
-  | LinidQIconProps
-  | LinidQImgProps
-  | LinidQInputProps
-  | LinidQItemProps
-  | LinidQItemLabelProps
-  | LinidQItemSectionProps
-  | LinidQListProps
-  | LinidQMenuProps
-  | LinidQOptionGroupProps
-  | LinidQRouteTabProps
-  | LinidQScrollAreaProps
-  | LinidQSelectProps
-  | LinidQSeparatorProps
-  | LinidQSpinnerProps
-  | LinidQSplitterProps
-  | LinidQTableProps
-  | LinidQTabsProps
-  | LinidQToggleProps
-  | LinidQToolbarProps
-  | LinidQToolbarTitleProps
-  | LinidQTreeProps;
+export type LinPulsarQComponentProps =
+  | LinPulsarQAvatarProps
+  | LinPulsarQBadgeProps
+  | LinPulsarQBannerProps
+  | LinPulsarQBtnProps
+  | LinPulsarQBtnDropdownProps
+  | LinPulsarQCardProps
+  | LinPulsarQCardActionsProps
+  | LinPulsarQCardSectionProps
+  | LinPulsarQCheckboxProps
+  | LinPulsarQChipProps
+  | LinPulsarQDateProps
+  | LinPulsarQDialogProps
+  | LinPulsarQFieldProps
+  | LinPulsarQFileProps
+  | LinPulsarQFormProps
+  | LinPulsarQHeaderProps
+  | LinPulsarQIconProps
+  | LinPulsarQImgProps
+  | LinPulsarQInputProps
+  | LinPulsarQItemProps
+  | LinPulsarQItemLabelProps
+  | LinPulsarQItemSectionProps
+  | LinPulsarQListProps
+  | LinPulsarQMenuProps
+  | LinPulsarQOptionGroupProps
+  | LinPulsarQRouteTabProps
+  | LinPulsarQScrollAreaProps
+  | LinPulsarQSelectProps
+  | LinPulsarQSeparatorProps
+  | LinPulsarQSpinnerProps
+  | LinPulsarQSplitterProps
+  | LinPulsarQTableProps
+  | LinPulsarQTabsProps
+  | LinPulsarQToggleProps
+  | LinPulsarQToolbarProps
+  | LinPulsarQToolbarTitleProps
+  | LinPulsarQTreeProps;
 
 /**
  * Valid third-party component names for type-safe UI design retrieval.
@@ -365,7 +365,7 @@ export type ThirdPartyComponentName = 'draggable';
 /**
  * Union type of all supported third-party component props subsets.
  */
-export type LinidThirdPartyComponentProps = LinidDraggableProps;
+export type LinPulsarThirdPartyComponentProps = LinPulsarDraggableProps;
 ```
 
 For `NamedColor`, refer to the Quasar documentation on [Color Palette](https://quasar.dev/style/color-palette).

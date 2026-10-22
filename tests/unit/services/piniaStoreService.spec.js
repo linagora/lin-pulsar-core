@@ -30,7 +30,7 @@ describe('Test service: piniaStoreService', () => {
       setPiniaStore(secondStore);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] Pinia store has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] Pinia store has already been initialized. Re-initialization is ignored.'
       );
       expect(getPiniaStore()).toBe(firstStore);
 
@@ -41,7 +41,7 @@ describe('Test service: piniaStoreService', () => {
   describe('Test function: getPiniaStore', () => {
     it('should throw an error if store is not initialized', () => {
       expect(() => getPiniaStore()).toThrow(
-        '[LinID CoreLib] Pinia store is not initialized. Call setPiniaStore() first.'
+        '[LinPulsar Core] Pinia store is not initialized. Call setPiniaStore() first.'
       );
     });
   });

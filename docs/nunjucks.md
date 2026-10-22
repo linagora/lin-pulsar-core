@@ -19,14 +19,14 @@ This document describes the `useNunjucks` composable, which exposes utility func
 
 ```ts
 import nunjucks from 'nunjucks';
-import { setNunjucksEnv } from '@linagora/linid-im-front-corelib';
+import { setNunjucksEnv } from '@linagora/lin-pulsar-core';
 
 const env = new nunjucks.Environment(null, { autoescape: true });
 setNunjucksEnv(env);
 ```
 
 > Calling `useNunjucks` before `setNunjucksEnv` throws:
-> `[LinID CoreLib] Nunjucks environment is not initialized. Call setNunjucksEnv() first.`
+> `[LinPulsar Core] Nunjucks environment is not initialized. Call setNunjucksEnv() first.`
 
 ### Security
 
@@ -40,7 +40,7 @@ XSS safety of the rendered output depends entirely on the Nunjucks environment p
 ## Usage
 
 ```ts
-import { useNunjucks } from '@linagora/linid-im-front-corelib';
+import { useNunjucks } from '@linagora/lin-pulsar-core';
 
 const { render, renderString } = useNunjucks();
 ```

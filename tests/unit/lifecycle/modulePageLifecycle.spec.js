@@ -2,8 +2,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import { createModulePageLifecycle } from 'src/lifecycle/modulePageLifecycle';
 import { BasicRemoteModule } from 'src/lifecycle/skeleton';
 import * as piniaStoreService from 'src/services/piniaStoreService';
-import { useLinidUiStore } from 'src/stores/linidUiStore';
-import { useLinidZoneStore } from 'src/stores/linidZoneStore';
+import { useLinPulsarUiStore } from 'src/stores/linPulsarUiStore';
+import { useLinPulsarZoneStore } from 'src/stores/linPulsarZoneStore';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('src/services/piniaStoreService', () => ({
@@ -61,7 +61,7 @@ describe('Test function: createModulePageLifecycle', () => {
       });
 
       expect(result).toEqual({ success: true });
-      expect(useLinidUiStore().mainNavigationItems).toEqual([
+      expect(useLinPulsarUiStore().mainNavigationItems).toEqual([
         {
           id: 'test-module',
           labelKey: 'test-module.NavigationMenu.label',
@@ -81,7 +81,7 @@ describe('Test function: createModulePageLifecycle', () => {
       const result = await module.postInit(config);
 
       expect(result).toEqual({ success: true });
-      expect(useLinidUiStore().mainNavigationItems).toEqual([]);
+      expect(useLinPulsarUiStore().mainNavigationItems).toEqual([]);
     });
 
     it('should register each dialog component once in the layout dialog zone', async () => {
@@ -99,7 +99,7 @@ describe('Test function: createModulePageLifecycle', () => {
       await module.postInit(config);
       await module.postInit(config);
 
-      const entries = useLinidZoneStore().zones['base-layout.dialogComponent'];
+      const entries = useLinPulsarZoneStore().zones['base-layout.dialogComponent'];
       expect(entries.map((entry) => entry.plugin)).toEqual([
         'testModule/ConfirmationDialog',
         'testModule/FormDialog',
@@ -118,12 +118,12 @@ describe('Test function: createModulePageLifecycle', () => {
       await module.postInit(config);
 
       const entries =
-        useLinidZoneStore().zones['custom-layout.dialogComponent'];
+        useLinPulsarZoneStore().zones['custom-layout.dialogComponent'];
       expect(entries.map((entry) => entry.plugin)).toEqual([
         'testModule/ConfirmationDialog',
       ]);
       expect(
-        useLinidZoneStore().zones['base-layout.dialogComponent']
+        useLinPulsarZoneStore().zones['base-layout.dialogComponent']
       ).toBeUndefined();
     });
   });
@@ -175,7 +175,7 @@ describe('Test function: createModulePageLifecycle', () => {
       });
 
       expect(postInit).toHaveBeenCalledTimes(1);
-      expect(useLinidUiStore().mainNavigationItems).toEqual([]);
+      expect(useLinPulsarUiStore().mainNavigationItems).toEqual([]);
     });
   });
 });

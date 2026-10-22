@@ -1,4 +1,4 @@
-import { useLinidUserPreference } from 'src/composables/useLinidUserPreference.ts';
+import { useLinPulsarUserPreference } from 'src/composables/useLinPulsarUserPreference.ts';
 import {
   changeLocale,
   resolveLocale,
@@ -6,19 +6,19 @@ import {
   useScopedI18n,
 } from 'src/composables/useScopedI18n.ts';
 import { getI18nInstance, setI18nInstance } from 'src/services/i18nService.ts';
-import { useLinidUiStore } from 'src/stores/linidUiStore.ts';
+import { useLinPulsarUiStore } from 'src/stores/linPulsarUiStore.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => getI18nInstance(),
 }));
 
-vi.mock('src/stores/linidUiStore.ts', () => ({
-  useLinidUiStore: vi.fn(),
+vi.mock('src/stores/linPulsarUiStore.ts', () => ({
+  useLinPulsarUiStore: vi.fn(),
 }));
 
-vi.mock('src/composables/useLinidUserPreference.ts', () => ({
-  useLinidUserPreference: vi.fn(),
+vi.mock('src/composables/useLinPulsarUserPreference.ts', () => ({
+  useLinPulsarUserPreference: vi.fn(),
 }));
 
 describe('Test composable: useScopedI18n', () => {
@@ -85,14 +85,14 @@ describe('Test composable: useScopedI18n', () => {
 
   describe('Test function: resolveLocale', () => {
     beforeEach(() => {
-      vi.mocked(useLinidUiStore).mockReturnValue({
+      vi.mocked(useLinPulsarUiStore).mockReturnValue({
         i18n: { locale: 'fr-FR', languages: ['fr-FR', 'en-US'] },
       });
       localStorage.clear();
     });
 
     it('should return the user preference when supported', () => {
-      vi.mocked(useLinidUserPreference).mockReturnValue({
+      vi.mocked(useLinPulsarUserPreference).mockReturnValue({
         userPreferenceStore: { userPreferences: { language: 'en-US' } },
       });
 
@@ -100,7 +100,7 @@ describe('Test composable: useScopedI18n', () => {
     });
 
     it('should fall back to localStorage when no preference', () => {
-      vi.mocked(useLinidUserPreference).mockReturnValue({
+      vi.mocked(useLinPulsarUserPreference).mockReturnValue({
         userPreferenceStore: { userPreferences: {} },
       });
       localStorage.setItem('language', 'en-US');
@@ -109,7 +109,7 @@ describe('Test composable: useScopedI18n', () => {
     });
 
     it('should fall back to the store locale when nothing is supported', () => {
-      vi.mocked(useLinidUserPreference).mockReturnValue({
+      vi.mocked(useLinPulsarUserPreference).mockReturnValue({
         userPreferenceStore: { userPreferences: {} },
       });
 
@@ -126,7 +126,7 @@ describe('Test composable: useScopedI18n', () => {
     });
 
     it('should persist the preference when it differs', async () => {
-      vi.mocked(useLinidUserPreference).mockReturnValue({
+      vi.mocked(useLinPulsarUserPreference).mockReturnValue({
         userPreferenceStore: { userPreferences: { language: 'fr-FR' } },
         saveUserPreference,
       });
@@ -138,7 +138,7 @@ describe('Test composable: useScopedI18n', () => {
     });
 
     it('should write localStorage without saving when value equals stored preference (boot path)', async () => {
-      vi.mocked(useLinidUserPreference).mockReturnValue({
+      vi.mocked(useLinPulsarUserPreference).mockReturnValue({
         userPreferenceStore: { userPreferences: { language: 'en-US' } },
         saveUserPreference,
       });
@@ -155,11 +155,11 @@ describe('Test composable: useScopedI18n', () => {
       const setLocale = vi.fn();
       const saveUserPreference = vi.fn();
 
-      vi.mocked(useLinidUiStore).mockReturnValue({
+      vi.mocked(useLinPulsarUiStore).mockReturnValue({
         i18n: { locale: 'fr-FR', languages: ['fr-FR', 'en-US'] },
         setLocale,
       });
-      vi.mocked(useLinidUserPreference).mockReturnValue({
+      vi.mocked(useLinPulsarUserPreference).mockReturnValue({
         userPreferenceStore: { userPreferences: { language: 'fr-FR' } },
         saveUserPreference,
       });

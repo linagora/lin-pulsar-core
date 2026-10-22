@@ -1,6 +1,6 @@
 # Services 🔧
 
-This document describes the **services** provided by `linid-im-front-corelib`.
+This document describes the **services** provided by `lin-pulsar-core`.
 
 ---
 
@@ -20,7 +20,7 @@ Provides a singleton Axios instance shared across all modules.
 Initializes the shared Axios instance to be used by all modules. Should be called once during application bootstrapping.
 
 ```typescript
-import { setHttpClient } from '@linagora/linid-im-front-corelib';
+import { setHttpClient } from '@linagora/lin-pulsar-core';
 ```
 
 #### Parameters
@@ -45,7 +45,7 @@ No return value.
 Retrieves the shared Axios instance initialized by `setHttpClient`.
 
 ```typescript
-import { getHttpClient } from '@linagora/linid-im-front-corelib';
+import { getHttpClient } from '@linagora/lin-pulsar-core';
 ```
 
 #### Parameters
@@ -70,7 +70,7 @@ None.
 #### Basic Usage
 
 ```typescript
-import { setHttpClient, getHttpClient } from '@linagora/linid-im-front-corelib';
+import { setHttpClient, getHttpClient } from '@linagora/lin-pulsar-core';
 import axios from 'axios';
 
 // Host application bootstrapping
@@ -94,11 +94,11 @@ http.get('/users').then((response) => {
 ##### Calling `getHttpClient` before initialization
 
 ```typescript
-import { getHttpClient } from '@linagora/linid-im-front-corelib';
+import { getHttpClient } from '@linagora/lin-pulsar-core';
 
 try {
   const http = getHttpClient();
-  // Throws: [LinID CoreLib] HTTP client is not initialized. Call setHttpClient() first.
+  // Throws: [LinPulsar Core] HTTP client is not initialized. Call setHttpClient() first.
 } catch (error) {
   // Handle error
 }
@@ -107,13 +107,13 @@ try {
 ##### Attempting to re-initialize
 
 ```typescript
-import { setHttpClient } from '@linagora/linid-im-front-corelib';
+import { setHttpClient } from '@linagora/lin-pulsar-core';
 import axios from 'axios';
 
 setHttpClient(axios.create());
 // Second call logs a warning and does not overwrite the instance
 setHttpClient(axios.create());
-// Logs: [LinID CoreLib] HTTP client has already been initialized. Re-initialization is ignored.
+// Logs: [LinPulsar Core] HTTP client has already been initialized. Re-initialization is ignored.
 ```
 
 ---
@@ -223,7 +223,7 @@ This helper wraps:
 It provides a safe, declarative way to consume federated Vue components.
 
 ```ts
-import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
+import { loadAsyncComponent } from '@linagora/lin-pulsar-core';
 ```
 
 ---
@@ -273,7 +273,7 @@ Returns a **Vue async component** that can be:
 
 ```ts
 import { getInstance } from '@module-federation/enhanced/runtime';
-import { setModuleFederation } from '@linagora/linid-im-front-corelib';
+import { setModuleFederation } from '@linagora/lin-pulsar-core';
 
 setModuleFederation(getInstance());
 ```
@@ -288,7 +288,7 @@ setModuleFederation(getInstance());
 </template>
 
 <script setup lang="ts">
-import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
+import { loadAsyncComponent } from '@linagora/lin-pulsar-core';
 import { ref } from 'vue';
 import type { Component } from 'vue';
 
@@ -312,7 +312,7 @@ remoteComponent.value = loadAsyncComponent('myRemote/HeaderWidget');
 </template>
 
 <script setup lang="ts">
-import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
+import { loadAsyncComponent } from '@linagora/lin-pulsar-core';
 
 const plugins = ['remote1/ComponentA', 'remote2/ComponentB'];
 </script>
@@ -642,7 +642,7 @@ Provides a singleton Pinia store instance shared across all modules, ensuring a 
 Initializes the shared Pinia store instance to be used by all modules. Should be called **once** during application bootstrapping by the host application.
 
 ```typescript
-import { setPiniaStore } from '@linagora/linid-im-front-corelib';
+import { setPiniaStore } from '@linagora/lin-pulsar-core';
 import { createPinia } from 'pinia';
 
 const pinia = createPinia();
@@ -667,7 +667,7 @@ No return value.
 #### Error Handling
 
 - If called more than once, logs a warning:  
-  `[LinID CoreLib] Pinia store has already been initialized. Re-initialization is ignored.`
+  `[LinPulsar Core] Pinia store has already been initialized. Re-initialization is ignored.`
 
 ---
 
@@ -676,7 +676,7 @@ No return value.
 Retrieves the shared Pinia store instance initialized by `setPiniaStore`.
 
 ```typescript
-import { getPiniaStore } from '@linagora/linid-im-front-corelib';
+import { getPiniaStore } from '@linagora/lin-pulsar-core';
 
 const pinia = getPiniaStore();
 ```
@@ -699,13 +699,13 @@ None.
 #### Error Handling
 
 - If called before initialization, throws:  
-  `[LinID CoreLib] Pinia store is not initialized. Call setPiniaStore() first.`
+  `[LinPulsar Core] Pinia store is not initialized. Call setPiniaStore() first.`
 
 ---
 
 ### Usage in Store Definitions
 
-All Pinia stores defined in this library (such as `linidConfigurationStore` and `linidZoneStore`) internally use `getPiniaStore()` to ensure they are attached to the singleton Pinia instance created by the host application.
+All Pinia stores defined in this library (such as `linPulsarConfigurationStore` and `linPulsarZoneStore`) internally use `getPiniaStore()` to ensure they are attached to the singleton Pinia instance created by the host application.
 
 When defining a new store (either in the host or a module), you should follow the same architecture:
 
@@ -717,7 +717,7 @@ When defining a new store (either in the host or a module), you should follow th
 ```typescript
 // myStore.ts
 import { defineStore } from 'pinia';
-import { getPiniaStore } from '@linagora/linid-im-front-corelib';
+import { getPiniaStore } from '@linagora/lin-pulsar-core';
 
 export const useMyStore = () => _useMyStore(getPiniaStore());
 
@@ -735,7 +735,7 @@ This ensures your store is always registered on the singleton Pinia instance sha
 #### Basic Usage
 
 ```typescript
-import { setPiniaStore, getPiniaStore } from '@linagora/linid-im-front-corelib';
+import { setPiniaStore, getPiniaStore } from '@linagora/lin-pulsar-core';
 import { createPinia } from 'pinia';
 
 // Host application bootstrapping
@@ -749,16 +749,16 @@ const store = getPiniaStore();
 #### Using a Store
 
 ```typescript
-import { useLinidConfigurationStore } from '@linagora/linid-im-front-corelib';
+import { useLinPulsarConfigurationStore } from '@linagora/lin-pulsar-core';
 
-const configStore = useLinidConfigurationStore();
+const configStore = useLinPulsarConfigurationStore();
 ```
 
 #### Defining and using a Custom Store in a Module
 
 ```typescript
 import { defineStore } from 'pinia';
-import { getPiniaStore } from '@linagora/linid-im-front-corelib';
+import { getPiniaStore } from '@linagora/lin-pulsar-core';
 
 export const useCustomStore = () => _useCustomStore(getPiniaStore());
 
@@ -829,7 +829,7 @@ import {
   renameKeys,
   deepEqual,
   deepEqualUnordered,
-} from '@linagora/linid-im-front-corelib';
+} from '@linagora/lin-pulsar-core';
 ```
 
 ---
@@ -1242,7 +1242,7 @@ Provides a singleton Nunjucks `Environment` instance shared across all modules, 
 Initializes the shared Nunjucks `Environment` instance to be used by all modules. Should be called **once** during application bootstrapping by the host application.
 
 ```typescript
-import { setNunjucksEnv } from '@linagora/linid-im-front-corelib';
+import { setNunjucksEnv } from '@linagora/lin-pulsar-core';
 import nunjucks from 'nunjucks';
 
 const env = new nunjucks.Environment();
@@ -1267,7 +1267,7 @@ No return value.
 #### Error Handling
 
 - If called more than once, logs a warning:  
-  `[LinID CoreLib] Nunjucks environment has already been initialized. Re-initialization is ignored.`
+  `[LinPulsar Core] Nunjucks environment has already been initialized. Re-initialization is ignored.`
 
 ---
 
@@ -1276,7 +1276,7 @@ No return value.
 Retrieves the shared Nunjucks `Environment` instance initialized by `setNunjucksEnv`.
 
 ```typescript
-import { getNunjucksEnv } from '@linagora/linid-im-front-corelib';
+import { getNunjucksEnv } from '@linagora/lin-pulsar-core';
 
 const env = getNunjucksEnv();
 ```
@@ -1299,7 +1299,7 @@ None.
 #### Error Handling
 
 - If called before initialization, throws:  
-  `[LinID CoreLib] Nunjucks environment is not initialized. Call setNunjucksEnv() first.`
+  `[LinPulsar Core] Nunjucks environment is not initialized. Call setNunjucksEnv() first.`
 
 ---
 
@@ -1308,7 +1308,7 @@ None.
 #### Application Bootstrap
 
 ```typescript
-import { setNunjucksEnv } from '@linagora/linid-im-front-corelib';
+import { setNunjucksEnv } from '@linagora/lin-pulsar-core';
 import nunjucks from 'nunjucks';
 
 // Host application bootstrapping
@@ -1319,7 +1319,7 @@ setNunjucksEnv(env);
 #### Rendering a Template
 
 ```typescript
-import { getNunjucksEnv } from '@linagora/linid-im-front-corelib';
+import { getNunjucksEnv } from '@linagora/lin-pulsar-core';
 
 const env = getNunjucksEnv();
 const result = env.renderString('Hello {{ name }}!', { name: 'Alice' });
@@ -1334,7 +1334,7 @@ Filters specific to the host application can be added after initialization:
 import {
   setNunjucksEnv,
   getNunjucksEnv,
-} from '@linagora/linid-im-front-corelib';
+} from '@linagora/lin-pulsar-core';
 import nunjucks from 'nunjucks';
 
 const env = new nunjucks.Environment();
@@ -1379,7 +1379,7 @@ Provides a singleton Dayjs instance shared across all modules.
 Initializes the shared Dayjs instance to be used by all modules. Should be called once during application bootstrapping, **after** loading all required Dayjs plugins (e.g. `customParseFormat`).
 
 ```typescript
-import { setDayjsInstance } from '@linagora/linid-im-front-corelib';
+import { setDayjsInstance } from '@linagora/lin-pulsar-core';
 ```
 
 #### Parameters
@@ -1404,7 +1404,7 @@ No return value.
 Retrieves the shared Dayjs instance initialized by `setDayjsInstance`.
 
 ```typescript
-import { getDayjsInstance } from '@linagora/linid-im-front-corelib';
+import { getDayjsInstance } from '@linagora/lin-pulsar-core';
 ```
 
 #### Parameters
@@ -1429,7 +1429,7 @@ None.
 #### Basic Usage
 
 ```typescript
-import { setDayjsInstance } from '@linagora/linid-im-front-corelib';
+import { setDayjsInstance } from '@linagora/lin-pulsar-core';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
@@ -1447,11 +1447,11 @@ setDayjsInstance(dayjs);
 ##### Calling `getDayjsInstance` before initialization
 
 ```typescript
-import { getDayjsInstance } from '@linagora/linid-im-front-corelib';
+import { getDayjsInstance } from '@linagora/lin-pulsar-core';
 
 try {
   const dayjs = getDayjsInstance();
-  // Throws: [LinID CoreLib] Dayjs instance is not initialized. Call setDayjsInstance() first.
+  // Throws: [LinPulsar Core] Dayjs instance is not initialized. Call setDayjsInstance() first.
 } catch (error) {
   // Handle error
 }
@@ -1460,13 +1460,13 @@ try {
 ##### Attempting to re-initialize
 
 ```typescript
-import { setDayjsInstance } from '@linagora/linid-im-front-corelib';
+import { setDayjsInstance } from '@linagora/lin-pulsar-core';
 import dayjs from 'dayjs';
 
 setDayjsInstance(dayjs);
 // Second call logs a warning and does not overwrite the instance
 setDayjsInstance(dayjs);
-// Logs: [LinID CoreLib] Dayjs instance has already been initialized. Re-initialization is ignored.
+// Logs: [LinPulsar Core] Dayjs instance has already been initialized. Re-initialization is ignored.
 ```
 
 ---
@@ -1502,7 +1502,7 @@ Makes a component available to zones under the given name.
 Components are stored with `markRaw`, so they are kept out of the reactivity system. Registering a name that is already known **overrides** the previous component.
 
 ```ts
-import { registerLocalComponent } from '@linagora/linid-im-front-corelib';
+import { registerLocalComponent } from '@linagora/lin-pulsar-core';
 import UserRolesCard from './components/UserRolesCard.vue';
 
 registerLocalComponent('UserRolesCard', UserRolesCard);
@@ -1515,7 +1515,7 @@ registerLocalComponent('UserRolesCard', UserRolesCard);
 Makes several components available to zones at once, typically to declare the whole zone surface of an application in a single call during bootstrap.
 
 ```ts
-import { registerLocalComponents } from '@linagora/linid-im-front-corelib';
+import { registerLocalComponents } from '@linagora/lin-pulsar-core';
 import { QBanner, QSeparator } from 'quasar';
 
 registerLocalComponents({
@@ -1533,7 +1533,7 @@ Returns the value registered under the given name, or `undefined` when the name 
 Unlike `resolveLocalComponent`, unknown names are **not** resolved against globally registered components and no warning is logged: the caller is expected to treat `undefined` as an error. This is what the module configuration loading uses to resolve `component` references (`lifecycleRemote`, `routesRemote`, `i18nRemote`, route components), where an unregistered name must fail loudly instead of falling back.
 
 ```ts
-import { getLocalComponent } from '@linagora/linid-im-front-corelib';
+import { getLocalComponent } from '@linagora/lin-pulsar-core';
 
 // Returns the registered value
 getLocalComponent('UserRolesCard');
@@ -1551,7 +1551,7 @@ Resolves the component registered under the given name.
 Unknown names are **not** an error: a warning listing the registered names is logged, and the name is returned as-is so that Vue still attempts to resolve it against globally registered components.
 
 ```ts
-import { resolveLocalComponent } from '@linagora/linid-im-front-corelib';
+import { resolveLocalComponent } from '@linagora/lin-pulsar-core';
 
 // Returns the registered component
 resolveLocalComponent('UserRolesCard');
@@ -1567,7 +1567,7 @@ resolveLocalComponent('UnknownCard');
 - ✅ Host declares its zone components once during boot, before any zone is rendered
 - ✅ Zone entries and module configuration files reference those components by name
 - ⚠️ Warning logged when resolving an unknown name, which falls back to global resolution
-- ❌ Never called manually by consumers: `LinidZoneRenderer` resolves entries on its own
+- ❌ Never called manually by consumers: `LinPulsarZoneRenderer` resolves entries on its own
 
 ---
 

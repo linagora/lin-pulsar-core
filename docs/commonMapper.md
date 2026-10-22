@@ -22,7 +22,7 @@ operations on dates, records, and attributes.
 ## Usage
 
 ```ts
-import { useCommonMapper } from '@linagora/linid-im-front-corelib';
+import { useCommonMapper } from '@linagora/lin-pulsar-core';
 
 const { toDate, toDateISO, formatDate, toEmptyRecord, toDayJs } =
   useCommonMapper();
@@ -234,14 +234,14 @@ Creates an empty object (record) with one key per field, each initialized to an 
 form objects when the shape is driven by runtime configuration.
 
 ```ts
-toEmptyRecord<T>(fields: LinidAttributeConfiguration[]): T
+toEmptyRecord<T>(fields: LinPulsarAttributeConfiguration[]): T
 ```
 
 ### Parameters
 
 | Parameter | Type                            | Required | Description                                                                |
 | --------- | ------------------------------- | -------- | -------------------------------------------------------------------------- |
-| `fields`  | `LinidAttributeConfiguration[]` | yes      | Array of attribute definitions that describe the form fields to initialize |
+| `fields`  | `LinPulsarAttributeConfiguration[]` | yes      | Array of attribute definitions that describe the form fields to initialize |
 
 ### Returns
 
@@ -326,7 +326,7 @@ toDayJs('not-a-valid-date'); // null
 Here's a complete example integrating all functions:
 
 ```ts
-import { useCommonMapper } from '@linagora/linid-im-front-corelib';
+import { useCommonMapper } from '@linagora/lin-pulsar-core';
 
 const { toDate, toDateISO, formatDate, toEmptyRecord, toDayJs } =
   useCommonMapper();

@@ -23,7 +23,7 @@ It also re-exports the `DEFAULT_DATE_FORMAT` constant (`'YYYY-MM-DD'`), which is
 ```ts
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { setDayjsInstance } from '@linagora/linid-im-front-corelib';
+import { setDayjsInstance } from '@linagora/lin-pulsar-core';
 
 dayjs.extend(customParseFormat);
 setDayjsInstance(dayjs);
@@ -36,7 +36,7 @@ setDayjsInstance(dayjs);
 ## Usage
 
 ```ts
-import { useDayjs } from '@linagora/linid-im-front-corelib';
+import { useDayjs } from '@linagora/lin-pulsar-core';
 
 const { toDayjs, maxDate, minDate } = useDayjs();
 ```

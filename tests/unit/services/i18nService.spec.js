@@ -37,7 +37,7 @@ describe('Test service: i18nService', () => {
       setI18nInstance(secondI18n);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] I18n has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] I18n has already been initialized. Re-initialization is ignored.'
       );
       expect(getI18nInstance().t('a')).toEqual('a');
 
@@ -48,7 +48,7 @@ describe('Test service: i18nService', () => {
   describe('Test function: getI18nInstance', () => {
     it('should throw an error if client is not initialized', () => {
       expect(() => getI18nInstance()).toThrow(
-        '[LinID CoreLib] I18n is not initialized. Call setI18nInstance() first.'
+        '[LinPulsar Core] I18n is not initialized. Call setI18nInstance() first.'
       );
     });
   });

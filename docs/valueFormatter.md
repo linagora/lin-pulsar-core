@@ -25,7 +25,7 @@ configuration degrades the display instead of breaking the page.
 ## Usage
 
 ```ts
-import { useValueFormatter } from '@linagora/linid-im-front-corelib';
+import { useValueFormatter } from '@linagora/lin-pulsar-core';
 
 const { formatValue } = useValueFormatter();
 ```
@@ -130,7 +130,7 @@ The intended entry point is not a direct call, but the
 definitions extend.
 
 ```ts
-import type { FormatterConfiguration } from '@linagora/linid-im-front-corelib';
+import type { FormatterConfiguration } from '@linagora/lin-pulsar-core';
 
 interface ColumnDefinition extends FormatterConfiguration {
   name: string;
@@ -161,7 +161,7 @@ And consumed in a component:
 
 ```vue
 <script setup lang="ts">
-  import { useValueFormatter } from '@linagora/linid-im-front-corelib';
+  import { useValueFormatter } from '@linagora/lin-pulsar-core';
 
   const { formatValue } = useValueFormatter();
   defineProps<{ row: Record<string, unknown>; columns: ColumnDefinition[] }>();
@@ -192,7 +192,7 @@ type ValueFormatter = (
 ```
 
 > The registry is closed: a remote plugin cannot register its own formatter. Any new formatter must be added to the
-> corelib and released with it.
+> lin-pulsar-core and released with it.
 
 > `formatter` is typed `string`, so a name that is not registered is **not** rejected at compile time. A typo in a
 > configuration surfaces only at runtime, as the raw value being displayed.

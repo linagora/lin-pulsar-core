@@ -176,7 +176,7 @@ async ready(config: ModuleHostConfig<MyModuleOptions>): Promise<ModuleLifecycleR
 **Use cases:**
 
 - Receive configuration from host (`module-<name>.json`)
-- Register zones from configuration into the Linid Zone Store
+- Register zones from configuration into the LinPulsar Zone Store
 - Register module information in shared Pinia store states (e.g., navigation items)
 - Integrate with other modules
 - Set up cross-module communication
@@ -194,7 +194,7 @@ async postInit(config: ModuleHostConfig<T>): Promise<ModuleLifecycleResult>
 async postInit(config: ModuleHostConfig<MyModuleOptions>): Promise<ModuleLifecycleResult> {
   // Register zones defined in configuration
   if (config.zones.length > 0) {
-    const zoneStore = useLinidZoneStore();
+    const zoneStore = useLinPulsarZoneStore();
     config.zones.forEach((zoneDefinition) => {
       if ('component' in zoneDefinition && zoneDefinition.component) {
         zoneStore.registerComponent(
@@ -212,7 +212,7 @@ async postInit(config: ModuleHostConfig<MyModuleOptions>): Promise<ModuleLifecyc
     });
   }
   // Register module in main navigation items of Ui Store
-  const store = useLinidUiStore();
+  const store = useLinPulsarUiStore();
 
   store.addMainNavigationMenuItems(
     { id: config.instanceId, labelKey: `${config.instanceId}.NavigationMenu.label`, path: config.basePath || '/users' }
@@ -283,14 +283,14 @@ return {
 
 ## Ready-Made Page Module Lifecycle
 
-For a standard page module, you do not need to write a lifecycle class at all. The corelib provides a `createModulePageLifecycle` factory that returns a ready-to-expose module instance with the default page integration behavior:
+For a standard page module, you do not need to write a lifecycle class at all. The lin-pulsar-core provides a `createModulePageLifecycle` factory that returns a ready-to-expose module instance with the default page integration behavior:
 
 - Optionally registers an entry in the host application's main navigation menu during `postInit`, when the host configuration sets `options.addNavigationMenu` to `true`. The menu item uses the module instance identifier as id, the i18n key `<instanceId>.NavigationMenu.label` as label key, and the configured base path as target.
 - Registers the given dialog components once in the host layout dialog zone during `postInit`. The zone is provided through the required `dialogZone` option (e.g. `base-layout.dialogComponent`).
 
 ```typescript
 // src/federation/module-page-lifecycle.ts
-import { createModulePageLifecycle } from '@linagora/linid-im-front-corelib';
+import { createModulePageLifecycle } from '@linagora/lin-pulsar-core';
 
 export default createModulePageLifecycle({
   id: 'modulePage',
@@ -343,11 +343,11 @@ The host application loads this entry during boot (`src/boot/module-lifecycle.ts
 
 ### Option 1: Extending BasicRemoteModule (Recommended)
 
-The corelib provides a `BasicRemoteModule` class with default implementations for all hooks:
+The lin-pulsar-core provides a `BasicRemoteModule` class with default implementations for all hooks:
 
 ```typescript
-import { BasicRemoteModule } from '@linagora/linid-im-front-corelib';
-import type { ModuleLifecycleResult } from '@linagora/linid-im-front-corelib';
+import { BasicRemoteModule } from '@linagora/lin-pulsar-core';
+import type { ModuleLifecycleResult } from '@linagora/lin-pulsar-core';
 import type { App } from 'vue';
 
 class MyModule extends BasicRemoteModule<MyModuleOptions> {
@@ -387,7 +387,7 @@ import type {
   RemoteModule,
   ModuleLifecycleResult,
   ModuleHostConfig,
-} from '@linagora/linid-im-front-corelib';
+} from '@linagora/lin-pulsar-core';
 import type { App } from 'vue';
 
 class MyModule implements RemoteModule<MyModuleOptions> {
@@ -431,7 +431,7 @@ class MyModule implements RemoteModule<MyModuleOptions> {
   ): Promise<ModuleLifecycleResult> {
     // Register zones defined in configuration
     if (config.zones.length > 0) {
-      const zoneStore = useLinidZoneStore();
+      const zoneStore = useLinPulsarZoneStore();
       config.zones.forEach((zoneDefinition) => {
         if ('component' in zoneDefinition && zoneDefinition.component) {
           zoneStore.registerComponent(
@@ -450,7 +450,7 @@ class MyModule implements RemoteModule<MyModuleOptions> {
     }
 
     // Register module in main navigation items of Ui Store
-    const store = useLinidUiStore();
+    const store = useLinPulsarUiStore();
 
     store.addMainNavigationMenuItems({
       id: config.instanceId,
@@ -714,17 +714,17 @@ Host Application
 
 ### Host Responsibilities
 
-The whole federation setup is provided by the corelib through `linidModuleFederation.init()`. The host application only declares its configuration (remotes, module configuration files, extra zone files, host-local components) and calls `init()` in a single boot file:
+The whole federation setup is provided by the lin-pulsar-core through `linPulsarModuleFederation.init()`. The host application only declares its configuration (remotes, module configuration files, extra zone files, host-local components) and calls `init()` in a single boot file:
 
 ```typescript
 // src/boot/module-lifecycle.ts
-import { linidModuleFederation } from '@linagora/linid-im-front-corelib';
+import { linPulsarModuleFederation } from '@linagora/lin-pulsar-core';
 import { defineBoot } from '@quasar/app-vite/wrappers';
 import MyLocalComponent from 'components/MyLocalComponent.vue';
 import { appConfig } from './config';
 
 export default defineBoot(async ({ router }) => {
-  await linidModuleFederation.init({
+  await linPulsarModuleFederation.init({
     router,
     remotes: appConfig.remotes,
     modules: appConfig.modules,
@@ -734,7 +734,7 @@ export default defineBoot(async ({ router }) => {
 });
 ```
 
-`init()` performs the complete setup, in order: it registers the given remotes and shares the Module Federation instance with the corelib, makes the given host-local components available to zones and module configurations, loads each module configuration file and extra zone file in a fault-tolerant way (a broken entry is skipped), loads every module's lifecycle entry point (`lifecycleRemote`), then executes the five phases in sequence for all modules. During the CONFIGURE phase it registers the routes exposed by each module (`routesRemote`) on the provided router and merges the module i18n messages (`i18nRemote`); during the POST_INIT phase it registers the zones declared in each module configuration. Finally, it registers the zones of the extra zone files.
+`init()` performs the complete setup, in order: it registers the given remotes and shares the Module Federation instance with the lin-pulsar-core, makes the given host-local components available to zones and module configurations, loads each module configuration file and extra zone file in a fault-tolerant way (a broken entry is skipped), loads every module's lifecycle entry point (`lifecycleRemote`), then executes the five phases in sequence for all modules. During the CONFIGURE phase it registers the routes exposed by each module (`routesRemote`) on the provided router and merges the module i18n messages (`i18nRemote`); during the POST_INIT phase it registers the zones declared in each module configuration. Finally, it registers the zones of the extra zone files.
 
 Options:
 
@@ -752,7 +752,7 @@ Example with literal values:
 ```typescript
 import ExportApplicationScriptBtn from 'components/btn/ExportApplicationScriptBtn.vue';
 
-await linidModuleFederation.init({
+await linPulsarModuleFederation.init({
   router,
   remotes: [
     {
@@ -773,8 +773,8 @@ await linidModuleFederation.init({
 
 The `lifecycleRemote`, `routesRemote` and `i18nRemote` configuration properties, and any property consumed as a route
 component (such as `options.layout` and `options.page` for a page module), accept a `ModuleComponentRef`: a plain
-string or a `FederatedLinidZoneEntry` for an element exposed through Module Federation, or a
-`ComponentLinidZoneEntry` for an element registered through the `localComponents` option. A local reference is
+string or a `FederatedLinPulsarZoneEntry` for an element exposed through Module Federation, or a
+`ComponentLinPulsarZoneEntry` for an element registered through the `localComponents` option. A local reference is
 resolved without any Module Federation loading, and an unregistered name produces an error.
 
 ```json
@@ -799,7 +799,7 @@ resolved without any Module Federation loading, and an unregistered name produce
 The referenced elements are registered by the host alongside its zone components:
 
 ```typescript
-await linidModuleFederation.init({
+await linPulsarModuleFederation.init({
   router,
   remotes: appConfig.remotes,
   modules: appConfig.modules,
@@ -846,13 +846,13 @@ exactly one of a `plugin` or a `component` name) is logged and skipped, without 
 ### Hooking into Host-Side Phases
 
 The host can extend how any lifecycle phase is orchestrated through the `hooks` option. Each hook has the
-`LinidModuleFederationPhaseRunner` signature (`(module, config, router) => Promise<ModuleLifecycleResult>`) and is
+`LinPulsarModuleFederationPhaseRunner` signature (`(module, config, router) => Promise<ModuleLifecycleResult>`) and is
 executed after the default host-side runner of its phase (which already calls the module's own hook); phases without a
 hook keep the default behavior.
 
 ```typescript
 export default defineBoot(async ({ router }) => {
-  await linidModuleFederation.init({
+  await linPulsarModuleFederation.init({
     router,
     remotes: appConfig.remotes,
     modules: appConfig.modules,

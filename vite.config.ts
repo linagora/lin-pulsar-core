@@ -22,8 +22,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'CoreLib',
-      fileName: (format) => `core-lib.${format}.js`,
+      name: 'LinPulsarCore',
+      fileName: (format) => `lin-pulsar-core.${format}.js`,
     },
     rollupOptions: {
       external: ['vue', '@module-federation/enhanced/runtime'],

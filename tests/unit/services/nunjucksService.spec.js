@@ -30,7 +30,7 @@ describe('Test service: nunjucksService', () => {
       setNunjucksEnv(secondEnv);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] Nunjucks environment has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] Nunjucks environment has already been initialized. Re-initialization is ignored.'
       );
       expect(getNunjucksEnv()).toBe(firstEnv);
 
@@ -41,7 +41,7 @@ describe('Test service: nunjucksService', () => {
   describe('Test function: getNunjucksEnv', () => {
     it('should throw an error if environment is not initialized', () => {
       expect(() => getNunjucksEnv()).toThrow(
-        '[LinID CoreLib] Nunjucks environment is not initialized. Call setNunjucksEnv() first.'
+        '[LinPulsar Core] Nunjucks environment is not initialized. Call setNunjucksEnv() first.'
       );
     });
   });

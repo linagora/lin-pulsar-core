@@ -1,8 +1,8 @@
 ## GNU Affero General Public License version 3
 
-License and Additional Terms for LinID Identity Manager software
+License and Additional Terms for linOpenFactory software
 
-LinID Identity Manager is an open-source web framework for LDAP directory management, distributed under the GNU Affero
+linOpenFactory is an open-source web framework for LDAP directory management, distributed under the GNU Affero
 GPL v3 License terms, with Additional Terms pursuant to Section 7 of said license.
 
 These Additional Terms are not intended to be taken as a change of heart by LINAGORA over the principles of free
@@ -10,9 +10,9 @@ software and open source distribution, as LINAGORA strongly believes in free sof
 since it warrants an easy and reasonable access to software innovation to large user communities, and is highly
 committed to supporting free software and open source whenever possible.
 
-LINAGORA wishes its paternity over LinID Identity Manager software to be acknowledged, regardless of its present or
+LINAGORA wishes its paternity over linOpenFactory software to be acknowledged, regardless of its present or
 later use, modification, distribution and/or evolutions. Accordingly, these terms aim at preserving LINAGORA moral
-rights over LinID Identity Manager.
+rights over linOpenFactory.
 
 We have taken care of not affecting product copying, improvements or deploying. It is our conviction that the community
 will not be affected by these terms, the ultimate goal of which is to ensure the sustainability of free and open source
@@ -26,12 +26,12 @@ Public License version 3, provided that you comply with its requirements, notabl
     • retaining Appropriate Legal Notices in the source code and the user interface;
     • keeping any modifications of the software under the terms of the GNU Affero General Public License version 3, including its Additional Terms pursuant to its section 7, subsections (b), (c) and (e).
 
-Following are the applicable Additional Terms for use of the LinID Identity Manager software pursuant to section 7,
+Following are the applicable Additional Terms for use of the linOpenFactory software pursuant to section 7,
 subsections (b), (c) and (e) of the GNU Affero General Public License version 3.
 
-Additional Terms applicable for LinID Identity Manager software.
+Additional Terms applicable for linOpenFactory software.
 
-The following additional terms are applicable to the use, modification and distribution of LinID Identity Manager
+The following additional terms are applicable to the use, modification and distribution of linOpenFactory
 software:
 
     1. Notices and Attribution:
@@ -40,34 +40,34 @@ The interactive user interfaces in modified source and object code versions of t
 Legal Notices, as required under Section 5 of the GNU Affero General Public License version 3.
 
 In accordance with Section 7 and subsection (b) of the GNU Affero General Public License version 3, these Appropriate
-Legal Notices must retain the display of the “LinID™” trademark/logo at the top of the interface window, the display of
-the “You are using the Open Source and free version of LinID™, powered by Linagora © 2009–2013. Contribute to LinID R&D
-by subscribing to an Enterprise offer!” infobox and in the e-mails sent with the Program in the LinID Identity Manager
+Legal Notices must retain the display of the “linOpenFactory™” trademark/logo at the top of the interface window, the display of
+the “You are using the Open Source and free version of linOpenFactory™, powered by Linagora © 2009–2013. Contribute to linOpenFactory R&D
+by subscribing to an Enterprise offer!” infobox and in the e-mails sent with the Program in the linOpenFactory
 user interface as well as for any and all type of outbound messages (e.g. e-mail and meeting requests).
 
-Retaining this Notice in any and all free and Open Source versions of LinID Identity Manager is mandatory
+Retaining this Notice in any and all free and Open Source versions of linOpenFactory is mandatory
 notwhistanding any other terms and conditions.
 
 If the display of the Appropriate Legal Notices, and/or logos is not reasonably feasible for technical reasons, the
-Appropriate Legal Notices must retain the display of the “LinID™” trademark/logo at the top of the interface window, the
-display of the “You are using the Open Source and free version of LinID™, powered by Linagora © 2009–2013. Contribute to
-LinID R&D by subscribing to an Enterprise offer!” infobox and in the e-mails sent with the Program.
+Appropriate Legal Notices must retain the display of the “linOpenFactory™” trademark/logo at the top of the interface window, the
+display of the “You are using the Open Source and free version of linOpenFactory™, powered by Linagora © 2009–2013. Contribute to
+linOpenFactory R&D by subscribing to an Enterprise offer!” infobox and in the e-mails sent with the Program.
 
 These Notices can be freely translated and replaced by any notice of strictly identical meaning in another language
-according to localization of the software, provided such notice clearly displays the words “LinID Identity Manager” and
+according to localization of the software, provided such notice clearly displays the words “linOpenFactory” and
 “LINAGORA”.
 
-Regardless of the notice language, the Logo/words "LinID Identity Manager" must be a clickable hypertext link that
+Regardless of the notice language, the Logo/words "linOpenFactory" must be a clickable hypertext link that
 leads directly to the Internet URL http://https://linid.org/. The Logo/word "LINAGORA" must be a clickable hypertext
 link that leads directly to the Internet URL http://www.LINAGORA.com.
 
-    2. Use of the LinID Identity Manager and LINAGORA trademarks and logos
+    2. Use of the linOpenFactory and LINAGORA trademarks and logos
 
-LinID Identity Manager™ and LINAGORA™ are registered trademarks of LINAGORA.
+linOpenFactory™ and LINAGORA™ are registered trademarks of LINAGORA.
 
 Pursuant to Section 7, subsections (c) and (e) of the GNU Affero General Public License version 3, this license allows
 limited use of these trademarks under the following terms:
-All LINAGORA trademarks, including LinID Identity Manager™ and LINAGORA™ logos shall be used by the licensees and
+All LINAGORA trademarks, including linOpenFactory™ and LINAGORA™ logos shall be used by the licensees and
 sublicensees for the sole purpose of complying with the present Additional Terms to the GNU Affero General Public
 License version 3, excluding any other purpose without written consent obtained from LINAGORA.
 
@@ -77,13 +77,13 @@ clearly legible), or using these trademarks to promote any products or services 
 websites, books, documentation or any other publication without a written, signed agreement with LINAGORA is strictly
 prohibited, and constitutes an infringement of LINAGORA intellectual property rights over these trademarks.
 
-Using these trademarks in a way harmful, damaging or detrimental to the value of the LinID Identity Manager brand or
+Using these trademarks in a way harmful, damaging or detrimental to the value of the linOpenFactory brand or
 any other LINAGORA trademarks, integrity, image, reputation, and/or goodwill, as determined by LINAGORA, is also
 strictly prohibited, and constitutes an infringement of LINAGORA intellectual property rights over these trademarks as
 well.
 
 Please report any possible violation of the GNU Affero General Public License version 3, any violation of the hereabove
-Additional Terms, any infringement and/or misuse of any LinID Identity Manager or LINAGORA trade marks and/or a
+Additional Terms, any infringement and/or misuse of any linOpenFactory or LINAGORA trade marks and/or a
 violation of the aforementioned Trademark Policy at <info@LINAGORA.com>.
 
 ## GNU AFFERO GENERAL PUBLIC LICENSE

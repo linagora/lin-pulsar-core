@@ -1,4 +1,4 @@
-# ⚙️ User Preferences System (`useLinidUserPreference`)
+# ⚙️ User Preferences System (`useLinPulsarUserPreference`)
 
 This document describes how to manage **user preferences** using:
 
@@ -17,12 +17,12 @@ The user preference system provides a simple abstraction to:
 
 It is composed of:
 
-* `useLinidUserPreferenceStore` → state management layer
-* `useLinidUserPreference` → API + store orchestration layer
+* `useLinPulsarUserPreferenceStore` → state management layer
+* `useLinPulsarUserPreference` → API + store orchestration layer
 
 ---
 
-## 2. Pinia Store (`useLinidUserPreferenceStore`)
+## 2. Pinia Store (`useLinPulsarUserPreferenceStore`)
 
 ### 2.1 Purpose
 
@@ -33,7 +33,7 @@ The store is responsible for holding user preferences in memory and providing mu
 ### 2.2 State
 
 ```ts
-interface LinidUserPreferenceState {
+interface LinPulsarUserPreferenceState {
   userPreferences: Record<string, string>;
 }
 ```
@@ -73,9 +73,9 @@ removeUserPreference(key: string): void
 ### 2.4 Usage
 
 ```ts
-import { useLinidUserPreferenceStore } from '../stores/linidUserPreferenceStore';
+import { useLinPulsarUserPreferenceStore } from '../stores/linPulsarUserPreferenceStore';
 
-const store = useLinidUserPreferenceStore();
+const store = useLinPulsarUserPreferenceStore();
 
 store.setUserPreference('theme', 'dark');
 store.removeUserPreference('language');
@@ -83,7 +83,7 @@ store.removeUserPreference('language');
 
 ---
 
-## 3. Composable (`useLinidUserPreference`)
+## 3. Composable (`useLinPulsarUserPreference`)
 
 ### 3.1 Purpose
 
@@ -109,7 +109,7 @@ init(): Promise<void>
 Example:
 
 ```ts
-const { init } = useLinidUserPreference();
+const { init } = useLinPulsarUserPreference();
 
 await init();
 ```
@@ -129,7 +129,7 @@ saveUserPreference(key: string, value: string): Promise<void>
 Example:
 
 ```ts
-const { saveUserPreference } = useLinidUserPreference();
+const { saveUserPreference } = useLinPulsarUserPreference();
 
 await saveUserPreference('theme', 'dark');
 ```
@@ -149,7 +149,7 @@ deleteUserPreference(key: string): Promise<void>
 Example:
 
 ```ts
-const { deleteUserPreference } = useLinidUserPreference();
+const { deleteUserPreference } = useLinPulsarUserPreference();
 
 await deleteUserPreference('theme');
 ```
@@ -210,7 +210,7 @@ const {
   saveUserPreference,
   deleteUserPreference,
   userPreferenceStore,
-} = useLinidUserPreference();
+} = useLinPulsarUserPreference();
 
 await init();
 

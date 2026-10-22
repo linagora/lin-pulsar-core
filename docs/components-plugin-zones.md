@@ -1,23 +1,23 @@
-# LinidZoneRenderer Component 🔌
+# LinPulsarZoneRenderer Component 🔌
 
-The **LinidZoneRenderer** component is a core feature of `linid-im-front-corelib`.  
+The **LinPulsarZoneRenderer** component is a core feature of `lin-pulsar-core`.  
 It allows the host application to **dynamically render remote Vue components (plugins) or components referenced by
 name** inside predefined “zones” of the UI.
 
-This component works together with the **Linid Zone Store**, which manages plugin registration and provides reactive
+This component works together with the **LinPulsar Zone Store**, which manages plugin registration and provides reactive
 updates.
 
 ---
 
 ## 🎯 Purpose
 
-LinidZoneRenderer provides:
+LinPulsarZoneRenderer provides:
 
 - **Dynamic rendering:** Federated components are loaded asynchronously only when needed.
 - **Plugin-based architecture:** Plugins registered during initialization are rendered automatically.
 - **Named components:** A zone entry can also reference a component by name, without module federation.
 - **Extensibility:** New features can be added via plugins without modifying the host app.
-- **Standardization:** All entries follow the `LinidZoneEntry` discriminated union.
+- **Standardization:** All entries follow the `LinPulsarZoneEntry` discriminated union.
 
 ---
 
@@ -27,7 +27,7 @@ LinidZoneRenderer provides:
 
 ```vue
 <template>
-  <LinidZoneRenderer zone="user-details" />
+  <LinPulsarZoneRenderer zone="user-details" />
 </template>
 ```
 
@@ -46,7 +46,7 @@ LinidZoneRenderer provides:
 
 ```vue
 <template>
-  <LinidZoneRenderer
+  <LinPulsarZoneRenderer
     zone="user-details"
     :userId="42"
     :theme="dark"
@@ -60,7 +60,7 @@ forwarded the same way.
 
 ### Default Slot - Fallback Component
 
-The `LinidZoneRenderer` component provides a **default slot** that is displayed when no components are registered in the
+The `LinPulsarZoneRenderer` component provides a **default slot** that is displayed when no components are registered in the
 specified zone **after loading is complete**.
 
 #### Purpose
@@ -90,7 +90,7 @@ If you don't provide a custom slot, the component displays a default message:
 
 ```vue
 <template>
-  <LinidZoneRenderer zone="sidebar" />
+  <LinPulsarZoneRenderer zone="sidebar" />
 </template>
 ```
 
@@ -102,13 +102,13 @@ You can provide your own fallback content using the default slot:
 
 ```vue
 <template>
-  <LinidZoneRenderer zone="user-actions">
+  <LinPulsarZoneRenderer zone="user-actions">
     <template #default>
       <div>
         <p>No actions available for this user.</p>
       </div>
     </template>
-  </LinidZoneRenderer>
+  </LinPulsarZoneRenderer>
 </template>
 ```
 
@@ -203,7 +203,7 @@ available to zones, see [Making Components Available to Zones](#-making-componen
 - **Multiple zones:** A module can inject elements into multiple zones
 - **Centralized:** All zone declarations are in one place
 - **Static:** Zones must be known at build time for this approach
-- **Integration:** The module lifecycle will automatically register these zones in the Linid Zone Store during
+- **Integration:** The module lifecycle will automatically register these zones in the LinPulsar Zone Store during
   initialization
 
 ### When to Use Configuration vs. Store
@@ -219,16 +219,16 @@ Both approaches can coexist: use configuration for standard zones and the store 
 
 ## ⚡ Adding an Entry with the Store
 
-Entries must be registered in the **Linid Zone Store** before they can be rendered.
+Entries must be registered in the **LinPulsar Zone Store** before they can be rendered.
 
 ### Federated Plugin Entry (`registerPlugin`)
 
 ```ts
-import { useLinidZoneStore } from '@linagora/linid-im-front-corelib';
+import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
-const linidZoneStore = useLinidZoneStore();
+const linPulsarZoneStore = useLinPulsarZoneStore();
 
-linidZoneStore.registerPlugin('user-details', '@/remote/UserCard', {
+linPulsarZoneStore.registerPlugin('user-details', '@/remote/UserCard', {
   userId: 42,
 });
 ```
@@ -242,11 +242,11 @@ A zone entry can also reference a component by name, without going through modul
 the host application to inject its own components into zones exposed by generic pages.
 
 ```ts
-import { useLinidZoneStore } from '@linagora/linid-im-front-corelib';
+import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
-const linidZoneStore = useLinidZoneStore();
+const linPulsarZoneStore = useLinPulsarZoneStore();
 
-linidZoneStore.registerComponent('user-details', 'UserRolesCard', {
+linPulsarZoneStore.registerComponent('user-details', 'UserRolesCard', {
   userId: 42,
 });
 ```
@@ -260,7 +260,7 @@ linidZoneStore.registerComponent('user-details', 'UserRolesCard', {
 > Because the component is referenced by name rather than by reference, this variant can also be declared from a module
 > configuration file.
 
-> Once registered **before the component mounts**, the `LinidZoneRenderer` component will render this entry in the
+> Once registered **before the component mounts**, the `LinPulsarZoneRenderer` component will render this entry in the
 > specified zone.
 
 ---
@@ -274,7 +274,7 @@ Component entries carry a name, not a component reference, so that name has to b
 import {
   registerLocalComponent,
   registerLocalComponents,
-} from '@linagora/linid-im-front-corelib';
+} from '@linagora/lin-pulsar-core';
 import { QSeparator } from 'quasar';
 import UserRolesCard from './components/UserRolesCard.vue';
 
@@ -301,15 +301,15 @@ This is typically done once during application bootstrap, before any zone is ren
 
 ## 🔍 Checking Whether a Zone Has Entries (`hasZoneEntries`)
 
-The **Linid Zone Store** exposes a `hasZoneEntries` getter to know whether a zone holds at least one registered entry,
-i.e. whether its `LinidZoneRenderer` will actually produce content.
+The **LinPulsar Zone Store** exposes a `hasZoneEntries` getter to know whether a zone holds at least one registered entry,
+i.e. whether its `LinPulsarZoneRenderer` will actually produce content.
 
 ```ts
-import { useLinidZoneStore } from '@linagora/linid-im-front-corelib';
+import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
-const linidZoneStore = useLinidZoneStore();
+const linPulsarZoneStore = useLinPulsarZoneStore();
 
-if (linidZoneStore.hasZoneEntries('user-details')) {
+if (linPulsarZoneStore.hasZoneEntries('user-details')) {
   // The zone will render something
 }
 ```
@@ -327,7 +327,7 @@ if (linidZoneStore.hasZoneEntries('user-details')) {
 In some scenarios, a plugin must be registered **only once per zone**, even if the registration logic is executed
 multiple times (for example, during repeated component mounts or micro-frontend initialization).
 
-The **Linid Zone Store** provides a `registerPluginOnce` method for this purpose.
+The **LinPulsar Zone Store** provides a `registerPluginOnce` method for this purpose.
 
 ### 🎯 Purpose
 
@@ -342,11 +342,11 @@ The **Linid Zone Store** provides a `registerPluginOnce` method for this purpose
 ### 🧱 Usage
 
 ```ts
-import { useLinidZoneStore } from '@linagora/linid-im-front-corelib';
+import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
-const linidZoneStore = useLinidZoneStore();
+const linPulsarZoneStore = useLinPulsarZoneStore();
 
-linidZoneStore.registerPluginOnce('user-details', '@/remote/UserCard');
+linPulsarZoneStore.registerPluginOnce('user-details', '@/remote/UserCard');
 ```
 
 ### 🔎 Behavior
@@ -391,7 +391,7 @@ The `registerPlugin`, `registerPluginOnce` and `registerComponent` methods are d
 initialization time.
 
 Any entry registered **after the module has completed its initialization** will **not be rendered or taken into account
-** by `LinidZoneRenderer`.
+** by `LinPulsarZoneRenderer`.
 
 This constraint ensures architectural consistency and prevents unpredictable runtime mutations of the zone
 configuration.
@@ -426,7 +426,7 @@ Use `registerPlugin` when:
 
 ## 🧩 How It Works
 
-1. **At initialization time**, the component retrieves all entries for the given `zone` from the **Linid Zone Store**.
+1. **At initialization time**, the component retrieves all entries for the given `zone` from the **LinPulsar Zone Store**.
 2. Each **federated entry** (`type: 'federated'`) is wrapped as an **async component** retrieved from its remote
    module using the `loadAsyncComponent(entry.plugin)` method. **Component entries** (`type: 'component'`) are
    resolved by name using `resolveLocalComponent(entry.component)`, without any asynchronous loading.
@@ -444,7 +444,7 @@ Use `registerPlugin` when:
 
 - `entry.props`: Props from the zone entry configuration (from `module-<name>.json`). These serve as default values for
   the plugin.
-- `$attrs`: All attributes and event listeners passed to `LinidZoneRenderer` that are not declared as props or emits.
+- `$attrs`: All attributes and event listeners passed to `LinPulsarZoneRenderer` that are not declared as props or emits.
   This includes bound props (e.g. `:userId="42"`) as well as event listeners (e.g. `@my-event="handler"`). The `zone`
   prop is declared and therefore excluded from `$attrs` automatically.
   See [Vue Fallthrough Attributes](https://vuejs.org/guide/components/attrs) for details.
@@ -454,7 +454,7 @@ Use `registerPlugin` when:
 
 ```vue
 <!-- In parent component -->
-<LinidZoneRenderer zone="user-details" :theme="dark" :readOnly="true" />
+<LinPulsarZoneRenderer zone="user-details" :theme="dark" :readOnly="true" />
 ```
 
 In module-<name>.json zone configuration
@@ -487,29 +487,29 @@ In module-<name>.json zone configuration
 
 ## 🔧 Entry Types
 
-Zone entries follow the `LinidZoneEntry` discriminated union:
+Zone entries follow the `LinPulsarZoneEntry` discriminated union:
 
 ```ts
-export interface BaseLinidZoneEntry {
+export interface BaseLinPulsarZoneEntry {
   /** Props forwarded to the rendered component */
   props?: Record<string, unknown>;
 }
 
-export interface FederatedLinidZoneEntry extends BaseLinidZoneEntry {
+export interface FederatedLinPulsarZoneEntry extends BaseLinPulsarZoneEntry {
   type: 'federated';
 
   /** Path to the remote module */
   plugin: string;
 }
 
-export interface ComponentLinidZoneEntry extends BaseLinidZoneEntry {
+export interface ComponentLinPulsarZoneEntry extends BaseLinPulsarZoneEntry {
   type: 'component';
 
   /** Name of the component to render */
   component: string;
 }
 
-export type LinidZoneEntry = FederatedLinidZoneEntry | ComponentLinidZoneEntry;
+export type LinPulsarZoneEntry = FederatedLinPulsarZoneEntry | ComponentLinPulsarZoneEntry;
 ```
 
 - Entries are built by the store helpers (`registerPlugin`, `registerPluginOnce`, `registerComponent`); consumers
@@ -526,7 +526,7 @@ export type LinidZoneEntry = FederatedLinidZoneEntry | ComponentLinidZoneEntry;
 - **Decoupled architecture:** Plugins are independent of the host.
 - **Lazy loading:** Federated components are only loaded when needed.
 - **Performance optimized:** Entries are loaded once at initialization, avoiding unnecessary reactivity overhead.
-- **Standardized interface:** All entries conform to the `LinidZoneEntry` discriminated union.
+- **Standardized interface:** All entries conform to the `LinPulsarZoneEntry` discriminated union.
 - **Host injection:** The host can inject its own local components into zones without module federation.
 - **Framework-friendly:** Works natively with Vue 3, Pinia, and Module Federation.
 

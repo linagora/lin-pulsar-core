@@ -22,7 +22,7 @@ Default mask used to format dates for Quasar's [`QDate`](https://quasar.dev/vue-
 ### Usage
 
 ```ts
-import { QDATE_DEFAULT_MASK } from '@linagora/linid-im-front-corelib';
+import { QDATE_DEFAULT_MASK } from '@linagora/lin-pulsar-core';
 
 console.log(QDATE_DEFAULT_MASK); // 'YYYY/MM/DD'
 ```
