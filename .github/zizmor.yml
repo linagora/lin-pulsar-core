@@ -8,4 +8,4 @@ rules:
         dependabot/*: ref-pin
   use-trusted-publishing:
     ignore:
-      - release.yml:89
+      - release.yml:93
