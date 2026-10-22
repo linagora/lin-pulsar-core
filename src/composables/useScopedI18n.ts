@@ -3,13 +3,13 @@
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
  * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version, provided you comply with the Additional Terms applicable for LinID Identity Manager software by
+ * any later version, provided you comply with the Additional Terms applicable for linOpenFactory software by
  * LINAGORA pursuant to Section 7 of the GNU Affero General Public License, subsections (b), (c), and (e), pursuant to
- * which these Appropriate Legal Notices must notably (i) retain the display of the "LinID™" trademark/logo at the top
- * of the interface window, the display of the “You are using the Open Source and free version of LinID™, powered by
- * Linagora © 2009–2013. Contribute to LinID R&D by subscribing to an Enterprise offer!” infobox and in the e-mails
+ * which these Appropriate Legal Notices must notably (i) retain the display of the "linOpenFactory™" trademark/logo at the top
+ * of the interface window, the display of the “You are using the Open Source and free version of linOpenFactory™, powered by
+ * Linagora © 2009–2013. Contribute to linOpenFactory R&D by subscribing to an Enterprise offer!” infobox and in the e-mails
  * sent with the Program, notice appended to any type of outbound messages (e.g. e-mail and meeting requests) as well
- * as in the LinID Identity Manager user interface, (ii) retain all hypertext links between LinID Identity Manager
+ * as in the linOpenFactory user interface, (ii) retain all hypertext links between linOpenFactory
  * and https://linid.org/, as well as between LINAGORA and LINAGORA.com, and (iii) refrain from infringing LINAGORA
  * intellectual property rights over its trademarks and commercial brands. Other Additional Terms apply, see
  * <http://www.linagora.com/licenses/> for more details.
@@ -19,16 +19,16 @@
  * details.
  *
  * You should have received a copy of the GNU Affero General Public License and its applicable Additional Terms for
- * LinID Identity Manager along with this program. If not, see <http://www.gnu.org/licenses/> for the GNU Affero
+ * linOpenFactory along with this program. If not, see <http://www.gnu.org/licenses/> for the GNU Affero
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
- * LinID Identity Manager software.
+ * linOpenFactory software.
  */
 
 import type { WritableComputedRef } from 'vue';
 import { type ComposerTranslation, useI18n } from 'vue-i18n';
 import { getI18nInstance } from '../services/i18nService';
-import { useLinidUiStore } from '../stores/linidUiStore';
-import { useLinidUserPreference } from './useLinidUserPreference';
+import { useLinPulsarUiStore } from '../stores/linPulsarUiStore';
+import { useLinPulsarUserPreference } from './useLinPulsarUserPreference';
 
 /**
  * Creates a scoped i18n translator bound to a specific translation namespace.
@@ -170,7 +170,7 @@ const LOCALE_STORAGE_KEY = 'language';
  * @returns `true` when the candidate is a non-empty, supported language.
  */
 function isSupportedLanguage(lang?: string | null): lang is string {
-  const uiStore = useLinidUiStore();
+  const uiStore = useLinPulsarUiStore();
   return !!lang && uiStore.i18n.languages.includes(lang);
 }
 
@@ -182,8 +182,8 @@ function isSupportedLanguage(lang?: string | null): lang is string {
  * @returns The locale code the caller should apply to its i18n target.
  */
 export function resolveLocale(): string {
-  const { userPreferenceStore } = useLinidUserPreference();
-  const uiStore = useLinidUiStore();
+  const { userPreferenceStore } = useLinPulsarUserPreference();
+  const uiStore = useLinPulsarUiStore();
   const storedPreference =
     userPreferenceStore.userPreferences?.[LOCALE_STORAGE_KEY];
 
@@ -203,7 +203,8 @@ export function resolveLocale(): string {
  * @returns A promise that resolves once the persisted state has been synchronised.
  */
 export async function syncLocale(locale: string): Promise<void> {
-  const { userPreferenceStore, saveUserPreference } = useLinidUserPreference();
+  const { userPreferenceStore, saveUserPreference } =
+    useLinPulsarUserPreference();
   const storedPreference =
     userPreferenceStore.userPreferences?.[LOCALE_STORAGE_KEY];
 
@@ -218,13 +219,13 @@ export async function syncLocale(locale: string): Promise<void> {
  * Applies the given locale to the application and persists the choice.
  *
  * Updates the active i18n locale, reflects it in the UI store, and synchronises the persisted state. This assumes the
- * shared i18n instance runs in Composition mode (legacy: false), as guaranteed by the corelib LinidI18n convention;
+ * shared i18n instance runs in Composition mode (legacy: false), as guaranteed by the lin-pulsar-core LinPulsarI18n convention;
  * on a legacy instance the locale assignment would be a silent no-op at runtime.
  * @param locale - The locale code to apply (e.g. "fr-FR").
  * @returns A promise that resolves once the locale has been applied and persisted.
  */
 export async function changeLocale(locale: string): Promise<void> {
-  const uiStore = useLinidUiStore();
+  const uiStore = useLinPulsarUiStore();
   const i18n = getI18nInstance();
 
   (i18n.global.locale as WritableComputedRef<string>).value = locale;

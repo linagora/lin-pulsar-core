@@ -45,7 +45,7 @@ import {
   useFieldValidation,
   useQuasarFieldValidation,
   useQuasarRules,
-} from '@linagora/linid-im-front-corelib';
+} from '@linagora/lin-pulsar-core';
 
 // Option 1: Base validation
 const baseValidation = useFieldValidation('i18nScope');
@@ -116,7 +116,7 @@ const rules = useQuasarRules('user-module', attributeConfig, [
 - **Scoped i18n**: All validators use the field's i18n scope (`${instanceId}.fields.${fieldName}`) for error messages
 - **Backend validation** (`validateFromApi`):
   - Calls the backend API with the provided value
-  - Returns the internationalized `error` field from `LinidApiErrorResponseBody` for HTTP 400 (Bad Request) and 404 (Not Found) status codes
+  - Returns the internationalized `error` field from `LinPulsarApiErrorResponseBody` for HTTP 400 (Bad Request) and 404 (Not Found) status codes
   - Returns the generic i18n message `validation.unknownError` for all other errors (network errors, 500, etc.)
   - Executes asynchronously (returns a Promise)
 - **Quasar Compatibility**:
@@ -176,7 +176,7 @@ useQuasarRules (automation layer)
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasarFieldValidation } from '@linagora/linid-im-front-corelib';
+import { useQuasarFieldValidation } from '@linagora/lin-pulsar-core';
 
 const email = ref('');
 const age = ref<number>();
@@ -224,14 +224,14 @@ const ageValidation = useQuasarFieldValidation('user-module.fields.age');
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasarRules } from '@linagora/linid-im-front-corelib';
-import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+import { useQuasarRules } from '@linagora/lin-pulsar-core';
+import type { LinPulsarAttributeConfiguration } from '@linagora/lin-pulsar-core';
 
 const email = ref('');
 const username = ref('');
 
 // Attribute configurations (typically from backend/store)
-const emailConfig: LinidAttributeConfiguration = {
+const emailConfig: LinPulsarAttributeConfiguration = {
   name: 'email',
   hasValidations: true,
   required: true,
@@ -242,7 +242,7 @@ const emailConfig: LinidAttributeConfiguration = {
   },
 };
 
-const usernameConfig: LinidAttributeConfiguration = {
+const usernameConfig: LinPulsarAttributeConfiguration = {
   name: 'username',
   hasValidations: true,
   required: false,
@@ -468,7 +468,7 @@ const emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
 ### 5.11 Using useQuasarRules for Automatic Rule Generation
 
 ```ts
-import { useQuasarRules } from '@linagora/linid-im-front-corelib';
+import { useQuasarRules } from '@linagora/lin-pulsar-core';
 
 // Attribute configuration
 const emailConfig = {
@@ -611,7 +611,7 @@ function useQuasarFieldValidation(i18nScope: string): {
 ```ts
 function useQuasarRules<T extends Record<string, unknown>>(
   instanceId: string,
-  attributeConfig: LinidAttributeConfiguration<T>,
+  attributeConfig: LinPulsarAttributeConfiguration<T>,
   validatorsNames: ValidatorName[],
   i18nScope: string
 ): ValidationRule[];
@@ -628,8 +628,8 @@ type ValidatorName =
   | 'maxFileSize'
   | 'allowedExtensions';
 
-// LinidAttributeConfiguration interface (simplified)
-interface LinidAttributeConfiguration<T> {
+// LinPulsarAttributeConfiguration interface (simplified)
+interface LinPulsarAttributeConfiguration<T> {
   name: string;
   hasValidations: boolean;
   required?: boolean;
@@ -655,7 +655,7 @@ interface LinidAttributeConfiguration<T> {
 - **Returns**: `(value: unknown) => Promise<true | string>` - A Quasar-compatible validator bound to the given instance and field
 - **Use case**: Server-side business validation
 - **Error handling**:
-  - For HTTP 400/404 responses: Returns the `error` field from `LinidApiErrorResponseBody` (already internationalized by backend)
+  - For HTTP 400/404 responses: Returns the `error` field from `LinPulsarApiErrorResponseBody` (already internationalized by backend)
   - For all other errors: Returns the i18n message `validation.unknownError`
 
 #### required(value)
@@ -751,7 +751,7 @@ interface LinidAttributeConfiguration<T> {
 #### useQuasarRules(instanceId, attributeConfig, validatorsNames, i18nScope)
 
 - **instanceId**: `string` - The unique identifier of the module instance
-- **attributeConfig**: `LinidAttributeConfiguration<T>` - The configuration of the attribute being validated
+- **attributeConfig**: `LinPulsarAttributeConfiguration<T>` - The configuration of the attribute being validated
 - **validatorsNames**: `ValidatorName[]` - Array of validator names to include (`'email'`, `'min'`, `'max'`, `'minLength'`, `'maxLength'`, `'pattern'`, `'unique'`, `'maxFileSize'`, `'allowedExtensions'`)
 - **i18nScope**: `string` - The i18n scope passed to `useQuasarFieldValidation` for error message translation (e.g. `'user-module.fields.email'`)
 - **Returns**: `ValidationRule[]` - Array of validation functions ready to use in Quasar's `rules` prop

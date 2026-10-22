@@ -1,17 +1,17 @@
 {
-  "name": "@linagora/linid-im-front-corelib",
+  "name": "@linagora/lin-pulsar-core",
   "version": "0.0.109",
-  "description": "Core library of the LinID Identity Manager project. Provides shared types, services, components, and utilities for front-end and plugin, enabling consistent integration across the LinID ecosystem.",
+  "description": "Core library of LinPulsar, the component catalog of linOpenFactory. Provides shared types, services, components, and utilities for front-end and plugin, enabling consistent integration across the linOpenFactory ecosystem.",
   "type": "module",
   "files": [
     "dist"
   ],
-  "main": "./dist/core-lib.umd.js",
-  "module": "./dist/core-lib.es.js",
+  "main": "./dist/lin-pulsar-core.umd.js",
+  "module": "./dist/lin-pulsar-core.es.js",
   "types": "./dist/types/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/core-lib.es.js",
+      "import": "./dist/lin-pulsar-core.es.js",
       "types": "./dist/types/src/index.d.ts"
     }
   },
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/linagora/linid-im-front-corelib.git"
+    "url": "git+https://github.com/linagora/lin-pulsar-core.git"
   },
   "contributors": [
     {
@@ -58,9 +58,9 @@
   ],
   "license": "AGPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/linagora/linid-im-front-corelib/issues"
+    "url": "https://github.com/linagora/lin-pulsar-core/issues"
   },
-  "homepage": "https://github.com/linagora/linid-im-front-corelib#readme",
+  "homepage": "https://github.com/linagora/lin-pulsar-core#readme",
   "peerDependencies": {
     "@module-federation/enhanced": "2.7.0",
     "axios": "1.18.1",

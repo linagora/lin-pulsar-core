@@ -1,6 +1,6 @@
 # **CONTRIBUTING 🤝**
 
-Thank you for contributing to **linid-im-front-corelib**, the core front-end library of the LinID Identity Manager platform.
+Thank you for contributing to **lin-pulsar-core**, the core front-end library of LinPulsar, the component catalog of the linOpenFactory platform.
 This document explains the conventions, workflows, and best practices to follow when contributing.
 
 ---
@@ -244,7 +244,7 @@ Any file without the appropriate header will be reported as a lint error.
 # **🧪 E2E & Integration Testing**
 
 Full E2E testing documentation is **Coming soon… ⏳**
-This library will later integrate with the LinID front-end test runner.
+This library will later integrate with the linOpenFactory front-end test runner.
 
 ---
 

@@ -20,7 +20,7 @@ This ensures consistent page indexing, sorting, and sizing conventions across th
 ### 2.1 Import and Initialization
 
 ```ts
-import { usePagination } from '@linagora/linid-im-front-corelib';
+import { usePagination } from '@linagora/lin-pulsar-core';
 
 const { toPagination, toQuasarPagination } = usePagination();
 ```
@@ -126,11 +126,11 @@ pagination.value = toQuasarPagination(apiResponse, pagination.value);
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { usePagination } from '@linagora/linid-im-front-corelib';
+import { usePagination } from '@linagora/lin-pulsar-core';
 import type {
   QTableRequestEvent,
   QuasarPagination,
-} from '@linagora/linid-im-front-corelib';
+} from '@linagora/lin-pulsar-core';
 
 const { toPagination, toQuasarPagination } = usePagination();
 

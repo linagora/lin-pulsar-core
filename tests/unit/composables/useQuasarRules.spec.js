@@ -1,5 +1,5 @@
 import { useQuasarRules } from 'src/composables/useQuasarRules';
-import { validate } from 'src/services/linidEntityService';
+import { validate } from 'src/services/linPulsarEntityService';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockT = vi.fn((key, params) => {
@@ -9,7 +9,7 @@ const mockT = vi.fn((key, params) => {
   return `translated.${key}`;
 });
 
-vi.mock('src/services/linidEntityService');
+vi.mock('src/services/linPulsarEntityService');
 
 vi.mock('src/services/dayjsService', async () => {
   const { default: dayjsFn } = await vi.importActual('dayjs');

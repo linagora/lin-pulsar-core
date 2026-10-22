@@ -42,7 +42,7 @@ describe('Test service: uiDesignService', () => {
       setUiDesign(secondUiDesign);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] UI Design has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] UI Design has already been initialized. Re-initialization is ignored.'
       );
       expect(getUiDesign()).toBe(firstUiDesign);
 
@@ -53,7 +53,7 @@ describe('Test service: uiDesignService', () => {
   describe('Test function: getUiDesign', () => {
     it('should throw an error if client is not initialized', () => {
       expect(() => getUiDesign()).toThrow(
-        '[LinID CoreLib] UI Design is not initialized. Call setUiDesign() first.'
+        '[LinPulsar Core] UI Design is not initialized. Call setUiDesign() first.'
       );
     });
   });

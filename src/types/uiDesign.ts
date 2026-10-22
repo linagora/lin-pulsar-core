@@ -3,13 +3,13 @@
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
  * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version, provided you comply with the Additional Terms applicable for LinID Identity Manager software by
+ * any later version, provided you comply with the Additional Terms applicable for linOpenFactory software by
  * LINAGORA pursuant to Section 7 of the GNU Affero General Public License, subsections (b), (c), and (e), pursuant to
- * which these Appropriate Legal Notices must notably (i) retain the display of the "LinID™" trademark/logo at the top
- * of the interface window, the display of the “You are using the Open Source and free version of LinID™, powered by
- * Linagora © 2009–2013. Contribute to LinID R&D by subscribing to an Enterprise offer!” infobox and in the e-mails
+ * which these Appropriate Legal Notices must notably (i) retain the display of the "linOpenFactory™" trademark/logo at the top
+ * of the interface window, the display of the “You are using the Open Source and free version of linOpenFactory™, powered by
+ * Linagora © 2009–2013. Contribute to linOpenFactory R&D by subscribing to an Enterprise offer!” infobox and in the e-mails
  * sent with the Program, notice appended to any type of outbound messages (e.g. e-mail and meeting requests) as well
- * as in the LinID Identity Manager user interface, (ii) retain all hypertext links between LinID Identity Manager
+ * as in the linOpenFactory user interface, (ii) retain all hypertext links between linOpenFactory
  * and https://linid.org/, as well as between LINAGORA and LINAGORA.com, and (iii) refrain from infringing LINAGORA
  * intellectual property rights over its trademarks and commercial brands. Other Additional Terms apply, see
  * <http://www.linagora.com/licenses/> for more details.
@@ -19,9 +19,9 @@
  * details.
  *
  * You should have received a copy of the GNU Affero General Public License and its applicable Additional Terms for
- * LinID Identity Manager along with this program. If not, see <http://www.gnu.org/licenses/> for the GNU Affero
+ * linOpenFactory along with this program. If not, see <http://www.gnu.org/licenses/> for the GNU Affero
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
- * LinID Identity Manager software.
+ * linOpenFactory software.
  */
 
 import type {
@@ -843,17 +843,20 @@ export const THIRD_PARTY_COMPONENT_PROPS: Record<
 /**
  * Subset of QBtn props supported in UI design configuration.
  */
-export type LinidQBtnProps = Pick<QBtnProps, (typeof Q_BTN_PROPS)[number]>;
+export type LinPulsarQBtnProps = Pick<QBtnProps, (typeof Q_BTN_PROPS)[number]>;
 
 /**
  * Subset of QTabs props supported in UI design configuration.
  */
-export type LinidQTabsProps = Pick<QTabsProps, (typeof Q_TABS_PROPS)[number]>;
+export type LinPulsarQTabsProps = Pick<
+  QTabsProps,
+  (typeof Q_TABS_PROPS)[number]
+>;
 
 /**
  * Subset of QRouteTab props supported in UI design configuration.
  */
-export type LinidQRouteTabProps = Pick<
+export type LinPulsarQRouteTabProps = Pick<
   QRouteTabProps,
   (typeof Q_ROUTE_TAB_PROPS)[number]
 >;
@@ -861,7 +864,7 @@ export type LinidQRouteTabProps = Pick<
 /**
  * Subset of QHeader props supported in UI design configuration.
  */
-export type LinidQHeaderProps = Pick<
+export type LinPulsarQHeaderProps = Pick<
   QHeaderProps,
   (typeof Q_HEADER_PROPS)[number]
 >;
@@ -869,7 +872,7 @@ export type LinidQHeaderProps = Pick<
 /**
  * Subset of QHeader props supported in UI design configuration.
  */
-export type LinidQToolbarProps = Pick<
+export type LinPulsarQToolbarProps = Pick<
   QToolbarProps,
   (typeof Q_TOOLBAR_PROPS)[number]
 >;
@@ -877,7 +880,7 @@ export type LinidQToolbarProps = Pick<
 /**
  * Subset of QToolbarTitle props supported in UI design configuration.
  */
-export type LinidQToolbarTitleProps = Pick<
+export type LinPulsarQToolbarTitleProps = Pick<
   QToolbarTitleProps,
   (typeof Q_TOOLBAR_TITLE_PROPS)[number]
 >;
@@ -885,7 +888,7 @@ export type LinidQToolbarTitleProps = Pick<
 /**
  * Subset of QAvatar props supported in UI design configuration.
  */
-export type LinidQAvatarProps = Pick<
+export type LinPulsarQAvatarProps = Pick<
   QAvatarProps,
   (typeof Q_AVATAR_PROPS)[number]
 >;
@@ -893,7 +896,7 @@ export type LinidQAvatarProps = Pick<
 /**
  * Subset of QBadge props supported in UI design configuration.
  */
-export type LinidQBadgeProps = Pick<
+export type LinPulsarQBadgeProps = Pick<
   QBadgeProps,
   (typeof Q_BADGE_PROPS)[number]
 >;
@@ -901,7 +904,7 @@ export type LinidQBadgeProps = Pick<
 /**
  * Subset of QTable props supported in UI design configuration.
  */
-export type LinidQTableProps = Pick<
+export type LinPulsarQTableProps = Pick<
   QTableProps,
   (typeof Q_TABLE_PROPS)[number]
 >;
@@ -909,12 +912,15 @@ export type LinidQTableProps = Pick<
 /**
  * Subset of QCard props supported in UI design configuration.
  */
-export type LinidQCardProps = Pick<QCardProps, (typeof Q_CARD_PROPS)[number]>;
+export type LinPulsarQCardProps = Pick<
+  QCardProps,
+  (typeof Q_CARD_PROPS)[number]
+>;
 
 /**
  * Subset of QCardActions props supported in UI design configuration.
  */
-export type LinidQCardActionsProps = Pick<
+export type LinPulsarQCardActionsProps = Pick<
   QCardActionsProps,
   (typeof Q_CARD_ACTIONS_PROPS)[number]
 >;
@@ -922,7 +928,7 @@ export type LinidQCardActionsProps = Pick<
 /**
  * Subset of QCardSection props supported in UI design configuration.
  */
-export type LinidQCardSectionProps = Pick<
+export type LinPulsarQCardSectionProps = Pick<
   QCardSectionProps,
   (typeof Q_CARD_SECTION_PROPS)[number]
 >;
@@ -930,7 +936,7 @@ export type LinidQCardSectionProps = Pick<
 /**
  * Subset of QCheckboxProps props supported in UI design configuration.
  */
-export type LinidQCheckboxProps = Pick<
+export type LinPulsarQCheckboxProps = Pick<
   QCheckboxProps,
   (typeof Q_CHECKBOX_PROPS)[number]
 >;
@@ -938,17 +944,23 @@ export type LinidQCheckboxProps = Pick<
 /**
  * Subset of QIcon props supported in UI design configuration.
  */
-export type LinidQIconProps = Pick<QIconProps, (typeof Q_ICON_PROPS)[number]>;
+export type LinPulsarQIconProps = Pick<
+  QIconProps,
+  (typeof Q_ICON_PROPS)[number]
+>;
 
 /**
  * Subset of QChip props supported in UI design configuration.
  */
-export type LinidQChipProps = Pick<QChipProps, (typeof Q_CHIP_PROPS)[number]>;
+export type LinPulsarQChipProps = Pick<
+  QChipProps,
+  (typeof Q_CHIP_PROPS)[number]
+>;
 
 /**
  * Subset of QToggle props supported in UI design configuration.
  */
-export type LinidQToggleProps = Pick<
+export type LinPulsarQToggleProps = Pick<
   QToggleProps,
   (typeof Q_TOGGLE_PROPS)[number]
 >;
@@ -956,7 +968,7 @@ export type LinidQToggleProps = Pick<
 /**
  * Subset of QInput props supported in UI design configuration.
  */
-export type LinidQInputProps = Pick<
+export type LinPulsarQInputProps = Pick<
   QInputProps,
   (typeof Q_INPUT_PROPS)[number]
 >;
@@ -964,17 +976,20 @@ export type LinidQInputProps = Pick<
 /**
  * Subset of QInput props supported in UI design configuration.
  */
-export type LinidQDateProps = Pick<QDateProps, (typeof Q_DATE_PROPS)[number]>;
+export type LinPulsarQDateProps = Pick<
+  QDateProps,
+  (typeof Q_DATE_PROPS)[number]
+>;
 
 /**
  * Subset of QImg props supported in UI design configuration.
  */
-export type LinidQImgProps = Pick<QImgProps, (typeof Q_IMG_PROPS)[number]>;
+export type LinPulsarQImgProps = Pick<QImgProps, (typeof Q_IMG_PROPS)[number]>;
 
 /**
  * Subset of QFieldProps props supported in UI design configuration.
  */
-export type LinidQFieldProps = Pick<
+export type LinPulsarQFieldProps = Pick<
   QFieldProps,
   (typeof Q_FIELD_PROPS)[number]
 >;
@@ -982,17 +997,23 @@ export type LinidQFieldProps = Pick<
 /**
  * Subset of QFile props supported in UI design configuration.
  */
-export type LinidQFileProps = Pick<QFileProps, (typeof Q_FILE_PROPS)[number]>;
+export type LinPulsarQFileProps = Pick<
+  QFileProps,
+  (typeof Q_FILE_PROPS)[number]
+>;
 
 /**
  * Subset of QForm props supported in UI design configuration.
  */
-export type LinidQFormProps = Pick<QFormProps, (typeof Q_FORM_PROPS)[number]>;
+export type LinPulsarQFormProps = Pick<
+  QFormProps,
+  (typeof Q_FORM_PROPS)[number]
+>;
 
 /**
  * Subset of QSelect props supported in UI design configuration.
  */
-export type LinidQSelectProps = Pick<
+export type LinPulsarQSelectProps = Pick<
   QSelectProps,
   (typeof Q_SELECT_PROPS)[number]
 >;
@@ -1000,7 +1021,7 @@ export type LinidQSelectProps = Pick<
 /**
  * Subset of QDialog props supported in UI design configuration.
  */
-export type LinidQDialogProps = Pick<
+export type LinPulsarQDialogProps = Pick<
   QDialogProps,
   (typeof Q_DIALOG_PROPS)[number]
 >;
@@ -1008,7 +1029,7 @@ export type LinidQDialogProps = Pick<
 /**
  * Subset of QSpinner props supported in UI design configuration.
  */
-export type LinidQSpinnerProps = Pick<
+export type LinPulsarQSpinnerProps = Pick<
   QSpinnerProps,
   (typeof Q_SPINNER_PROPS)[number]
 >;
@@ -1016,7 +1037,7 @@ export type LinidQSpinnerProps = Pick<
 /**
  * Subset of QBtnDropdown props supported in UI design configuration.
  */
-export type LinidQBtnDropdownProps = Pick<
+export type LinPulsarQBtnDropdownProps = Pick<
   QBtnDropdownProps,
   (typeof Q_BTN_DROPDOWN_PROPS)[number]
 >;
@@ -1024,7 +1045,7 @@ export type LinidQBtnDropdownProps = Pick<
 /**
  * Subset of QLayoutProps props supported in UI design configuration.
  */
-export type LinidQLayoutProps = Pick<
+export type LinPulsarQLayoutProps = Pick<
   QLayoutProps,
   (typeof Q_LAYOUT_PROPS)[number]
 >;
@@ -1032,17 +1053,23 @@ export type LinidQLayoutProps = Pick<
 /**
  * Subset of QListProps props supported in UI design configuration.
  */
-export type LinidQListProps = Pick<QListProps, (typeof Q_LIST_PROPS)[number]>;
+export type LinPulsarQListProps = Pick<
+  QListProps,
+  (typeof Q_LIST_PROPS)[number]
+>;
 
 /**
  * Subset of QItemProps props supported in UI design configuration.
  */
-export type LinidQItemProps = Pick<QItemProps, (typeof Q_ITEM_PROPS)[number]>;
+export type LinPulsarQItemProps = Pick<
+  QItemProps,
+  (typeof Q_ITEM_PROPS)[number]
+>;
 
 /**
  * Subset of QItemSectionProps props supported in UI design configuration.
  */
-export type LinidQItemSectionProps = Pick<
+export type LinPulsarQItemSectionProps = Pick<
   QItemSectionProps,
   (typeof Q_ITEM_SECTION_PROPS)[number]
 >;
@@ -1050,7 +1077,7 @@ export type LinidQItemSectionProps = Pick<
 /**
  * Subset of QItemLabelProps props supported in UI design configuration.
  */
-export type LinidQItemLabelProps = Pick<
+export type LinPulsarQItemLabelProps = Pick<
   QItemLabelProps,
   (typeof Q_ITEM_LABEL_PROPS)[number]
 >;
@@ -1058,7 +1085,7 @@ export type LinidQItemLabelProps = Pick<
 /**
  * Subset of QBannerProps props supported in UI design configuration.
  */
-export type LinidQBannerProps = Pick<
+export type LinPulsarQBannerProps = Pick<
   QBannerProps,
   (typeof Q_BANNER_PROPS)[number]
 >;
@@ -1066,17 +1093,23 @@ export type LinidQBannerProps = Pick<
 /**
  * Subset of QMenuProps props supported in UI design configuration.
  */
-export type LinidQMenuProps = Pick<QMenuProps, (typeof Q_MENU_PROPS)[number]>;
+export type LinPulsarQMenuProps = Pick<
+  QMenuProps,
+  (typeof Q_MENU_PROPS)[number]
+>;
 
 /**
  * Subset of QTreeProps props supported in UI design configuration.
  */
-export type LinidQTreeProps = Pick<QTreeProps, (typeof Q_TREE_PROPS)[number]>;
+export type LinPulsarQTreeProps = Pick<
+  QTreeProps,
+  (typeof Q_TREE_PROPS)[number]
+>;
 
 /**
  * Subset of QSplitter props supported in UI design configuration.
  */
-export type LinidQSplitterProps = Pick<
+export type LinPulsarQSplitterProps = Pick<
   QSplitterProps,
   (typeof Q_SPLITTER_PROPS)[number]
 >;
@@ -1084,7 +1117,7 @@ export type LinidQSplitterProps = Pick<
 /**
  * Subset of QSeparator props supported in UI design configuration.
  */
-export type LinidQSeparatorProps = Pick<
+export type LinPulsarQSeparatorProps = Pick<
   QSeparatorProps,
   (typeof Q_SEPARATOR_PROPS)[number]
 >;
@@ -1092,7 +1125,7 @@ export type LinidQSeparatorProps = Pick<
 /**
  * Subset of QOptionGroup props supported in UI design configuration.
  */
-export type LinidQOptionGroupProps = Pick<
+export type LinPulsarQOptionGroupProps = Pick<
   QOptionGroupProps,
   (typeof Q_OPTION_GROUP_PROPS)[number]
 >;
@@ -1100,7 +1133,7 @@ export type LinidQOptionGroupProps = Pick<
 /**
  * Subset of QScrollArea props supported in UI design configuration.
  */
-export type LinidQScrollAreaProps = Pick<
+export type LinPulsarQScrollAreaProps = Pick<
   QScrollAreaProps,
   (typeof Q_SCROLL_AREA_PROPS)[number]
 >;
@@ -1109,7 +1142,7 @@ export type LinidQScrollAreaProps = Pick<
  * Subset of vue-draggable-next (SortableJS) props supported in UI design configuration.
  * Covers style, display, and user interaction behavior — not internal SortableJS mechanics.
  */
-export type LinidDraggableProps = {
+export type LinPulsarDraggableProps = {
   /** HTML element or component used as the list wrapper. */
   tag?: string;
   /** Whether items in the list can be reordered by the user. */
@@ -1172,7 +1205,7 @@ export const HTML_ATTRS = ['class', 'style'] as const;
 /**
  * HTML attributes a design entry can set on any component: Vue forwards them to its root element.
  */
-export interface LinidHtmlAttrs {
+export interface LinPulsarHtmlAttrs {
   /** CSS classes added to the component root element (e.g. "text-negative"). */
   class?: string;
   /** Inline style added to the component root element (e.g. "font-style: italic"). */
@@ -1182,44 +1215,44 @@ export interface LinidHtmlAttrs {
 /**
  * Union type of all supported Quasar component props subsets.
  */
-export type LinidQComponentProps =
-  | LinidQAvatarProps
-  | LinidQBadgeProps
-  | LinidQBannerProps
-  | LinidQBtnDropdownProps
-  | LinidQBtnProps
-  | LinidQCardActionsProps
-  | LinidQCardProps
-  | LinidQCardSectionProps
-  | LinidQCheckboxProps
-  | LinidQDateProps
-  | LinidQDialogProps
-  | LinidQFieldProps
-  | LinidQFileProps
-  | LinidQFormProps
-  | LinidQHeaderProps
-  | LinidQIconProps
-  | LinidQChipProps
-  | LinidQImgProps
-  | LinidQInputProps
-  | LinidQItemLabelProps
-  | LinidQItemProps
-  | LinidQItemSectionProps
-  | LinidQListProps
-  | LinidQMenuProps
-  | LinidQOptionGroupProps
-  | LinidQRouteTabProps
-  | LinidQScrollAreaProps
-  | LinidQSelectProps
-  | LinidQSeparatorProps
-  | LinidQSpinnerProps
-  | LinidQSplitterProps
-  | LinidQTableProps
-  | LinidQTabsProps
-  | LinidQToggleProps
-  | LinidQToolbarProps
-  | LinidQToolbarTitleProps
-  | LinidQTreeProps;
+export type LinPulsarQComponentProps =
+  | LinPulsarQAvatarProps
+  | LinPulsarQBadgeProps
+  | LinPulsarQBannerProps
+  | LinPulsarQBtnDropdownProps
+  | LinPulsarQBtnProps
+  | LinPulsarQCardActionsProps
+  | LinPulsarQCardProps
+  | LinPulsarQCardSectionProps
+  | LinPulsarQCheckboxProps
+  | LinPulsarQDateProps
+  | LinPulsarQDialogProps
+  | LinPulsarQFieldProps
+  | LinPulsarQFileProps
+  | LinPulsarQFormProps
+  | LinPulsarQHeaderProps
+  | LinPulsarQIconProps
+  | LinPulsarQChipProps
+  | LinPulsarQImgProps
+  | LinPulsarQInputProps
+  | LinPulsarQItemLabelProps
+  | LinPulsarQItemProps
+  | LinPulsarQItemSectionProps
+  | LinPulsarQListProps
+  | LinPulsarQMenuProps
+  | LinPulsarQOptionGroupProps
+  | LinPulsarQRouteTabProps
+  | LinPulsarQScrollAreaProps
+  | LinPulsarQSelectProps
+  | LinPulsarQSeparatorProps
+  | LinPulsarQSpinnerProps
+  | LinPulsarQSplitterProps
+  | LinPulsarQTableProps
+  | LinPulsarQTabsProps
+  | LinPulsarQToggleProps
+  | LinPulsarQToolbarProps
+  | LinPulsarQToolbarTitleProps
+  | LinPulsarQTreeProps;
 
 /**
  * Valid Quasar component names for type-safe UI design retrieval.

@@ -3,13 +3,13 @@
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
  * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version, provided you comply with the Additional Terms applicable for LinID Identity Manager software by
+ * any later version, provided you comply with the Additional Terms applicable for linOpenFactory software by
  * LINAGORA pursuant to Section 7 of the GNU Affero General Public License, subsections (b), (c), and (e), pursuant to
- * which these Appropriate Legal Notices must notably (i) retain the display of the "LinID™" trademark/logo at the top
- * of the interface window, the display of the “You are using the Open Source and free version of LinID™, powered by
- * Linagora © 2009–2013. Contribute to LinID R&D by subscribing to an Enterprise offer!” infobox and in the e-mails
+ * which these Appropriate Legal Notices must notably (i) retain the display of the "linOpenFactory™" trademark/logo at the top
+ * of the interface window, the display of the “You are using the Open Source and free version of linOpenFactory™, powered by
+ * Linagora © 2009–2013. Contribute to linOpenFactory R&D by subscribing to an Enterprise offer!” infobox and in the e-mails
  * sent with the Program, notice appended to any type of outbound messages (e.g. e-mail and meeting requests) as well
- * as in the LinID Identity Manager user interface, (ii) retain all hypertext links between LinID Identity Manager
+ * as in the linOpenFactory user interface, (ii) retain all hypertext links between linOpenFactory
  * and https://linid.org/, as well as between LINAGORA and LINAGORA.com, and (iii) refrain from infringing LINAGORA
  * intellectual property rights over its trademarks and commercial brands. Other Additional Terms apply, see
  * <http://www.linagora.com/licenses/> for more details.
@@ -19,21 +19,21 @@
  * details.
  *
  * You should have received a copy of the GNU Affero General Public License and its applicable Additional Terms for
- * LinID Identity Manager along with this program. If not, see <http://www.gnu.org/licenses/> for the GNU Affero
+ * linOpenFactory along with this program. If not, see <http://www.gnu.org/licenses/> for the GNU Affero
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
- * LinID Identity Manager software.
+ * linOpenFactory software.
  */
 
 // Components
-export { default as LinidZoneRenderer } from './components/LinidZoneRenderer.vue';
+export { default as LinPulsarZoneRenderer } from './components/LinPulsarZoneRenderer.vue';
 
 // Composables
 export { useCommonMapper } from './composables/useCommonMapper';
 export { DEFAULT_DATE_FORMAT, useDayjs } from './composables/useDayjs';
 export { useDialog } from './composables/useDialog';
 export { useFieldValidation } from './composables/useFieldValidation';
-export { useLinidFilterUrl } from './composables/useLinidFilterUrl';
-export { useLinidUserPreference } from './composables/useLinidUserPreference';
+export { useLinPulsarFilterUrl } from './composables/useLinPulsarFilterUrl';
+export { useLinPulsarUserPreference } from './composables/useLinPulsarUserPreference';
 export { useNotify } from './composables/useNotify';
 export { useNunjucks } from './composables/useNunjucks';
 export type { RenderResult } from './composables/useNunjucks';
@@ -51,11 +51,11 @@ export { useUiDesign } from './composables/useUiDesign';
 export { useValueFormatter } from './composables/useValueFormatter';
 
 // Stores
-export { useLinidConfigurationStore } from './stores/linidConfigurationStore';
-export { useLinidUiStore } from './stores/linidUiStore';
-export { useLinidUserPreferenceStore } from './stores/linidUserPreferenceStore';
-export { useLinidUserStore } from './stores/linidUserStore';
-export { useLinidZoneStore } from './stores/linidZoneStore';
+export { useLinPulsarConfigurationStore } from './stores/linPulsarConfigurationStore';
+export { useLinPulsarUiStore } from './stores/linPulsarUiStore';
+export { useLinPulsarUserPreferenceStore } from './stores/linPulsarUserPreferenceStore';
+export { useLinPulsarUserStore } from './stores/linPulsarUserStore';
+export { useLinPulsarZoneStore } from './stores/linPulsarZoneStore';
 
 // Services
 export { getDayjsInstance, setDayjsInstance } from './services/dayjsService';
@@ -70,18 +70,18 @@ export {
   getApiEndpointsConfiguration,
   getEntitiesConfiguration,
   getEntityConfiguration,
-} from './services/linidConfigurationService';
+} from './services/linPulsarConfigurationService';
 export {
   deleteEntityById,
   getEntities,
   getEntityById,
   saveEntity,
   updateEntity,
-} from './services/linidEntityService';
+} from './services/linPulsarEntityService';
 export {
   getModuleHostConfiguration,
   registerModuleHostConfiguration,
-} from './services/linidModuleConfigurationService';
+} from './services/linPulsarModuleConfigurationService';
 export { getNunjucksEnv, setNunjucksEnv } from './services/nunjucksService';
 export {
   deepEqual,
@@ -104,29 +104,29 @@ export { getUiDesign, setUiDesign } from './services/uiDesignService';
 export { uiEventSubject } from './services/uiEventService';
 
 // Filters
-export { LinidFilter } from './filters/linidFilter';
-export { LinidFilterSet } from './filters/linidFilterSet';
-export { LinidFilterValue } from './filters/linidFilterValue';
+export { LinPulsarFilter } from './filters/linPulsarFilter';
+export { LinPulsarFilterSet } from './filters/linPulsarFilterSet';
+export { LinPulsarFilterValue } from './filters/linPulsarFilterValue';
 export {
-  LINID_FILTER_NEGATION_PREFIX,
-  LINID_FILTER_OR_SEPARATOR,
-} from './types/linidFilter';
+  LIN_PULSAR_FILTER_NEGATION_PREFIX,
+  LIN_PULSAR_FILTER_OR_SEPARATOR,
+} from './types/linPulsarFilter';
 export type {
-  LinidFilterDynamicLabelOptions,
-  LinidFilterSetUserPreference,
-} from './types/linidFilter';
+  LinPulsarFilterDynamicLabelOptions,
+  LinPulsarFilterSetUserPreference,
+} from './types/linPulsarFilter';
 
 // Types - Zones
 export type {
-  BaseLinidZoneEntry,
-  ComponentLinidZoneEntry,
-  FederatedLinidZoneEntry,
-  LinidZoneEntry,
-  LinidZoneResolvedEntry,
-} from './types/linidZone';
+  BaseLinPulsarZoneEntry,
+  ComponentLinPulsarZoneEntry,
+  FederatedLinPulsarZoneEntry,
+  LinPulsarZoneEntry,
+  LinPulsarZoneResolvedEntry,
+} from './types/linPulsarZone';
 
 // Types - route
-export type { LinidRoute, LinidRoutes } from './types/linidRoute';
+export type { LinPulsarRoute, LinPulsarRoutes } from './types/linPulsarRoute';
 export type {
   Page,
   Pagination,
@@ -138,10 +138,10 @@ export type {
 // Types - Configuration
 export type {
   AttributeInputType,
-  LinidApiEndpointConfiguration,
-  LinidAttributeConfiguration,
-  LinidEntityConfiguration,
-} from './types/linidConfiguration';
+  LinPulsarApiEndpointConfiguration,
+  LinPulsarAttributeConfiguration,
+  LinPulsarEntityConfiguration,
+} from './types/linPulsarConfiguration';
 
 export type {
   FederatedModule,
@@ -164,65 +164,65 @@ export type {
 
 // Types - UI design
 export type {
-  LinidDraggableProps,
-  LinidHtmlAttrs,
-  LinidQAvatarProps,
-  LinidQBadgeProps,
-  LinidQBannerProps,
-  LinidQBtnDropdownProps,
-  LinidQBtnProps,
-  LinidQCardActionsProps,
-  LinidQCardProps,
-  LinidQCardSectionProps,
-  LinidQCheckboxProps,
-  LinidQChipProps,
-  LinidQDateProps,
-  LinidQDialogProps,
-  LinidQFieldProps,
-  LinidQFileProps,
-  LinidQFormProps,
-  LinidQHeaderProps,
-  LinidQIconProps,
-  LinidQImgProps,
-  LinidQInputProps,
-  LinidQItemLabelProps,
-  LinidQItemProps,
-  LinidQItemSectionProps,
-  LinidQLayoutProps,
-  LinidQListProps,
-  LinidQMenuProps,
-  LinidQOptionGroupProps,
-  LinidQRouteTabProps,
-  LinidQScrollAreaProps,
-  LinidQSelectProps,
-  LinidQSeparatorProps,
-  LinidQSpinnerProps,
-  LinidQSplitterProps,
-  LinidQTableProps,
-  LinidQTabsProps,
-  LinidQToggleProps,
-  LinidQToolbarProps,
-  LinidQToolbarTitleProps,
-  LinidQTreeProps,
+  LinPulsarDraggableProps,
+  LinPulsarHtmlAttrs,
+  LinPulsarQAvatarProps,
+  LinPulsarQBadgeProps,
+  LinPulsarQBannerProps,
+  LinPulsarQBtnDropdownProps,
+  LinPulsarQBtnProps,
+  LinPulsarQCardActionsProps,
+  LinPulsarQCardProps,
+  LinPulsarQCardSectionProps,
+  LinPulsarQCheckboxProps,
+  LinPulsarQChipProps,
+  LinPulsarQDateProps,
+  LinPulsarQDialogProps,
+  LinPulsarQFieldProps,
+  LinPulsarQFileProps,
+  LinPulsarQFormProps,
+  LinPulsarQHeaderProps,
+  LinPulsarQIconProps,
+  LinPulsarQImgProps,
+  LinPulsarQInputProps,
+  LinPulsarQItemLabelProps,
+  LinPulsarQItemProps,
+  LinPulsarQItemSectionProps,
+  LinPulsarQLayoutProps,
+  LinPulsarQListProps,
+  LinPulsarQMenuProps,
+  LinPulsarQOptionGroupProps,
+  LinPulsarQRouteTabProps,
+  LinPulsarQScrollAreaProps,
+  LinPulsarQSelectProps,
+  LinPulsarQSeparatorProps,
+  LinPulsarQSpinnerProps,
+  LinPulsarQSplitterProps,
+  LinPulsarQTableProps,
+  LinPulsarQTabsProps,
+  LinPulsarQToggleProps,
+  LinPulsarQToolbarProps,
+  LinPulsarQToolbarTitleProps,
+  LinPulsarQTreeProps,
   UiDesign,
   UiDesignNamespace,
   UiDesignValue,
 } from './types/uiDesign';
 
 // Types - UI
-export type { NavigationMenuItem } from './types/linidUi';
+export type { NavigationMenuItem } from './types/linPulsarUi';
 
 export { ModuleLifecyclePhase } from './types/moduleLifecycle';
 
 // Lifecycle Base Class
 export { BasicRemoteModule } from './lifecycle/skeleton';
 export { createModulePageLifecycle } from './lifecycle/modulePageLifecycle';
-export { linidModuleFederation } from './lifecycle/linidModuleFederation';
+export { linPulsarModuleFederation } from './lifecycle/linPulsarModuleFederation';
 export type {
-  LinidModuleFederationInitOptions,
-  LinidModuleFederationPhaseRunner,
-  LinidRemoteConfig,
-} from './types/linidModuleFederation';
+  LinPulsarModuleFederationInitOptions,
+  LinPulsarModuleFederationPhaseRunner,
+  LinPulsarRemoteConfig,
+} from './types/linPulsarModuleFederation';
 
 // Types - UIEvent
 export type { UiEvent } from './types/uiEvent';
@@ -230,23 +230,26 @@ export type { UiEvent } from './types/uiEvent';
 // Types - Field Validation
 export type { ValidatorName } from './types/fieldValidation';
 
-// Types - Linid API
-export type { LinidApiErrorResponseBody } from './types/linidApi';
+// Types - LinPulsar API
+export type { LinPulsarApiErrorResponseBody } from './types/linPulsarApi';
 
 // Types - DialogEvent
 export type { DialogEvent } from './types/dialogType';
 
 // Types - User
-export type { LinidUser } from './types/linidUser';
+export type { LinPulsarUser } from './types/linPulsarUser';
 
 // Types - Tree
-export type { TreeNode, TreeNodeType } from './types/linidTree';
+export type { TreeNode, TreeNodeType } from './types/linPulsarTree';
 
 // Types - Dropdown
 export type { DropdownClickPayload, MenuItem } from './types/dropdownButton';
 
 // Types - Filter
-export type { LinidFilterOperator, LinidFilterType } from './types/linidFilter';
+export type {
+  LinPulsarFilterOperator,
+  LinPulsarFilterType,
+} from './types/linPulsarFilter';
 
 // Types - Formatter
 export type { FormatterConfiguration } from './types/formatter';

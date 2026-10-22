@@ -52,7 +52,7 @@ The `useDialog()` composable provides:
 ### 3.1 Import and Setup
 
 ```ts
-import { useDialog } from '@linagora/linid-im-front-corelib';
+import { useDialog } from '@linagora/lin-pulsar-core';
 
 // You can optionally pass an onOpen callback
 const { show, dialogRef } = useDialog('dialog', (event) => {
@@ -97,7 +97,7 @@ To trigger a dialog from anywhere in your application, emit a dialog event throu
 ### 6.1 Opening a Dialog
 
 ```ts
-import { uiEventSubject } from '@linagora/linid-im-front-corelib';
+import { uiEventSubject } from '@linagora/lin-pulsar-core';
 
 // Open a simple confirmation dialog
 uiEventSubject.next({
@@ -113,7 +113,7 @@ uiEventSubject.next({
 ### 6.2 Closing a Dialog
 
 ```ts
-import { uiEventSubject } from '@linagora/linid-im-front-corelib';
+import { uiEventSubject } from '@linagora/lin-pulsar-core';
 
 // Close the dialog
 uiEventSubject.next({

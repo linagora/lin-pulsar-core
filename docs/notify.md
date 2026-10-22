@@ -19,7 +19,7 @@ The `useNotify` composable allows you to emit notification events with a **QNoti
 The UiEventService exposes a **shared RxJS Subject** (`uiEventSubject`) that acts as an event bus for all UI events, including notifications:
 
 ```ts
-import { uiEventSubject } from '@linagora/linid-im-front-corelib';
+import { uiEventSubject } from '@linagora/lin-pulsar-core';
 
 // Subscribe to all notification events
 uiEventSubject.subscribe((event) => {
@@ -52,7 +52,7 @@ The `useNotify()` composable provides a `Notify` function to emit notification e
 ### 3.1 Import and Setup
 
 ```ts
-import { useNotify } from '@linagora/linid-im-front-corelib';
+import { useNotify } from '@linagora/lin-pulsar-core';
 import type { QNotifyCreateOptions } from 'quasar';
 
 const { Notify } = useNotify();
@@ -119,7 +119,7 @@ Notify({
 </template>
 
 <script setup lang="ts">
-import { useNotify } from '@linagora/linid-im-front-corelib';
+import { useNotify } from '@linagora/lin-pulsar-core';
 const { Notify } = useNotify();
 
 function handleNotify() {
@@ -145,7 +145,7 @@ function handleNotify() {
 The composable is fully typed and ensures type safety:
 
 ```ts
-import { useNotify } from '@linagora/linid-im-front-corelib';
+import { useNotify } from '@linagora/lin-pulsar-core';
 import type { QNotifyCreateOptions } from 'quasar';
 
 const { Notify } = useNotify();

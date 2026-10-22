@@ -31,7 +31,7 @@ describe('Test service: httpClientService', () => {
       setHttpClient(secondClient);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] HTTP client has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] HTTP client has already been initialized. Re-initialization is ignored.'
       );
       expect(getHttpClient()).toBe(firstClient);
 
@@ -42,7 +42,7 @@ describe('Test service: httpClientService', () => {
   describe('Test function: getHttpClient', () => {
     it('should throw an error if client is not initialized', () => {
       expect(() => getHttpClient()).toThrow(
-        '[LinID CoreLib] HTTP client is not initialized. Call setHttpClient() first.'
+        '[LinPulsar Core] HTTP client is not initialized. Call setHttpClient() first.'
       );
     });
   });

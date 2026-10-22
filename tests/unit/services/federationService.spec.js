@@ -43,7 +43,7 @@ describe('Test service: federationService', () => {
       setModuleFederation(secondClient);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] Module Federation has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] Module Federation has already been initialized. Re-initialization is ignored.'
       );
       expect(getModuleFederation()).toBe(firstClient);
 
@@ -54,7 +54,7 @@ describe('Test service: federationService', () => {
   describe('Test function: getModuleFederation', () => {
     it('should throw an error if instance is not initialized', () => {
       expect(() => getModuleFederation()).toThrow(
-        '[LinID CoreLib] Module Federation is not initialized. Call setModuleFederation() first.'
+        '[LinPulsar Core] Module Federation is not initialized. Call setModuleFederation() first.'
       );
     });
   });

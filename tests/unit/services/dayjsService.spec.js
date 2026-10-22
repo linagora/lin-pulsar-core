@@ -30,7 +30,7 @@ describe('Test service: dayjsService', () => {
       setDayjsInstance(secondInstance);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[LinID CoreLib] Dayjs instance has already been initialized. Re-initialization is ignored.'
+        '[LinPulsar Core] Dayjs instance has already been initialized. Re-initialization is ignored.'
       );
       expect(getDayjsInstance()).toBe(firstInstance);
 
@@ -41,7 +41,7 @@ describe('Test service: dayjsService', () => {
   describe('Test function: getDayjsInstance', () => {
     it('should throw an error if instance is not initialized', () => {
       expect(() => getDayjsInstance()).toThrow(
-        '[LinID CoreLib] Dayjs instance is not initialized. Call setDayjsInstance() first.'
+        '[LinPulsar Core] Dayjs instance is not initialized. Call setDayjsInstance() first.'
       );
     });
   });

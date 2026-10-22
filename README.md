@@ -1,11 +1,11 @@
-# **linid-im-front-corelib**
+# **lin-pulsar-core**
 
 ## **🧩 Overview**
 
-`linid-im-front-corelib` is a TypeScript library designed as a core front-end module for the LinID Identity Management
-ecosystem.
-It provides shared interfaces, types, default services, and plugin-zone components used across the LinID front-end
-applications, including:
+`lin-pulsar-core` is a TypeScript library designed as a core front-end module of LinPulsar, the component catalog of
+the linOpenFactory ecosystem.
+It provides shared interfaces, types, default services, and plugin-zone components used across the linOpenFactory
+front-end applications, including:
 
 - The **Vue.js/Quasar module federation host**
 - The **remote plugin repositories**
@@ -21,7 +21,7 @@ structures for identity management features such as CRUD operations on persons, 
 ## **✨ Features**
 
 - Shared **TypeScript interfaces and types**
-- Core **services** used across LinID front-end apps
+- Core **services** used across linOpenFactory front-end apps
 - **Plugin zone components** for dynamic front-end plugin integration
 - Common validation utilities for identity management workflows
 - Designed to integrate seamlessly with Vue.js, Quasar, and module federation architecture
@@ -59,13 +59,13 @@ Install the library from npm:
 ### **With npm**
 
 ```bash
-npm install @linagora/linid-im-front-corelib
+npm install @linagora/lin-pulsar-core
 ```
 
 ### **With pnpm**
 
 ```bash
-pnpm add @linagora/linid-im-front-corelib
+pnpm add @linagora/lin-pulsar-core
 ```
 
 ---
@@ -101,18 +101,18 @@ A full technical documentation is available in the `docs/` directory:
   personalization.
   → [`docs/ui-design.md`](docs/ui-design.md)
 
-- 🔗 **URL Filter Sync (`useLinidFilterUrl`)**
-  Learn how to use the `useLinidFilterUrl` composable to synchronize `LinidFilter` instances with the URL
+- 🔗 **URL Filter Sync (`useLinPulsarFilterUrl`)**
+  Learn how to use the `useLinPulsarFilterUrl` composable to synchronize `LinPulsarFilter` instances with the URL
   query params.
-  → [`docs/use-linid-filter-url.md`](docs/use-linid-filter-url.md)
+  → [`docs/use-lin-pulsar-filter-url.md`](docs/use-lin-pulsar-filter-url.md)
 
 - 🎨 **I18n Configuration (`i18n`)**
   Learn how to initialize and use the `i18n` singleton and the `useScopedI18n` composable for internationalization.
   → [`docs/i18n.md`](docs/i18n.md)
 
-- ⚙️ **User Preferences System (`useLinidUserPreference`)**
-  Learn how to manage user preferences using the `useLinidUserPreferenceStore` (Pinia state layer) and the
-  `useLinidUserPreference` composable (API synchronization layer with backend persistence).
+- ⚙️ **User Preferences System (`useLinPulsarUserPreference`)**
+  Learn how to manage user preferences using the `useLinPulsarUserPreferenceStore` (Pinia state layer) and the
+  `useLinPulsarUserPreference` composable (API synchronization layer with backend persistence).
   → [`docs/user-preference-system.md`](docs/user-preference-system.md)
 
 - 🔔 **Notification System (`useNotify`)**
@@ -128,10 +128,10 @@ A full technical documentation is available in the `docs/` directory:
   → [`docs/field-validation.md`](docs/field-validation.md)
 
 - 🌳 **Tree (`useTree`)**
-  Learn how to convert between LinID tree models and Quasar QTree component formats.
+  Learn how to convert between LinPulsar tree models and Quasar QTree component formats.
   → [`docs/useTree.md`](docs/useTree.md)
 
-- 🔍 **Filters (`LinidFilter`, `LinidFilterSet` & `LinidFilterValue`)**
+- 🔍 **Filters (`LinPulsarFilter`, `LinPulsarFilterSet` & `LinPulsarFilterValue`)**
   Learn how to build filters, save them as favorite searches, and convert/parse filter value expressions.
   → [`docs/filters.md`](docs/filters.md)
 

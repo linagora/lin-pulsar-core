@@ -1,6 +1,6 @@
 # 🌳 useTree Composable
 
-This document explains how to use the `useTree` composable to convert between the LinID tree model and the Quasar
+This document explains how to use the `useTree` composable to convert between the LinPulsar tree model and the Quasar
 `q-tree` component format.
 
 ---
@@ -23,7 +23,7 @@ It ensures consistent node mapping, key handling, and recursive children convers
 ### 2.1 Import and Initialization
 
 ```ts
-import { useTree } from '@linagora/linid-im-front-corelib';
+import { useTree } from '@linagora/lin-pulsar-core';
 
 const { toQTreeNodes } = useTree();
 ```
