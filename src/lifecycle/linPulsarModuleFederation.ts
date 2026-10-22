@@ -78,6 +78,9 @@ async function fetchJsonFiles<T>(
         const response = await fetch(file);
 
         if (!response.ok) {
+          console.error(
+            `[LinPulsar Core] Failed to load file: ${file} (HTTP ${response.status})`
+          );
           return null;
         }
 
@@ -91,7 +94,9 @@ async function fetchJsonFiles<T>(
         console.debug(`[LinPulsar Core] Loaded file: ${response.url}`);
         return content;
       } catch {
-        console.error(`[LinPulsar Core] File not found: ${file}`);
+        console.error(
+          `[LinPulsar Core] Failed to fetch or parse file: ${file}`
+        );
         return null;
       }
     })

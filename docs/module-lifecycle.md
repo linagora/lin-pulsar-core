@@ -622,6 +622,9 @@ module configuration is logged and skipped, the other modules are still loaded:
 [LinPulsar Core] Invalid content in file: /modules/MyModule.json
 ```
 
+The first message is logged when the server answers with an error status, the second when the request itself fails
+(network error, invalid JSON), the third when the file does not hold the expected content.
+
 The same rule applies to the files of the `extraZones` option.
 
 ---
