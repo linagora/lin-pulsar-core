@@ -203,15 +203,20 @@ describe('Test object: linPulsarModuleFederation', () => {
       expect(fetchMock).toHaveBeenCalledWith('/modules/b.json');
     });
 
-    it('should skip a module whose configuration file fails to load', async () => {
+    it('should skip and log a module whose configuration file fails to load', async () => {
+      const errorSpy = vi.spyOn(globalThis.console, 'error').mockImplementation(() => {});
       vi.stubGlobal(
         'fetch',
-        vi.fn(async () => ({ ok: false }))
+        vi.fn(async () => ({ ok: false, status: 404 }))
       );
 
       await linPulsarModuleFederation.init({ router, remotes, modules });
 
       expect(loadRemote).not.toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalledWith(
+        `[LinPulsar Core] Failed to load file: ${modules[0]} (HTTP 404)`
+      );
+      errorSpy.mockRestore();
     });
 
     it('should skip a module whose configuration file holds an invalid configuration', async () => {
