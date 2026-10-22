@@ -187,7 +187,7 @@ formatDate(date: unknown, outputFormat: string, inputFormat?: string): string
 ### Parameters
 
 | Parameter      | Type      | Required | Description                                                                                               |
-| -------------- | --------- | -------- |-----------------------------------------------------------------------------------------------------------|
+| -------------- | --------- | -------- | --------------------------------------------------------------------------------------------------------- |
 | `date`         | `unknown` | yes      | Date value to format (ISO string, locale-formatted string, or `Date` instance).                           |
 | `outputFormat` | `string`  | yes      | Format string describing the desired output (e.g., `'DD/MM/YYYY'`).                                       |
 | `inputFormat`  | `string`  | no       | Format to strictly parse `date` against (e.g., `'DD/MM/YYYY'`). Defaults to dayjs's non-strict detection. |
@@ -239,8 +239,8 @@ toEmptyRecord<T>(fields: LinPulsarAttributeConfiguration[]): T
 
 ### Parameters
 
-| Parameter | Type                            | Required | Description                                                                |
-| --------- | ------------------------------- | -------- | -------------------------------------------------------------------------- |
+| Parameter | Type                                | Required | Description                                                                |
+| --------- | ----------------------------------- | -------- | -------------------------------------------------------------------------- |
 | `fields`  | `LinPulsarAttributeConfiguration[]` | yes      | Array of attribute definitions that describe the form fields to initialize |
 
 ### Returns

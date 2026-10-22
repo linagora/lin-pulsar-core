@@ -219,7 +219,7 @@ export async function syncLocale(locale: string): Promise<void> {
  * Applies the given locale to the application and persists the choice.
  *
  * Updates the active i18n locale, reflects it in the UI store, and synchronises the persisted state. This assumes the
- * shared i18n instance runs in Composition mode (legacy: false), as guaranteed by the lin-pulsar-core LinPulsarI18n convention;
+ * shared i18n instance runs in Composition mode (legacy: false), as guaranteed by the lin-pulsar-core `LinPulsarI18n` convention;
  * on a legacy instance the locale assignment would be a silent no-op at runtime.
  * @param locale - The locale code to apply (e.g. "fr-FR").
  * @returns A promise that resolves once the locale has been applied and persisted.

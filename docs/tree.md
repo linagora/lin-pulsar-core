@@ -31,7 +31,7 @@ const { toQTreeNodes } = useTree();
 ### 2.2 Available Methods
 
 | Method         | Description                                                   |
-|----------------|---------------------------------------------------------------|
+| -------------- | ------------------------------------------------------------- |
 | `toQTreeNodes` | Converts an array of `TreeNode<T>` to Quasar-compatible nodes |
 
 ---
@@ -53,7 +53,7 @@ type TreeNode<T> = {
 ```
 
 | Field          | Type            | Description                                       |
-|----------------|-----------------|---------------------------------------------------|
+| -------------- | --------------- | ------------------------------------------------- |
 | `type`         | `string`        | The type of the node (matches a `TreeNodeType`)   |
 | `key`          | `string`        | Unique identifier within the tree                 |
 | `value`        | `T`             | The value carried by the node                     |
@@ -77,7 +77,13 @@ function toQTreeNodes<T>(nodes: TreeNode<T>[]): QTreeNode[];
 ```ts
 const nodes: TreeNode<string>[] = [
   { type: 'one', key: 'a', value: 'Element A', nodes: [], extraActions: [] },
-  { type: 'two', key: 'b', value: 'Element B', nodes: [], extraActions: ['import'] },
+  {
+    type: 'two',
+    key: 'b',
+    value: 'Element B',
+    nodes: [],
+    extraActions: ['import'],
+  },
 ];
 
 const qNodes = toQTreeNodes<string>(nodes);
@@ -94,7 +100,13 @@ const qNodes = toQTreeNodes<string>(nodes);
 type User = { id: number; name: string };
 
 const nodes: TreeNode<User>[] = [
-  { type: 'user', key: 'u-1', value: { id: 1, name: 'Alice' }, nodes: [], extraActions: ['edit'] },
+  {
+    type: 'user',
+    key: 'u-1',
+    value: { id: 1, name: 'Alice' },
+    nodes: [],
+    extraActions: ['edit'],
+  },
 ];
 
 const qNodes = toQTreeNodes<User>(nodes);

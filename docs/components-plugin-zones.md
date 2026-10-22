@@ -27,7 +27,7 @@ LinPulsarZoneRenderer provides:
 
 ```vue
 <template>
-  <LinPulsarZoneRenderer zone="user-details" />
+  <LinPulsarZoneRenderer zone="entity-details" />
 </template>
 ```
 
@@ -38,7 +38,7 @@ LinPulsarZoneRenderer provides:
 ### Props
 
 | Prop            | Type    | Description                                                                                                                                                                |
-|-----------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `zone`          | string  | The name of the zone to render                                                                                                                                             |
 | `...additional` | unknown | Any additional attributes and event listeners passed to the component are forwarded to all rendered zone plugins via `$attrs`. These is overriden by entry-specific props. |
 
@@ -47,21 +47,21 @@ LinPulsarZoneRenderer provides:
 ```vue
 <template>
   <LinPulsarZoneRenderer
-    zone="user-details"
-    :userId="42"
+    zone="entity-details"
+    :entityId="42"
     :theme="dark"
   />
 </template>
 ```
 
-In this example, `userId` and `theme` are forwarded to all plugins registered in the `user-details` zone, and will
-override any same-named props defined in the zone entry configuration. Event listeners (e.g. `@my-event`) would be
+In this example, `entityId` and `theme` are forwarded to all plugins registered in the `entity-details` zone. A prop
+with the same name defined in the zone entry configuration takes precedence over them. Event listeners (e.g. `@my-event`) would be
 forwarded the same way.
 
 ### Default Slot - Fallback Component
 
 The `LinPulsarZoneRenderer` component provides a **default slot** that is displayed when no components are registered in the
-specified zone **after loading is complete**.
+specified zone.
 
 #### Purpose
 
@@ -73,12 +73,7 @@ The default slot allows you to:
 
 #### Behavior
 
-The slot is rendered **only when**:
-
-1. ✅ The loading process is complete
-2. ✅ No components are registered in the zone
-
-**Important:** The slot will **not** be displayed during the initial loading phase to avoid flickering.
+The slot is rendered **only when** no component is registered in the zone.
 
 ---
 
@@ -86,7 +81,7 @@ The slot is rendered **only when**:
 
 ##### Default Fallback (No Custom Slot)
 
-If you don't provide a custom slot, the component displays a default message:
+If you don't provide a custom slot, the component renders nothing:
 
 ```vue
 <template>
@@ -102,10 +97,10 @@ You can provide your own fallback content using the default slot:
 
 ```vue
 <template>
-  <LinPulsarZoneRenderer zone="user-actions">
+  <LinPulsarZoneRenderer zone="entity-actions">
     <template #default>
       <div>
-        <p>No actions available for this user.</p>
+        <p>No actions available for this entity.</p>
       </div>
     </template>
   </LinPulsarZoneRenderer>
@@ -116,7 +111,7 @@ You can provide your own fallback content using the default slot:
 
 ## 🔧 Configuring Zones in Module Configuration
 
-Modules can declare elements that should be rendered in zones via their configuration file (`module-<name>.json`). This
+Modules can declare elements that should be rendered in zones via their configuration file (`modules/<ModuleName>.json`). This
 provides a **declarative, configuration-driven approach** to zone management.
 
 ### ModuleZoneDefinition Interface
@@ -148,8 +143,7 @@ interface ComponentModuleZoneDefinition<T = Record<string, unknown>> {
 }
 
 type ModuleZoneDefinition<T = Record<string, unknown>> =
-  | FederatedModuleZoneDefinition<T>
-  | ComponentModuleZoneDefinition<T>;
+  FederatedModuleZoneDefinition<T> | ComponentModuleZoneDefinition<T>;
 ```
 
 The two fields are **mutually exclusive**: the variant is determined by whichever of `plugin` or `component` is set, so
@@ -157,19 +151,22 @@ no extra discriminant is needed in the configuration file.
 
 ### Configuration Example
 
-In your `module-<name>.json` file:
+In your `modules/<ModuleName>.json` file:
 
 ```json
 {
-  "instanceId": "moduleRoles-instance",
-  "remoteName": "moduleRoles",
-  "entity": "roles",
-  "apiEndpoint": "/api/roles",
-  "basePath": "/roles",
+  "instanceId": "moduleComments-instance",
+  "remoteName": "moduleComments",
+  "entity": "comments",
+  "apiEndpoint": "/api/comments",
+  "lifecycleRemote": "linPulsar/PageLifecycle",
+  "routesRemote": "linPulsar/PageRoutes",
+  "i18nRemote": "linPulsar/EmptyI18n",
+  "basePath": "/comments",
   "zones": [
     {
-      "zone": "user-details",
-      "plugin": "moduleRoles/RoleCardPlugin",
+      "zone": "entity-details",
+      "plugin": "moduleComments/CommentsCardPlugin",
       "props": {
         "showAvatar": true,
         "theme": "dark"
@@ -177,10 +174,10 @@ In your `module-<name>.json` file:
     },
     {
       "zone": "sidebar",
-      "plugin": "moduleRoles/QuickActionsPlugin"
+      "plugin": "moduleComments/QuickActionsPlugin"
     },
     {
-      "zone": "user-details",
+      "zone": "entity-details",
       "component": "QSeparator"
     }
   ],
@@ -188,9 +185,9 @@ In your `module-<name>.json` file:
 }
 ```
 
-In this example, the module declares that its `RoleCardPlugin` component should be rendered in the `user-details` zone,
-with a prop to show avatars. We suppose that `user-details` is a zone exposed by another module, for example the User
-Management module, allowing this Roles module to extend the user details view with role information.
+In this example, the module declares that its `CommentsCardPlugin` component should be rendered in the `entity-details`
+zone, with a prop to show avatars. We suppose that `entity-details` is a zone exposed by another module, for example a
+generic details page, allowing this Comments module to extend the details view with the comments of the entity.
 
 The last entry references `QSeparator` by name instead of a federated element, which requires it to have been made
 available to zones, see [Making Components Available to Zones](#-making-components-available-to-zones).
@@ -208,9 +205,9 @@ available to zones, see [Making Components Available to Zones](#-making-componen
 
 ### When to Use Configuration vs. Store
 
-| Approach                                                          | Use When                                                                                                        |
-|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| **Configuration** (`ModuleZoneDefinition`)                        | Static zone declarations known at build time, configuration-driven architecture, cleaner separation of concerns |
+| Approach                                                              | Use When                                                                                                        |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Configuration** (`ModuleZoneDefinition`)                            | Static zone declarations known at build time, configuration-driven architecture, cleaner separation of concerns |
 | **Store** (`registerPlugin`/`registerPluginOnce`/`registerComponent`) | Dynamic runtime registration, programmatic control needed, bootstrap-time setup in module lifecycle             |
 
 Both approaches can coexist: use configuration for standard zones and the store for dynamic cases.
@@ -228,8 +225,8 @@ import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
 const linPulsarZoneStore = useLinPulsarZoneStore();
 
-linPulsarZoneStore.registerPlugin('user-details', '@/remote/UserCard', {
-  userId: 42,
+linPulsarZoneStore.registerPlugin('entity-details', '@/remote/EntityCard', {
+  entityId: 42,
 });
 ```
 
@@ -246,8 +243,8 @@ import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
 const linPulsarZoneStore = useLinPulsarZoneStore();
 
-linPulsarZoneStore.registerComponent('user-details', 'UserRolesCard', {
-  userId: 42,
+linPulsarZoneStore.registerComponent('entity-details', 'EntityCommentsCard', {
+  entityId: 42,
 });
 ```
 
@@ -276,9 +273,9 @@ import {
   registerLocalComponents,
 } from '@linagora/lin-pulsar-core';
 import { QSeparator } from 'quasar';
-import UserRolesCard from './components/UserRolesCard.vue';
+import EntityCommentsCard from './components/EntityCommentsCard.vue';
 
-registerLocalComponent('UserRolesCard', UserRolesCard);
+registerLocalComponent('EntityCommentsCard', EntityCommentsCard);
 
 registerLocalComponents({
   QSeparator,
@@ -309,7 +306,7 @@ import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
 const linPulsarZoneStore = useLinPulsarZoneStore();
 
-if (linPulsarZoneStore.hasZoneEntries('user-details')) {
+if (linPulsarZoneStore.hasZoneEntries('entity-details')) {
   // The zone will render something
 }
 ```
@@ -346,7 +343,7 @@ import { useLinPulsarZoneStore } from '@linagora/lin-pulsar-core';
 
 const linPulsarZoneStore = useLinPulsarZoneStore();
 
-linPulsarZoneStore.registerPluginOnce('user-details', '@/remote/UserCard');
+linPulsarZoneStore.registerPluginOnce('entity-details', '@/remote/EntityCard');
 ```
 
 ### 🔎 Behavior
@@ -403,9 +400,9 @@ configuration.
 ### ⚖️ `registerPlugin` vs `registerPluginOnce`
 
 | Method               | Allows duplicates | Typical Use Case                             |
-|----------------------|-------------------|----------------------------------------------|
-| `registerPlugin`     | ✅ Yes             | When multiple identical plugins are expected |
-| `registerPluginOnce` | ❌ No              | When idempotent registration is required     |
+| -------------------- | ----------------- | -------------------------------------------- |
+| `registerPlugin`     | ✅ Yes            | When multiple identical plugins are expected |
+| `registerPluginOnce` | ❌ No             | When idempotent registration is required     |
 
 ---
 
@@ -426,6 +423,16 @@ Use `registerPlugin` when:
 
 ## 🧩 How It Works
 
+```mermaid
+flowchart TD
+  renderer["LinPulsarZoneRenderer zone='entity-details'"] --> store[LinPulsar Zone Store]
+  store --> entries{Entry type}
+  entries -- federated --> federated["loadAsyncComponent(entry.plugin)"]
+  entries -- component --> local["resolveLocalComponent(entry.component)"]
+  federated --> render["component :is + v-bind { ...$attrs, ...entry.props }"]
+  local --> render
+```
+
 1. **At initialization time**, the component retrieves all entries for the given `zone` from the **LinPulsar Zone Store**.
 2. Each **federated entry** (`type: 'federated'`) is wrapped as an **async component** retrieved from its remote
    module using the `loadAsyncComponent(entry.plugin)` method. **Component entries** (`type: 'component'`) are
@@ -442,27 +449,26 @@ Use `registerPlugin` when:
 
 **Props merge behavior:**
 
-- `entry.props`: Props from the zone entry configuration (from `module-<name>.json`). These serve as default values for
-  the plugin.
+- `entry.props`: Props from the zone entry configuration (from the module configuration file).
 - `$attrs`: All attributes and event listeners passed to `LinPulsarZoneRenderer` that are not declared as props or emits.
-  This includes bound props (e.g. `:userId="42"`) as well as event listeners (e.g. `@my-event="handler"`). The `zone`
+  This includes bound props (e.g. `:entityId="42"`) as well as event listeners (e.g. `@my-event="handler"`). The `zone`
   prop is declared and therefore excluded from `$attrs` automatically.
   See [Vue Fallthrough Attributes](https://vuejs.org/guide/components/attrs) for details.
-- **`$attrs` is overridden:** If the same key is present in both, the value from `zone entry` wins.
+- **`entry.props` wins:** If the same key is present in both, the value from the zone entry is used.
 
 **Example:**
 
 ```vue
 <!-- In parent component -->
-<LinPulsarZoneRenderer zone="user-details" :theme="dark" :readOnly="true" />
+<LinPulsarZoneRenderer zone="entity-details" :theme="dark" :readOnly="true" />
 ```
 
-In module-<name>.json zone configuration
+In the zone configuration of `modules/<ModuleName>.json`:
 
 ```json
 {
-  "zone": "user-details",
-  "plugin": "myModule/UserCard",
+  "zone": "entity-details",
+  "plugin": "myModule/EntityCard",
   "props": {
     "theme": "light",
     "showAvatar": true
@@ -473,15 +479,16 @@ In module-<name>.json zone configuration
 ```ts
 // Rendered component receives
 {
-  theme: 'light', // from $attrs (override)
-  readOnly: true, //from $attrs
+  theme: 'light', // from entry.props, which wins over $attrs
+  readOnly: true, // from $attrs
   showAvatar: true // from entry.props
 }
 ```
 
 - This allows multiple plugins to coexist in a single zone.
 - The component loads plugins once during initialization and does not react to subsequent store changes.
-- Attributes passed to the zone renderer override entry-specific props, making `entry.props` act as default values.
+- Props defined in the zone entry override the attributes passed to the zone renderer, so the attributes act as default
+  values shared by all the entries of the zone.
 
 ---
 
@@ -509,7 +516,8 @@ export interface ComponentLinPulsarZoneEntry extends BaseLinPulsarZoneEntry {
   component: string;
 }
 
-export type LinPulsarZoneEntry = FederatedLinPulsarZoneEntry | ComponentLinPulsarZoneEntry;
+export type LinPulsarZoneEntry =
+  FederatedLinPulsarZoneEntry | ComponentLinPulsarZoneEntry;
 ```
 
 - Entries are built by the store helpers (`registerPlugin`, `registerPluginOnce`, `registerComponent`); consumers

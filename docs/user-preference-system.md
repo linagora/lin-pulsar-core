@@ -2,8 +2,8 @@
 
 This document describes how to manage **user preferences** using:
 
-* a centralized **Pinia store**
-* a **composable** that synchronizes preferences with the backend API
+- a centralized **Pinia store**
+- a **composable** that synchronizes preferences with the backend API
 
 ---
 
@@ -11,14 +11,14 @@ This document describes how to manage **user preferences** using:
 
 The user preference system provides a simple abstraction to:
 
-* Store user preferences locally (Pinia)
-* Synchronize preferences with the backend API
-* Provide a composable API for components and services
+- Store user preferences locally (Pinia)
+- Synchronize preferences with the backend API
+- Provide a composable API for components and services
 
 It is composed of:
 
-* `useLinPulsarUserPreferenceStore` → state management layer
-* `useLinPulsarUserPreference` → API + store orchestration layer
+- `useLinPulsarUserPreferenceStore` → state management layer
+- `useLinPulsarUserPreference` → API + store orchestration layer
 
 ---
 
@@ -38,7 +38,7 @@ interface LinPulsarUserPreferenceState {
 }
 ```
 
-* `userPreferences`: key-value map of all user preferences
+- `userPreferences`: key-value map of all user preferences
 
 ---
 
@@ -73,7 +73,7 @@ removeUserPreference(key: string): void
 ### 2.4 Usage
 
 ```ts
-import { useLinPulsarUserPreferenceStore } from '../stores/linPulsarUserPreferenceStore';
+import { useLinPulsarUserPreferenceStore } from '@linagora/lin-pulsar-core';
 
 const store = useLinPulsarUserPreferenceStore();
 
@@ -89,8 +89,8 @@ store.removeUserPreference('language');
 
 The composable acts as a **service layer** between:
 
-* backend API (`user-preferences`)
-* Pinia store
+- backend API (`user-preferences`)
+- Pinia store
 
 It ensures synchronization between remote and local state.
 
@@ -159,15 +159,15 @@ await deleteUserPreference('theme');
 ### 3.5 Returned API
 
 ```ts
-{
+return {
   init,
-    saveUserPreference,
-    deleteUserPreference,
-    userPreferenceStore
-}
+  saveUserPreference,
+  deleteUserPreference,
+  userPreferenceStore,
+};
 ```
 
-* `userPreferenceStore`: direct access to reactive Pinia store
+- `userPreferenceStore`: direct access to reactive Pinia store
 
 ---
 
@@ -184,7 +184,7 @@ DELETE user-preferences/:key
 ### 4.1 GET response
 
 ```ts
-Record<string, string>
+Record<string, string>;
 ```
 
 ### 4.2 POST payload / response
@@ -205,12 +205,8 @@ No payload (`void`)
 ## 5. Typical Usage Pattern
 
 ```ts
-const {
-  init,
-  saveUserPreference,
-  deleteUserPreference,
-  userPreferenceStore,
-} = useLinPulsarUserPreference();
+const { init, saveUserPreference, deleteUserPreference, userPreferenceStore } =
+  useLinPulsarUserPreference();
 
 await init();
 
@@ -223,7 +219,7 @@ console.log(userPreferenceStore.userPreferences);
 
 ## 6. Design Notes
 
-* The store is **pure state management**
-* The composable is the **integration layer (API ↔ store)**
-* All state updates go through store actions only
-* API responses are immediately reflected in local state
+- The store is **pure state management**
+- The composable is the **integration layer (API ↔ store)**
+- All state updates go through store actions only
+- API responses are immediately reflected in local state

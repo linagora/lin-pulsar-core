@@ -61,7 +61,7 @@ export class BasicRemoteModule<T> implements RemoteModule<T> {
 
   /**
    * Creates a new remote module instance.
-   * @param id - Unique module identifier (kebab-case).
+   * @param id - Unique module identifier.
    * @param name - Human-readable module name.
    * @param version - Module version (semver).
    * @param description - Optional module description.

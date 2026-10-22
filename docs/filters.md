@@ -78,7 +78,7 @@ class LinPulsarFilterValue {
 | Property     | Type                      | Description                                                          |
 | ------------ | ------------------------- | -------------------------------------------------------------------- |
 | `isNegation` | `boolean`                 | Whether the comparison must be negated                               |
-| `operator`   | `LinPulsarFilterOperator`     | The comparison operator applied to the value                         |
+| `operator`   | `LinPulsarFilterOperator` | The comparison operator applied to the value                         |
 | `value`      | `string`                  | The raw value, with the negation marker and operator prefix stripped |
 | `item`       | `Record<string, unknown>` | Item resolved from the dynamic label request — display only          |
 
@@ -213,12 +213,12 @@ class LinPulsarFilter<T = Record<string, unknown>> {
 }
 ```
 
-| Property              | Type                             | Description                                                             |
-| --------------------- | -------------------------------- | ----------------------------------------------------------------------- |
-| `id`                  | `string`                         | Auto generated unique identifier of the filter (set by the constructor) |
-| `name`                | `string`                         | Identifier of the filter                                                |
+| Property              | Type                                 | Description                                                             |
+| --------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| `id`                  | `string`                             | Auto generated unique identifier of the filter (set by the constructor) |
+| `name`                | `string`                             | Identifier of the filter                                                |
 | `type`                | `LinPulsarFilterType`                | Defines the filter category and expected behavior                       |
-| `options`             | `T`                              | Configuration object of the filter, defined by the consumer             |
+| `options`             | `T`                                  | Configuration object of the filter, defined by the consumer             |
 | `values`              | `LinPulsarFilterValue[]`             | List of applied filter values                                           |
 | `dynamicLabelOptions` | `LinPulsarFilterDynamicLabelOptions` | Dynamic item resolution configuration (see section 6.5)                 |
 
@@ -318,7 +318,7 @@ export interface LinPulsarFilterDynamicLabelOptions {
 | `multipleRequests`  | `boolean` | Whether to perform one request per value. Defaults to `false` (one request for all)          |
 | `url`               | `string`  | Nunjucks URL template: `{{ value }}` when `multipleRequests`, `{{ values }}` otherwise       |
 | `responseItemsPath` | `string`  | Path to the collection of items in the response. Required when `multipleRequests` is `false` |
-| `valuePath`         | `string`  | Path, within an item, to the attribute matching `LinPulsarFilterValue.value`. Same condition     |
+| `valuePath`         | `string`  | Path, within an item, to the attribute matching `LinPulsarFilterValue.value`. Same condition |
 
 The two template variables hold the **raw values** of the `LinPulsarFilterValue` still missing an item — the
 `value` property alone, without the negation marker nor the operator prefix, and without the values already
@@ -340,7 +340,7 @@ response is the item of the value it was requested for. Both are dot-notation pa
 That layer also owns the URL encoding: `url` is a template, not a ready-to-send URL. Whatever it renders —
 the separator joining the values first of all — must reach the API percent-encoded, since a raw `|` in a query
 string is rejected by servers such as Tomcat with a `400 Bad Request`. A consumer that encodes the query
-string of the rendered URL (as `LinPulsarFilterChip` does in `lin-pulsar`) lets a template
+string of the rendered URL (as the filter chip of the `LinPulsarSmartFilter` component of the `linPulsar` catalog does) lets a template
 keep `join('|')` as-is; otherwise, and whenever the values themselves may carry URL-special characters such as
 `&`, `=` or `#`, add the Nunjucks `urlencode` filter: `{{ values | join('|') | urlencode }}`.
 
@@ -371,7 +371,10 @@ filter:
 For the values below:
 
 ```ts
-[new LinPulsarFilterValue(false, '', '1'), new LinPulsarFilterValue(false, '', '2')];
+[
+  new LinPulsarFilterValue(false, '', '1'),
+  new LinPulsarFilterValue(false, '', '2'),
+];
 ```
 
 the request is:
@@ -457,23 +460,25 @@ storage in user preferences.
 
 ```ts
 class LinPulsarFilterSet {
+  id: string;
   label: string;
   filters: LinPulsarFilter[];
 }
 ```
 
-| Property  | Type            | Description                                         |
-| --------- | --------------- | --------------------------------------------------- |
-| `label`   | `string`        | User-friendly name of the favorite search           |
+| Property  | Type                | Description                                         |
+| --------- | ------------------- | --------------------------------------------------- |
+| `id`      | `string`            | Unique identifier of the filter set                 |
+| `label`   | `string`            | User-friendly name of the favorite search           |
 | `filters` | `LinPulsarFilter[]` | Collection of filters composing the favorite search |
 
 ### 7.2 constructor
 
 ```ts
-new LinPulsarFilterSet(label: string, filters: LinPulsarFilter[]);
+new LinPulsarFilterSet(id: string, label: string, filters: LinPulsarFilter[]);
 ```
 
-Builds a `LinPulsarFilterSet` directly from its label and filters.
+Builds a `LinPulsarFilterSet` directly from its identifier, label and filters.
 
 ### 7.3 fromString (static)
 
@@ -509,7 +514,7 @@ toString(): string;
 
 Reconstructs the filter set as a `&`-separated string of each filter's own `name=value` representation.
 `fromString` and `toString` round-trip for well-formed input:
-`LinPulsarFilterSet.fromString(label, value).toString() === value`.
+`LinPulsarFilterSet.fromString(id, label, value).toString() === value`.
 
 ### 7.5 Usage
 
@@ -517,7 +522,7 @@ Reconstructs the filter set as a `&`-separated string of each filter's own `name
 import { LinPulsarFilter, LinPulsarFilterSet } from '@linagora/lin-pulsar-core';
 
 // Save a favorite search
-const favorite = new LinPulsarFilterSet('My Active Projects', [
+const favorite = new LinPulsarFilterSet('fav-123', 'My Active Projects', [
   LinPulsarFilter.fromString('status', 'active|pending'),
   LinPulsarFilter.fromString('createdAt', 'gt_2026-01-01'),
 ]);
@@ -528,7 +533,11 @@ const serialized = favorite.toString();
 savePreference(serialized);
 
 // Restore it later
-const restored = LinPulsarFilterSet.fromString('My Active Projects', storedValue);
+const restored = LinPulsarFilterSet.fromString(
+  'fav-123',
+  'My Active Projects',
+  storedValue
+);
 
 restored.filters.map((filter) => filter.name);
 // ['status', 'createdAt']
@@ -567,10 +576,10 @@ export interface LinPulsarFilterSetUserPreference {
 }
 ```
 
-| Property | Type     | Description                                                       |
-| -------- | -------- | ----------------------------------------------------------------- |
-| `id`     | `string` | Unique identifier of the saved favorite filter set                |
-| `label`  | `string` | Human-readable name of the favorite                               |
+| Property | Type     | Description                                                           |
+| -------- | -------- | --------------------------------------------------------------------- |
+| `id`     | `string` | Unique identifier of the saved favorite filter set                    |
+| `label`  | `string` | Human-readable name of the favorite                                   |
 | `value`  | `string` | Serialized filter expression (`LinPulsarFilterSet.toString()` format) |
 
 ---
@@ -582,7 +591,7 @@ export interface LinPulsarFilterSetUserPreference {
 - `value` is the canonical serialized form of a filter set and can be parsed back via:
 
 ```ts
-LinPulsarFilterSet.fromString(label, value);
+LinPulsarFilterSet.fromString(id, label, value);
 ```
 
 ---
@@ -596,15 +605,19 @@ const preference: LinPulsarFilterSetUserPreference = {
   value: 'status=active|pending&createdAt=gt_2026-01-01',
 };
 
-const filterSet = LinPulsarFilterSet.fromString(preference.label, preference.value);
+const filterSet = LinPulsarFilterSet.fromString(
+  preference.id,
+  preference.label,
+  preference.value
+);
 ```
 
 ---
 
 ### 8.4 Relationship with `LinPulsarFilterSet`
 
-| Concept                        | Role                                                        |
-| ------------------------------ | ----------------------------------------------------------- |
+| Concept                            | Role                                                        |
+| ---------------------------------- | ----------------------------------------------------------- |
 | `LinPulsarFilterSet`               | Runtime model used in the application to manipulate filters |
 | `LinPulsarFilterSetUserPreference` | Persisted DTO used to store/retrieve saved filter sets      |
 

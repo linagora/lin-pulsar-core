@@ -41,7 +41,10 @@ Example structure:
 
 ## 2. Initialization
 
-The UI design must be initialized **once** by the host application, typically during boot.
+The UI design must be initialized **once** by the host application, typically during boot. The host merges the files
+listed in the `designFiles` entry of the application `config.json` (see
+[Application Configuration](./module-lifecycle.md#application-configuration)) and shares the result. The design of the
+components of the `linPulsar` catalog is not shipped by the catalog: it must be provided by these design files.
 
 ```ts
 import { setUiDesign } from '@linagora/lin-pulsar-core';
@@ -50,7 +53,16 @@ import designConfig from 'public/design.json';
 setUiDesign(designConfig);
 ```
 
-> ⚠️ Subsequent calls to `setUiDesign()` are ignored. Accessing `UiDesign` before initialization will throw an error.
+The shared configuration can then be read with `getUiDesign()`, although components should rather use the
+`useUiDesign` composable described below:
+
+```ts
+import { getUiDesign } from '@linagora/lin-pulsar-core';
+
+const uiDesign = getUiDesign();
+```
+
+> ⚠️ Subsequent calls to `setUiDesign()` are ignored. Calling `getUiDesign()` before initialization throws an error.
 
 ---
 
@@ -74,7 +86,7 @@ components.
 
 <script setup lang="ts">
 import { useUiDesign } from '@linagora/lin-pulsar-core';
-import { QBtnProps } from 'quasar';
+import type { LinPulsarQBtnProps } from '@linagora/lin-pulsar-core';
 
 // Retrieve the getComponentProps() function from the composable
 const { ui } = useUiDesign();
@@ -361,11 +373,6 @@ export type LinPulsarQComponentProps =
  * Valid third-party component names for type-safe UI design retrieval.
  */
 export type ThirdPartyComponentName = 'draggable';
-
-/**
- * Union type of all supported third-party component props subsets.
- */
-export type LinPulsarThirdPartyComponentProps = LinPulsarDraggableProps;
 ```
 
 For `NamedColor`, refer to the Quasar documentation on [Color Palette](https://quasar.dev/style/color-palette).

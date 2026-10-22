@@ -16,11 +16,13 @@ The `useDialog` composable allows you to:
 
 ---
 
-## 2. Shared UiEventService
+## 2. Dialog Events
 
 ### 2.1 Event Stream
 
-The UiEventService exposes a **shared RxJS Subject** (`uiEventSubject`) that acts as an event bus for all UI events, including dialogs:
+Dialogs go through `uiEventSubject`, the shared UI event bus described in
+[UI Event Service](./services.md#-ui-event-service). The `key` of a dialog event is chosen by the caller of `useDialog`,
+which only handles the events carrying that key (`'dialog'` in the examples below).
 
 ### 2.2 Event Structure
 

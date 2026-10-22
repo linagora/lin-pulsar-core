@@ -49,7 +49,7 @@ export const useLinPulsarZoneStore = () =>
  * Each zone can contain multiple {@link LinPulsarZoneEntry} objects,
  * and this store provides utilities to register them dynamically.
  */
-const _useLinPulsarZoneStore = defineStore('linPulsarZoneStore', {
+const _useLinPulsarZoneStore = defineStore('LinPulsarZoneStore', {
   state: (): LinPulsarZoneState => ({
     zones: {},
   }),

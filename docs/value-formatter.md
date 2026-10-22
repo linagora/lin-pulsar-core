@@ -8,12 +8,12 @@ they are displayed.
 ## Overview
 
 Generic components (tables, detail views, forms) receive their field and column definitions as configuration, not as
-code. Such a definition cannot carry a formatting *function*, because it must survive JSON serialization and a Module
+code. Such a definition cannot carry a formatting _function_, because it must survive JSON serialization and a Module
 Federation boundary. It carries a formatter **name** instead, and `useValueFormatter` resolves that name at render
 time.
 
-| Function                      | Description                                            |
-|-------------------------------|--------------------------------------------------------|
+| Function                      | Description                                             |
+| ----------------------------- | ------------------------------------------------------- |
 | [`formatValue`](#formatvalue) | Applies the formatter designated by name to a raw value |
 
 The composable is **deliberately permissive**: it never throws. Any input it cannot handle — a missing value, an
@@ -30,7 +30,7 @@ import { useValueFormatter } from '@linagora/lin-pulsar-core';
 const { formatValue } = useValueFormatter();
 ```
 
-`useValueFormatter` depends on [`useCommonMapper`](./commonMapper.md), which itself calls `useI18n()`. It must
+`useValueFormatter` depends on [`useCommonMapper`](./common-mapper.md), which itself calls `useI18n()`. It must
 therefore be called from a **Vue setup context**, like any other composable.
 
 ---
@@ -50,7 +50,7 @@ formatValue(
 ### Parameters
 
 | Parameter   | Type                      | Required | Description                                                                                  |
-|-------------|---------------------------|----------|----------------------------------------------------------------------------------------------|
+| ----------- | ------------------------- | -------- | -------------------------------------------------------------------------------------------- |
 | `value`     | `unknown`                 | yes      | The raw value to format, typically read from an entity returned by the API.                  |
 | `formatter` | `string`                  | no       | Name of the formatter to apply. See [Available formatters](#available-formatters).           |
 | `options`   | `Record<string, unknown>` | no       | Options forwarded to the formatter. Expected keys depend on the formatter that is requested. |
@@ -104,9 +104,9 @@ formatValue('2024-07-20T12:34:56.000Z', 'toDate', {}); // '2024-07-20T12:34:56.0
 
 ## Available formatters
 
-| Name     | Required options              | Delegates to                                    | Returns                                                     |
-|----------|-------------------------------|-------------------------------------------------|-------------------------------------------------------------|
-| `toDate` | `formatKey` (`string`)        | [`useCommonMapper().toDate`](./commonMapper.md#todate) | The date formatted with the i18n format named by `formatKey` |
+| Name     | Required options       | Delegates to                                            | Returns                                                      |
+| -------- | ---------------------- | ------------------------------------------------------- | ------------------------------------------------------------ |
+| `toDate` | `formatKey` (`string`) | [`useCommonMapper().toDate`](./common-mapper.md#todate) | The date formatted with the i18n format named by `formatKey` |
 
 ### `toDate`
 
@@ -138,7 +138,7 @@ interface ColumnDefinition extends FormatterConfiguration {
 }
 ```
 
-Such a definition can then be declared in a `module-<name>.json` file:
+Such a definition can then be declared in a `modules/<ModuleName>.json` file:
 
 ```json
 {
@@ -161,14 +161,17 @@ And consumed in a component:
 
 ```vue
 <script setup lang="ts">
-  import { useValueFormatter } from '@linagora/lin-pulsar-core';
+import { useValueFormatter } from '@linagora/lin-pulsar-core';
 
-  const { formatValue } = useValueFormatter();
-  defineProps<{ row: Record<string, unknown>; columns: ColumnDefinition[] }>();
+const { formatValue } = useValueFormatter();
+defineProps<{ row: Record<string, unknown>; columns: ColumnDefinition[] }>();
 </script>
 
 <template>
-  <td v-for="column in columns" :key="column.name">
+  <td
+    v-for="column in columns"
+    :key="column.name"
+  >
     {{ formatValue(row[column.name], column.formatter, column.formatOptions) }}
   </td>
 </template>
@@ -201,6 +204,6 @@ type ValueFormatter = (
 
 ## Related documentation
 
-- [`docs/commonMapper.md`](./commonMapper.md) — the `toDate` mapper the `toDate` formatter delegates to.
+- [`docs/common-mapper.md`](./common-mapper.md) — the `toDate` mapper the `toDate` formatter delegates to.
 - [`docs/types-and-interfaces.md`](./types-and-interfaces.md#-formatter-types) — `ValueFormatter` and
   `FormatterConfiguration`.

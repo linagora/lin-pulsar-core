@@ -12,11 +12,12 @@ The `useNotify` composable allows you to emit notification events with a **QNoti
 
 ---
 
-## 2. Shared UiEventService
+## 2. Notification Events
 
 ### 2.1 Event Stream
 
-The UiEventService exposes a **shared RxJS Subject** (`uiEventSubject`) that acts as an event bus for all UI events, including notifications:
+Notifications go through `uiEventSubject`, the shared UI event bus described in
+[UI Event Service](./services.md#-ui-event-service):
 
 ```ts
 import { uiEventSubject } from '@linagora/lin-pulsar-core';
