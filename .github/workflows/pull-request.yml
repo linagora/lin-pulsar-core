@@ -4,17 +4,13 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 
-env:
-  NODE_VERSION: 22.22
-  PNPM_VERSION: 11.10.0
-
 permissions:
   contents: read
 
 jobs:
   delete-comments:
     name: Delete bot comment(s)
-    runs-on: ubuntu-latest
+    runs-on: linagora
     permissions:
       issues: write
       pull-requests: write
@@ -27,7 +23,7 @@ jobs:
 
   branch-naming-rules:
     name: Check branch name
-    runs-on: ubuntu-latest
+    runs-on: linagora
     steps:
       - uses: deepakputhraya/action-branch-name@5f1cc199284b75145ec2d13434422e6987cf6af8
         with:
@@ -39,24 +35,25 @@ jobs:
 
   build:
     name: Setup app
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Build application
         run: pnpm build
 
   commit-checks:
     name: Check commit messages
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     needs: [ build ]
     steps:
       - uses: actions/checkout@v7
@@ -64,11 +61,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Install commitlint
         run: pnpm add -D @commitlint/config-conventional @commitlint/cli
@@ -80,7 +74,9 @@ jobs:
 
   check-dependencies:
     name: Check dependencies
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     permissions:
       contents: read
       issues: write
@@ -91,11 +87,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Check outdated dependencies
         run: |
@@ -113,18 +106,17 @@ jobs:
 
   check-style:
     name: Code style
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     needs: [ build ]
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Check style
         run: pnpm validate
@@ -133,7 +125,7 @@ jobs:
     name: Security - Malware Scan
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: linagora
     steps:
       - uses: actions/checkout@v7
         with:
@@ -144,7 +136,7 @@ jobs:
 
   security-sast:
     name: Security - SAST
-    runs-on: ubuntu-latest
+    runs-on: linagora
     permissions:
       security-events: write
       contents: read
@@ -159,7 +151,7 @@ jobs:
 
   security-dependency-review:
     name: Security - Dependency Review
-    runs-on: ubuntu-latest
+    runs-on: linagora
     permissions:
       contents: read
       pull-requests: read
@@ -174,7 +166,7 @@ jobs:
 
   security-github-actions:
     name: Security - GitHub Actions
-    runs-on: ubuntu-latest
+    runs-on: linagora
     permissions:
       contents: read
       actions: read
@@ -188,7 +180,9 @@ jobs:
 
   unit-tests:
     name: Unit tests
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     needs: [ build ]
     permissions:
       pull-requests: write
@@ -196,11 +190,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Run unit tests
         run: |
@@ -218,7 +209,7 @@ jobs:
 
   next-version-hint:
     name: SemVer impact
-    runs-on: ubuntu-latest
+    runs-on: linagora
     needs: [ build ]
     steps:
       - uses: actions/checkout@v7

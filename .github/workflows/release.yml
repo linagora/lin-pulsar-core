@@ -5,17 +5,15 @@ on:
     branches:
       - main
 
-env:
-  NODE_VERSION: 22.22
-  PNPM_VERSION: 11.10.0
-
 permissions:
   contents: read
 
 jobs:
   release:
     name: Release with standard-version
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     permissions:
       contents: write
     outputs:
@@ -27,11 +25,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Run release
         run: |
@@ -62,7 +57,9 @@ jobs:
 
   publish-npm:
     name: Publish to npm
-    runs-on: ubuntu-latest
+    runs-on: linagora
+    container:
+      image: node:22-bookworm
     needs: [ release ]
     if: ${{ needs.release.outputs.release_created == 'true' }}
     permissions:
@@ -76,19 +73,19 @@ jobs:
 
       - name: Checkout latest tag
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           LATEST_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)")
           git checkout "$LATEST_TAG"
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - name: Build library
         run: pnpm build
 
       - name: Publish to npm
-        run: pnpm publish --access public --no-git-checks
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' >> .npmrc
+          pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_IN_VAULT }}
