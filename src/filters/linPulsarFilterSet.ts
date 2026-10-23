@@ -39,9 +39,9 @@ const LIN_PULSAR_FILTER_SET_PAIR_SEPARATOR = '=';
 /**
  * Represents a saved filter set (favorite search), combining a user-defined label with the list
  * of `LinPulsarFilter` it is made of. It converts to and parses from a `&`-separated list of
- * `name=value` query parameter pairs — the same URL filter representation produced by
- * `LinPulsarFilter.toString` — so it can be stored as-is in user preferences and reused directly as
- * a query string against APIs powered by
+ * `name=value` query parameter pairs — each pair joining the filter name to the value expression
+ * produced by `LinPulsarFilter.toString` — so it can be stored as-is in user preferences and reused
+ * directly as a query string against APIs powered by
  * [`spring-query-filter`](https://github.com/Zorin95670/spring-query-filter).
  */
 export class LinPulsarFilterSet {

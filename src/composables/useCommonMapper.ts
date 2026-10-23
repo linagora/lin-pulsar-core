@@ -72,17 +72,18 @@ export function useCommonMapper() {
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
   /**
-   * Convert a date string to a canonical ISO 8601 UTC string. If the input matches the ISO 8601 datetime pattern
-   * (detected via regex), it is parsed by dayjs, validated, and normalized to a UTC ISO string. If the input does not
+   * Convert a date string to an ISO 8601 string for API consumption. If the input matches the ISO 8601 datetime
+   * pattern (detected via regex), it is validated by dayjs and returned as-is, offset included. If the input does not
    * match the ISO pattern, strict parsing is applied using the locale format retrieved from the `formatKey`
-   * (e.g., "DD/MM/YYYY").
+   * (e.g., "DD/MM/YYYY") and the result is converted to a UTC ISO string.
    * @param value Date string to be converted to ISO format for API consumption. The value must either be a valid ISO
    *   8601 string, or match the format pattern retrieved from `formatKey`; strict parsing is enforced in
    *   both cases, so any value that does not exactly match the expected format or is semantically invalid will return
    *   an empty string.
    * @param formatKey Format key to specify the expected input date format from the i18n translations.
-   * @returns Canonical string in ISO 8601 UTC format (e.g., "2024-06-30T00:00:00.000Z"), or an empty string if the
-   *   input is falsy, does not match the expected format, or represents an invalid date.
+   * @returns The ISO 8601 input unchanged, the locale-formatted input as a UTC ISO 8601 string (e.g.,
+   *   "2024-06-30T00:00:00.000Z"), or an empty string if the input is falsy, does not match the expected format, or
+   *   represents an invalid date.
    */
   const toDateISO = (value: unknown, formatKey: string): string => {
     const v = value?.toString() || '';

@@ -102,11 +102,11 @@ The maximum date as a `Dayjs` instance, or `null` if the list is empty or contai
 ### Examples
 
 ```ts
-maxDate(['2026-06-10', '2026-06-20', '2026-06-15'], 'YYYY-MM-DD').format(
+maxDate(['2026-06-10', '2026-06-20', '2026-06-15'], 'YYYY-MM-DD')?.format(
   'YYYY-MM-DD'
 ); // '2026-06-20'
 
-maxDate(['not-a-date', '2026-06-15', '2026-02-30'], 'YYYY-MM-DD').format(
+maxDate(['not-a-date', '2026-06-15', '2026-02-30'], 'YYYY-MM-DD')?.format(
   'YYYY-MM-DD'
 ); // '2026-06-15' — invalid entries skipped
 
@@ -138,11 +138,11 @@ The minimum date as a `Dayjs` instance, or `null` if the list is empty or contai
 ### Examples
 
 ```ts
-minDate(['2026-06-10', '2026-06-20', '2026-06-15'], 'YYYY-MM-DD').format(
+minDate(['2026-06-10', '2026-06-20', '2026-06-15'], 'YYYY-MM-DD')?.format(
   'YYYY-MM-DD'
 ); // '2026-06-10'
 
-minDate(['not-a-date', '2026-06-15', '2026-02-30'], 'YYYY-MM-DD').format(
+minDate(['not-a-date', '2026-06-15', '2026-02-30'], 'YYYY-MM-DD')?.format(
   'YYYY-MM-DD'
 ); // '2026-06-15' — invalid entries skipped
 
