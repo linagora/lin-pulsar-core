@@ -55,7 +55,7 @@ export function useScopedI18n(scope: string): {
   /**
    * Retrieves the raw translation message for a scoped key without formatting.
    * @param key - Translation key (string or number) relative to the scoped namespace.
-   * @returns The raw message associated with the key, or `undefined` if the key does not exist.
+   * @returns The raw message associated with the key, or an empty object if the key does not exist.
    */
   tm: (key: string | number) => ReturnType<ComposerTranslation>;
   /**
