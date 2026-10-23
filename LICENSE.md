@@ -41,7 +41,7 @@ Legal Notices, as required under Section 5 of the GNU Affero General Public Lice
 
 In accordance with Section 7 and subsection (b) of the GNU Affero General Public License version 3, these Appropriate
 Legal Notices must retain the display of the “linOpenFactory™” trademark/logo at the top of the interface window, the display of
-the “You are using the Open Source and free version of linOpenFactory™, powered by Linagora © 2009–2013. Contribute to linOpenFactory R&D
+the “You are using the Open Source and free version of linOpenFactory™, powered by Linagora © 2009–2026. Contribute to linOpenFactory R&D
 by subscribing to an Enterprise offer!” infobox and in the e-mails sent with the Program in the linOpenFactory
 user interface as well as for any and all type of outbound messages (e.g. e-mail and meeting requests).
 
@@ -50,7 +50,7 @@ notwhistanding any other terms and conditions.
 
 If the display of the Appropriate Legal Notices, and/or logos is not reasonably feasible for technical reasons, the
 Appropriate Legal Notices must retain the display of the “linOpenFactory™” trademark/logo at the top of the interface window, the
-display of the “You are using the Open Source and free version of linOpenFactory™, powered by Linagora © 2009–2013. Contribute to
+display of the “You are using the Open Source and free version of linOpenFactory™, powered by Linagora © 2009–2026. Contribute to
 linOpenFactory R&D by subscribing to an Enterprise offer!” infobox and in the e-mails sent with the Program.
 
 These Notices can be freely translated and replaced by any notice of strictly identical meaning in another language
@@ -58,7 +58,7 @@ according to localization of the software, provided such notice clearly displays
 “LINAGORA”.
 
 Regardless of the notice language, the Logo/words "linOpenFactory" must be a clickable hypertext link that
-leads directly to the Internet URL http://https://linid.org/. The Logo/word "LINAGORA" must be a clickable hypertext
+leads directly to the Internet URL https://linid.org/. The Logo/word "LINAGORA" must be a clickable hypertext
 link that leads directly to the Internet URL http://www.LINAGORA.com.
 
     2. Use of the linOpenFactory and LINAGORA trademarks and logos
