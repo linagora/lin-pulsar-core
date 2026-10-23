@@ -60,6 +60,24 @@ type TreeNode<T> = {
 | `nodes`        | `TreeNode<T>[]` | Child nodes                                       |
 | `extraActions` | `string[]?`     | Optional additional actions specific to this node |
 
+### 3.2 TreeNodeType
+
+Describes a node type: its identifier and the default actions available to every node of this type.
+
+```ts
+type TreeNodeType = {
+  type: string;
+  actions?: string[];
+  selectable?: boolean;
+};
+```
+
+| Field        | Type        | Description                                                                 |
+| ------------ | ----------- | --------------------------------------------------------------------------- |
+| `type`       | `string`    | The type of the node                                                        |
+| `actions`    | `string[]?` | Default actions of the nodes of this type, merged with their `extraActions` |
+| `selectable` | `boolean?`  | Whether the nodes of this type can be selected (`true` by default)          |
+
 ---
 
 ## 4. Method Details
@@ -75,6 +93,8 @@ function toQTreeNodes<T>(nodes: TreeNode<T>[]): QTreeNode[];
 **Example with string values:**
 
 ```ts
+import type { TreeNode } from '@linagora/lin-pulsar-core';
+
 const nodes: TreeNode<string>[] = [
   { type: 'one', key: 'a', value: 'Element A', nodes: [], extraActions: [] },
   {
@@ -97,6 +117,8 @@ const qNodes = toQTreeNodes<string>(nodes);
 **Example with object values:**
 
 ```ts
+import type { TreeNode } from '@linagora/lin-pulsar-core';
+
 type User = { id: number; name: string };
 
 const nodes: TreeNode<User>[] = [

@@ -35,14 +35,17 @@ uiEventSubject.subscribe((event) => {
 
 ### 2.2 Event Structure
 
-Each notification event follows the `UiEvent` interface:
+Each notification event follows the `UiEvent` interface, whose `data` carries the `QNotifyCreateOptions` payload:
 
 ```ts
 interface UiEvent {
   key: string;
-  data: QNotifyCreateOptions;
+  data: unknown;
 }
 ```
+
+`data` is typed `unknown`: subscribers cast it to `QNotifyCreateOptions` once they have checked that `key` is
+`'notify'`.
 
 ---
 
@@ -62,7 +65,7 @@ const { Notify } = useNotify();
 - The `Notify` function emits events through the shared `uiEventSubject`.
 - Can be used anywhere in your Vue components or services.
 
-### 3.2 Using `notify`
+### 3.2 Using `Notify`
 
 The `Notify` function accepts a single parameter:
 
@@ -136,7 +139,8 @@ function handleNotify() {
 - **Use consistent notification types**: Stick to standard types like `'positive'`, `'negative'`, `'info'`, and `'warning'` (as per Quasar).
 - **Provide meaningful messages**: Make sure the data payload contains clear, user-friendly messages.
 - **Centralize notification handling**: Create a single component or service to subscribe to notifications and display them consistently.
-- **Structured payloads**: For complex notifications, use objects with `message`, `details`, and other relevant fields.
+- **Structured payloads**: For complex notifications, use the `QNotifyCreateOptions` fields such as `message`,
+  `caption` and `actions`.
 - **Avoid notification spam**: Don't emit multiple notifications for the same event in quick succession.
 
 ---
