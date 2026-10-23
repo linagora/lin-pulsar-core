@@ -366,7 +366,7 @@ function resolveRouteComponentRef(
  * @param config - Module host configuration for templating.
  * @returns The Vue Router route record.
  */
-export function toRouteRecordRaw(
+function toRouteRecordRaw(
   route: LinPulsarRoute,
   config: ModuleHostConfig<unknown>
 ): RouteRecordRaw {
@@ -402,10 +402,7 @@ export function toRouteRecordRaw(
  * @param config - The ModuleHostConfig object used as the template context.
  * @returns A new object/array/string with all strings rendered using Nunjucks.
  */
-export function renderMeta(
-  obj: unknown,
-  config: ModuleHostConfig<unknown>
-): unknown {
+function renderMeta(obj: unknown, config: ModuleHostConfig<unknown>): unknown {
   if (typeof obj === 'string') {
     return getNunjucksEnv().renderString(obj, { config });
   }
