@@ -204,7 +204,9 @@ describe('Test object: linPulsarModuleFederation', () => {
     });
 
     it('should skip and log a module whose configuration file fails to load', async () => {
-      const errorSpy = vi.spyOn(globalThis.console, 'error').mockImplementation(() => {});
+      const errorSpy = vi
+        .spyOn(globalThis.console, 'error')
+        .mockImplementation(() => {});
       vi.stubGlobal(
         'fetch',
         vi.fn(async () => ({ ok: false, status: 404 }))
@@ -270,6 +272,64 @@ describe('Test object: linPulsarModuleFederation', () => {
       expect(router.addRoute.mock.calls[0][0]).toMatchObject({
         name: 'test-route',
         path: '/test-module',
+      });
+    });
+
+    it('should render the meta and the child routes of a module route with the module configuration', async () => {
+      stubFetch(config);
+      vi.mocked(nunjucksService.getNunjucksEnv).mockReturnValue({
+        renderString: vi.fn((template, context) =>
+          template.replace('{{ config.basePath }}', context.config.basePath)
+        ),
+      });
+      loadRemote.mockImplementation(async (remote) => {
+        if (remote === 'testModule/lifecycle') {
+          return { default: remoteModule };
+        }
+        if (remote === 'testModule/routes') {
+          return {
+            default: [
+              {
+                name: 'parent',
+                path: '{{ config.basePath }}',
+                component: 'testModule/Page',
+                meta: {
+                  title: '{{ config.basePath }}',
+                  breadcrumbs: ['{{ config.basePath }}', 'static'],
+                  nested: { label: '{{ config.basePath }}', order: 2 },
+                  visible: true,
+                },
+                children: [
+                  {
+                    name: 'child',
+                    path: '{{ config.basePath }}/child',
+                    component: 'testModule/Child',
+                  },
+                ],
+              },
+            ],
+          };
+        }
+        return { default: {} };
+      });
+
+      await linPulsarModuleFederation.init({ router, remotes, modules });
+
+      const route = router.addRoute.mock.calls[0][0];
+
+      expect(route.path).toBe('/test-module');
+      expect(route.meta).toEqual({
+        title: '/test-module',
+        breadcrumbs: ['/test-module', 'static'],
+        nested: { label: '/test-module', order: 2 },
+        visible: true,
+      });
+      expect(route.children).toHaveLength(1);
+      expect(route.children[0]).toMatchObject({
+        name: 'child',
+        path: '/test-module/child',
+        children: [],
+        meta: undefined,
       });
     });
 

@@ -22,10 +22,12 @@ describe('Test composable: useLinPulsarFilterUrl', () => {
       query: {},
     };
 
-    vi.spyOn(LinPulsarFilter, 'fromString').mockImplementation((name, value) => ({
-      name,
-      value,
-    }));
+    vi.spyOn(LinPulsarFilter, 'fromString').mockImplementation(
+      (name, value) => ({
+        name,
+        value,
+      })
+    );
   });
 
   describe('setFiltersInUrl', () => {
@@ -167,7 +169,10 @@ describe('Test composable: useLinPulsarFilterUrl', () => {
       route.query = { status: 'active', city: 'paris' };
       const { getFiltersFromUrl } = useLinPulsarFilterUrl(router, route);
 
-      const knownFilters = [createFilter('status', ''), createFilter('city', '')];
+      const knownFilters = [
+        createFilter('status', ''),
+        createFilter('city', ''),
+      ];
 
       getFiltersFromUrl(knownFilters);
 

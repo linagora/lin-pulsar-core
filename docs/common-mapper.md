@@ -41,10 +41,10 @@ toDate(value :unknown, formatKey :string) :string
 
 ### Parameters
 
-| Parameter   | Type      | Required | Description                                                                                                                                |
-| ----------- | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `value`     | `unknown` | yes      | A date value to convert. Accepts ISO 8601 strings, high-precision datetime strings, numbers (timestamps), `Date` objects, or falsy values. |
-| `formatKey` | `string`  | yes      | Exact i18n translation key to retrieve the date format string (e.g., `'application.dateFormat'`, `'application.shortDateFormat'`).         |
+| Parameter   | Type      | Required | Description                                                                                                                                                                                            |
+| ----------- | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `value`     | `unknown` | yes      | A date value to convert. Accepts ISO 8601 strings, high-precision datetime strings, `Date` objects, or falsy values. Numbers are converted to strings before parsing, so timestamps are not supported. |
+| `formatKey` | `string`  | yes      | Exact i18n translation key to retrieve the date format string (e.g., `'application.dateFormat'`, `'application.shortDateFormat'`).                                                                     |
 
 ### Returns
 
@@ -99,7 +99,8 @@ toDate('2024-07-20T12:34:56.000Z', 'application.fullDateTimeFormat');
 
 ## `toDateISO`
 
-Converts a date string to a canonical ISO 8601 UTC string, suitable for API consumption.
+Converts a date string to an ISO 8601 string, suitable for API consumption: ISO 8601 inputs are returned as-is (offset
+included), locale-formatted inputs are converted to UTC.
 
 The function intelligently detects and handles two formats:
 
@@ -110,7 +111,7 @@ Both formats enforce strict parsing: any string that does not exactly match the 
 calendrically invalid date (e.g., `'2026-02-30'`), returns an empty string.
 
 ```ts
-toDateISO(value: unknown, formatKey?: string): string
+toDateISO(value: unknown, formatKey: string): string
 ```
 
 ### Parameters
@@ -122,7 +123,8 @@ toDateISO(value: unknown, formatKey?: string): string
 
 ### Returns
 
-A canonical ISO 8601 UTC string (e.g., `'2024-06-30T00:00:00.000Z'`), or an empty string `''` if:
+The ISO 8601 input unchanged, the locale-formatted input converted to a UTC ISO 8601 string (e.g.,
+`'2024-06-30T00:00:00.000Z'`), or an empty string `''` if:
 
 - The input is falsy.
 - The input does not exactly match the expected format.
@@ -150,23 +152,23 @@ Matches strings of the form `YYYY-MM-DDThh:mm:ss[.sss](Z|±hh:mm)`:
 
 ```ts
 // ISO 8601 inputs (returned as-is if valid)
-toDateISO('2024-06-30T00:00:00.000Z'); // '2024-06-30T00:00:00.000Z'
-toDateISO('2024-06-30T12:00:00+02:00'); // '2024-06-30T12:00:00+02:00'
+toDateISO('2024-06-30T00:00:00.000Z', 'application.dateFormat'); // '2024-06-30T00:00:00.000Z'
+toDateISO('2024-06-30T12:00:00+02:00', 'application.dateFormat'); // '2024-06-30T12:00:00+02:00'
 
 // Non-ISO, invalid, or misformatted ISO strings
-toDateISO('2024-06-30'); // '' — missing time and timezone
-toDateISO('2024-06-30T12:00:00'); // '' — missing timezone
+toDateISO('2024-06-30', 'application.dateFormat'); // '' — missing time and timezone
+toDateISO('2024-06-30T12:00:00', 'application.dateFormat'); // '' — missing timezone
 
 // Invalid calendar dates
-toDateISO('2024-99-99T99:99:99Z'); // '' — semantically invalid
+toDateISO('2024-99-99T99:99:99Z', 'application.dateFormat'); // '' — semantically invalid
 
 // Locale-formatted input (e.g., French format 'DD/MM/YYYY')
 toDateISO('24/07/2025', 'application.dateFormat'); // '2025-07-24T00:00:00.000Z'
 
 // Falsy values
-toDateISO(null); // ''
-toDateISO(undefined); // ''
-toDateISO(''); // ''
+toDateISO(null, 'application.dateFormat'); // ''
+toDateISO(undefined, 'application.dateFormat'); // ''
+toDateISO('', 'application.dateFormat'); // ''
 
 // Format mismatch
 toDateISO('2024-07-20', 'application.dateFormat'); // '' — ISO format doesn't match locale format when 'dateFormat' is 'DD/MM/YYYY'
@@ -257,9 +259,25 @@ object is generic and can be cast to any type `T`.
 ### Examples
 
 ```ts
-const fields = [
-  { name: 'externalId', type: 'text', rules: ['required'] },
-  { name: 'email', type: 'email', rules: ['required', 'email'] },
+import type { LinPulsarAttributeConfiguration } from '@linagora/lin-pulsar-core';
+
+const fields: LinPulsarAttributeConfiguration[] = [
+  {
+    name: 'externalId',
+    type: 'String',
+    required: true,
+    hasValidations: false,
+    input: 'Text',
+    inputSettings: {},
+  },
+  {
+    name: 'email',
+    type: 'String',
+    required: true,
+    hasValidations: true,
+    input: 'Email',
+    inputSettings: {},
+  },
 ];
 
 const record = toEmptyRecord(fields);
@@ -301,7 +319,6 @@ A `Dayjs` instance if the input is valid and parseable, or `null` if:
 - **Falsy values** return `null` without attempting to parse.
 - **Valid date values** are parsed and returned as a Dayjs instance.
 - **Invalid values** (unparseable strings, invalid dates) return `null`.
-- The Dayjs instance returned may be invalid; check `.isValid()` if unsure.
 
 ### Examples
 
@@ -326,7 +343,9 @@ toDayJs('not-a-valid-date'); // null
 Here's a complete example integrating all functions:
 
 ```ts
+import { reactive } from 'vue';
 import { useCommonMapper } from '@linagora/lin-pulsar-core';
+import type { LinPulsarAttributeConfiguration } from '@linagora/lin-pulsar-core';
 
 const { toDate, toDateISO, formatDate, toEmptyRecord, toDayJs } =
   useCommonMapper();
@@ -343,11 +362,26 @@ const isoDate = toDateISO(userInput, 'application.dateFormat'); // ISO format fo
 console.log(formatDate(apiDate, 'DD/MM/YYYY')); // '20/07/2024'
 
 // Create a form object from field definitions
+const fields: LinPulsarAttributeConfiguration[] = [
+  {
+    name: 'firstName',
+    type: 'String',
+    required: true,
+    hasValidations: false,
+    input: 'Text',
+    inputSettings: {},
+  },
+  {
+    name: 'birthDate',
+    type: 'Date',
+    required: false,
+    hasValidations: false,
+    input: 'Date',
+    inputSettings: {},
+  },
+];
 const form = reactive(
-  toEmptyRecord([
-    { name: 'firstName', type: 'text', rules: ['required'] },
-    { name: 'birthDate', type: 'date', rules: [] },
-  ])
+  toEmptyRecord<{ firstName: string; birthDate: string }>(fields)
 );
 // { firstName: '', birthDate: '' }
 

@@ -341,8 +341,10 @@ lin-pulsar-core provides a `BasicRemoteModule` class with default implementation
 
 ```typescript
 import { BasicRemoteModule } from '@linagora/lin-pulsar-core';
-import type { ModuleLifecycleResult } from '@linagora/lin-pulsar-core';
-import type { App } from 'vue';
+import type {
+  ModuleHostConfig,
+  ModuleLifecycleResult,
+} from '@linagora/lin-pulsar-core';
 
 class MyModule extends BasicRemoteModule<MyModuleOptions> {
   constructor() {
@@ -377,12 +379,12 @@ export default new MyModule();
 Implement the `RemoteModule` interface directly for full control:
 
 ```typescript
+import { useLinPulsarUiStore } from '@linagora/lin-pulsar-core';
 import type {
   RemoteModule,
   ModuleLifecycleResult,
   ModuleHostConfig,
 } from '@linagora/lin-pulsar-core';
-import type { App } from 'vue';
 
 class MyModule implements RemoteModule<MyModuleOptions> {
   id = 'my-module';
@@ -415,7 +417,9 @@ class MyModule implements RemoteModule<MyModuleOptions> {
     return { success: true };
   }
 
-  async ready(config: ModuleHostConfig): Promise<ModuleLifecycleResult> {
+  async ready(
+    config: ModuleHostConfig<MyModuleOptions>
+  ): Promise<ModuleLifecycleResult> {
     // do something
     return { success: true };
   }
@@ -883,32 +887,10 @@ export default defineBoot(async ({ router }) => {
 
 Business modules are responsible for:
 
-1. ✅ Exposing `./lifecycle` in Module Federation config
+1. ✅ Exposing the element referenced by `lifecycleRemote` in their Module Federation config
 2. ✅ Implementing the `RemoteModule` interface (or extending `BasicRemoteModule`)
 3. ✅ Returning valid `ModuleLifecycleResult` from all hooks
 4. ✅ Handling their own errors gracefully
-
----
-
-## Future Enhancements
-
-The following features are planned for future versions:
-
-### Module Dependencies
-
-Declare and validate inter-module dependencies:
-
-```typescript
-class MyModule extends BasicRemoteModule<MyModuleOptions> {
-  dependencies = ['core-module', 'auth-module'];
-
-  // ...
-}
-```
-
-### Lazy Loading
-
-Support for lazy-loaded module features that load on demand.
 
 ---
 
@@ -916,7 +898,7 @@ Support for lazy-loaded module features that load on demand.
 
 ### Module Not Loading
 
-**Problem:** Module doesn't appear in lifecycle logs
+**Problem:** The module is not initialized (its routes, zones or navigation items are missing)
 
 **Solutions:**
 
@@ -937,7 +919,7 @@ Support for lazy-loaded module features that load on demand.
 1. Verify the hook is implemented and exported
 2. Check the hook signature matches the interface
 3. Ensure the hook is `async` and returns a `Promise<ModuleLifecycleResult>`
-4. Check browser console for `[Module Lifecycle]` logs
+4. Check browser console for `[LinPulsar Core]` errors: a hook that throws stops the initialization of all modules
 
 ---
 
@@ -947,6 +929,6 @@ Support for lazy-loaded module features that load on demand.
 
 **Solutions:**
 
-1. Check the config file path: `module-<module-name>.json`
+1. Check the module configuration file is the one listed in the `modules` entry of the application `config.json`
 2. Validate JSON syntax in config file
 3. Check browser network tab for config file fetch (404?)

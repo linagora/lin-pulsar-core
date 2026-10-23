@@ -249,8 +249,8 @@ static fromString<T = Record<string, unknown>>(
 ```
 
 Parses a bare value expression (e.g. `paris|not_lk_lyon`, as produced by `LinPulsarFilterValue.toString`) into a
-**new** `LinPulsarFilter<T>` instance carrying the parsed `values`. `input` never carries the `name=` query
-parameter prefix produced by `toString()` — it is the value expression only. An empty string produces an empty
+**new** `LinPulsarFilter<T>` instance carrying the parsed `values`. `input` is the value expression only, as produced
+by `toString()`: it never carries the `name=` prefix of a query string or of a `LinPulsarFilterSet` string. An empty string produces an empty
 `values` array — as does any non-string `input` received at runtime despite the `string` type (e.g. across a
 Module Federation boundary), rather than throwing.
 

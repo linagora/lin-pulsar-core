@@ -126,7 +126,7 @@ pagination.value = toQuasarPagination(apiResponse, pagination.value);
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { usePagination } from '@linagora/lin-pulsar-core';
+import { getEntities, usePagination } from '@linagora/lin-pulsar-core';
 import type {
   QTableRequestEvent,
   QuasarPagination,
@@ -150,8 +150,8 @@ async function onRequest(props: QTableRequestEvent) {
   // Convert Quasar pagination to API format
   const apiPagination = toPagination(props.pagination);
 
-  // Call your API with the converted pagination
-  const response = await fetchEntities(apiPagination);
+  // Call the API of the module instance with the converted pagination
+  const response = await getEntities('my-module', {}, apiPagination);
 
   // Update rows
   rows.value = response.content;

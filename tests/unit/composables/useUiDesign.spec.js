@@ -125,12 +125,15 @@ describe('Test composable: useUiDesign', () => {
       expect(ui('custom', 'draggable').class).toEqual('sortable');
     });
 
-    it.each(['label', 'fab', 'class', 'style'])('should not return %s', (prop) => {
-      const { ui } = useUiDesign();
+    it.each(['label', 'fab', 'class', 'style'])(
+      'should not return %s',
+      (prop) => {
+        const { ui } = useUiDesign();
 
-      const result = ui('custom', 'q-btn');
-      expect(prop in result).toBe(false);
-    });
+        const result = ui('custom', 'q-btn');
+        expect(prop in result).toBe(false);
+      }
+    );
 
     it.each([null, { nested: false }])('should throw for %o', (flat) => {
       vi.mocked(uiDesignService.getUiDesign).mockReturnValue({

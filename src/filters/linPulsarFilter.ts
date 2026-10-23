@@ -96,8 +96,8 @@ export class LinPulsarFilter<T = Record<string, unknown>> {
   /**
    * Parses a value expression (e.g. `paris|not_lk_lyon`, as produced by
    * {@link LinPulsarFilterValue.toString}) into a new {@link LinPulsarFilter} instance — `input` is the
-   * bare value expression only, never the `name=` query parameter prefix produced by
-   * {@link LinPulsarFilter.toString}.
+   * bare value expression only, as produced by {@link LinPulsarFilter.toString}, never prefixed by the
+   * `name=` of a query string or of a `LinPulsarFilterSet` string.
    *
    * `type`, `options` and `dynamicLabelOptions` aren't derivable from `input`: pass the filter
    * `definition` declared in the configuration to carry them over, so that a filter restored from
