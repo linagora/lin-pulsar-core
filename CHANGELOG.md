@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/linagora/lin-pulsar-core/compare/v0.0.109...v0.1.0) (2026-10-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* the package is now published as @linagora/lin-pulsar-core.
+All Linid*/useLinid*/LINID_* exports are renamed to LinPulsar*/useLinPulsar*/LIN_PULSAR_*,
+Pinia store ids are renamed, build outputs are now lin-pulsar-core.{es,umd}.js,
+and license references move from LinID Identity Manager to linOpenFactory.
+
+### Features
+
+* rename library to @linagora/lin-pulsar-core ([193bbcc](https://github.com/linagora/lin-pulsar-core/commit/193bbcc45b65c0f5d43bcd7e86601f3a5e3bde18))
+
+
+### Bug Fixes
+
+* add missing sections in types-and-interfaces file ([1b39fb5](https://github.com/linagora/lin-pulsar-core/commit/1b39fb50d83f769a8505fb00941558bc9f9e5f3a))
+* grant issues write permission for PR comments ([bf1e08c](https://github.com/linagora/lin-pulsar-core/commit/bf1e08c672b7068e15e7c9a1f5e38bd628f79495))
+* log module and zone files that fail to load with an HTTP error ([4ffad67](https://github.com/linagora/lin-pulsar-core/commit/4ffad675176016f280cd2a757e0d4405fec39ebd))
+* use bash in CI containers, grant comment permissions and run CodeQL with node ([4a411bb](https://github.com/linagora/lin-pulsar-core/commit/4a411bbc99881b180d336a25072d05b2d811bcdc))
+
 ### [0.0.109](https://github.com/linagora/linid-im-front-corelib/compare/v0.0.108...v0.0.109) (2026-10-16)
 
 
