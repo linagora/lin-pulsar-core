@@ -585,10 +585,12 @@ export type ValidatorName =
 **Example:**
 
 ```ts
-const rules = useQuasarRules('myInstance', attributeConfig, [
-  'min',
-  'maxLength',
-]);
+const rules = useQuasarRules(
+  'myInstance',
+  attributeConfig,
+  ['min', 'maxLength'],
+  'myInstance.fields.age'
+);
 // Applies min and maxLength validators if configured in inputSettings
 ```
 
