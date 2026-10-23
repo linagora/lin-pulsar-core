@@ -1042,6 +1042,97 @@ export interface ModuleLifecycleHooks<T> {
 
 - Remote modules should implement these hooks to participate in the lifecycle management.
 
+### ModulePageLifecycleHostOptions
+
+Host-provided options understood by the default page module lifecycle returned by
+[`createModulePageLifecycle`](./module-lifecycle.md#ready-made-page-module-lifecycle). They are read from the `options`
+of the module host configuration (`ModuleHostConfig<T>`).
+
+```ts
+export interface ModulePageLifecycleHostOptions {
+  /**
+   * Whether the module registers an entry in the host application's main
+   * navigation menu during the post-initialization phase.
+   */
+  addNavigationMenu?: boolean;
+}
+```
+
+**Usage:**
+
+- When `addNavigationMenu` is `true`, `postInit` adds a main navigation menu item whose `id` is the module instance
+  identifier, whose `labelKey` is `<instanceId>.NavigationMenu.label` and whose `path` is the module base path.
+- Module-specific option types extend this interface, so typed hooks keep access to `addNavigationMenu` (see the
+  example below).
+
+### ModulePageLifecycleOptions
+
+Creation options of the `createModulePageLifecycle` factory.
+
+```ts
+export interface ModulePageLifecycleOptions<
+  T extends ModulePageLifecycleHostOptions = ModulePageLifecycleHostOptions,
+> {
+  /** Unique identifier for the module. Must match the ID in the host configuration. */
+  id: string;
+
+  /** Human-readable name of the module. */
+  name: string;
+
+  /** Version of the module (semantic versioning). */
+  version: string;
+
+  /** Optional description of what the module does. */
+  description?: string;
+
+  /** Zone component names registered once in the dialog zone during `postInit` (e.g. `myRemote/ConfirmationDialog`). */
+  dialogComponents?: string[];
+
+  /** Zone of the host application layout where the dialog components are registered (e.g. `base-layout.dialogComponent`). */
+  dialogZone: string;
+
+  /** Optional per-phase lifecycle overrides. An overridden phase fully replaces the default behavior of that phase. */
+  hooks?: Partial<ModuleLifecycleHooks<T>>;
+}
+```
+
+**Usage:**
+
+- `dialogZone` is required, even when `dialogComponents` is empty.
+- A dialog component already registered in `dialogZone` is not registered a second time.
+- Overriding `postInit` through `hooks` drops the default behavior: no navigation menu entry and no dialog component
+  registration.
+- `T` types `config.options` in the hooks.
+
+**Example:**
+
+```ts
+import {
+  createModulePageLifecycle,
+  type ModulePageLifecycleHostOptions,
+} from '@linagora/lin-pulsar-core';
+
+interface UserPageOptions extends ModulePageLifecycleHostOptions {
+  entity: string;
+}
+
+export default createModulePageLifecycle<UserPageOptions>({
+  id: 'user-page',
+  name: 'User page',
+  version: '1.0.0',
+  dialogZone: 'base-layout.dialogComponent',
+  dialogComponents: ['linPulsar/ConfirmationDialog'],
+  hooks: {
+    async configure(config) {
+      if (!config.options?.entity) {
+        return { success: false, error: 'Missing entity option' };
+      }
+      return { success: true };
+    },
+  },
+});
+```
+
 ---
 
 ## 🎨 Ui design types
@@ -1494,6 +1585,92 @@ export interface NavigationMenuItem {
 
 ---
 
+## 📣 UI event types
+
+Types of the events carried by `uiEventSubject`, the shared UI event bus described in
+[UI Event Service](./services.md#-ui-event-service).
+
+### UiEvent
+
+Event emitted on, and received from, `uiEventSubject`.
+
+```ts
+export interface UiEvent {
+  /** Event key. */
+  key: string;
+
+  /** Event data. */
+  data: unknown;
+}
+```
+
+**Usage:**
+
+- `key` lets each subscriber ignore the events that are not addressed to it (e.g. `useDialog` only handles its own key).
+- `data` is `unknown`: subscribers narrow it before use.
+
+**Example:**
+
+```ts
+import { uiEventSubject, type UiEvent } from '@linagora/lin-pulsar-core';
+
+const subscription = uiEventSubject.subscribe((event: UiEvent) => {
+  if (event.key !== 'users-refresh') {
+    return;
+  }
+  // narrow event.data before using it
+});
+
+uiEventSubject.next({ key: 'users-refresh', data: null });
+
+// when the component is unmounted
+subscription.unsubscribe();
+```
+
+### DialogEvent
+
+Payload (`UiEvent.data`) of the dialog events handled by [`useDialog`](./dialog.md).
+
+```ts
+export type DialogEvent = {
+  /** Event type, expected to be 'open' or 'close'. */
+  type: 'open' | 'close';
+
+  /** Namespace for the UI design. */
+  uiNamespace: string;
+
+  /** I18n scope for translating the dialog content and buttons. */
+  i18nScope: string;
+};
+```
+
+**Usage:**
+
+- `useDialog` sets `show` to `false` on `'close'`; on `'open'`, it sets `show` to `true` and calls its `onOpen` callback
+  with the payload.
+- `uiNamespace` and `i18nScope` are not read by `useDialog`: the dialog component reads them in `onOpen` to resolve its
+  UI design and translations.
+- `useDialog<T extends DialogEvent>` accepts an extended payload. The payload is cast to `T`, not validated at runtime.
+
+**Example:**
+
+```ts
+import { ref } from 'vue';
+import { useDialog, type DialogEvent } from '@linagora/lin-pulsar-core';
+
+interface DeleteDialogEvent extends DialogEvent {
+  entityId: string;
+}
+
+const entityId = ref<string>();
+
+const { show } = useDialog<DeleteDialogEvent>('delete-dialog', (event) => {
+  entityId.value = event.entityId;
+});
+```
+
+---
+
 ## 🔍 Filter types
 
 Types describing a filter that can be applied to a list of entities. `LinPulsarFilterType`, `LinPulsarFilterOperator`,
@@ -1726,6 +1903,62 @@ const filterSet = LinPulsarFilterSet.fromString(
 );
 
 // LinPulsarFilterSet { label: 'My Active Projects', filters: [...] }
+```
+
+---
+
+## 🖋️ Nunjucks types
+
+### RenderResult
+
+Return type of `render` from [`useNunjucks`](./nunjucks.md#render), computed recursively from the type of the rendered
+value. Shown here with its internal helper aliases inlined.
+
+```ts
+export type RenderResult<T> = T extends string
+  ? string | Record<string, unknown>
+  : T extends ReadonlyArray<infer U>
+    ? RenderResult<U>[]
+    : T extends Record<string, unknown>
+      ? { [K in keyof T]: RenderResult<T[K]> }
+      : T;
+```
+
+**Usage:**
+
+- A string becomes `string | Record<string, unknown>`: a single dotted lookup resolving to a plain object (e.g.
+  `'{{ entity.details }}'`) returns that object. Narrow with `typeof` before use.
+- Arrays and plain object types are mapped element by element and property by property; any other type is returned
+  unchanged.
+- An `interface` is not assignable to `Record<string, unknown>` (no implicit index signature): `RenderResult<MyInterface>`
+  is `MyInterface` unchanged, and its string properties stay typed `string`. Declare the input with a `type` alias to
+  get the mapped type.
+
+**Example:**
+
+```ts
+import { useNunjucks } from '@linagora/lin-pulsar-core';
+
+const { render } = useNunjucks();
+
+const entity = { name: 'Alice', type: 'user' };
+const field = {
+  label: '{{ entity.name }}',
+  size: 3,
+  tags: ['{{ entity.type }}'],
+};
+
+const rendered = render(field, { entity });
+// RenderResult<typeof field>:
+// {
+//   label: string | Record<string, unknown>;
+//   size: number;
+//   tags: (string | Record<string, unknown>)[];
+// }
+
+if (typeof rendered.label === 'string') {
+  // rendered.label is a string here
+}
 ```
 
 ---
