@@ -16,14 +16,14 @@ describe('Test service: uiDesignService', () => {
       const mockUiDesign = {
         default: {
           button: {
-            flat: true
+            flat: true,
           },
         },
         custom: {
           button: {
-            flat: false
-          }
-        }
+            flat: false,
+          },
+        },
       };
 
       setUiDesign(mockUiDesign);

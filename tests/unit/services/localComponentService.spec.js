@@ -80,11 +80,15 @@ describe('Test service: localComponentService', () => {
     it('should fall back to the name itself for an unknown name', () => {
       vi.spyOn(globalThis.console, 'warn').mockImplementation(() => {});
 
-      expect(resolveLocalComponent('UnknownComponent')).toBe('UnknownComponent');
+      expect(resolveLocalComponent('UnknownComponent')).toBe(
+        'UnknownComponent'
+      );
     });
 
     it('should warn when the name is unknown', () => {
-      const warn = vi.spyOn(globalThis.console, 'warn').mockImplementation(() => {});
+      const warn = vi
+        .spyOn(globalThis.console, 'warn')
+        .mockImplementation(() => {});
 
       resolveLocalComponent('MissingComponent');
 
@@ -93,7 +97,9 @@ describe('Test service: localComponentService', () => {
     });
 
     it('should not warn when the name is known', () => {
-      const warn = vi.spyOn(globalThis.console, 'warn').mockImplementation(() => {});
+      const warn = vi
+        .spyOn(globalThis.console, 'warn')
+        .mockImplementation(() => {});
       registerLocalComponent('SilentComponent', DirectComponent);
 
       resolveLocalComponent('SilentComponent');

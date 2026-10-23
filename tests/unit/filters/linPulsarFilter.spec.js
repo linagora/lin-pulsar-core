@@ -41,7 +41,9 @@ describe('Test class: LinPulsarFilter', () => {
     it('parses a single value with no operator and no negation', () => {
       const result = LinPulsarFilter.fromString('city', 'paris');
 
-      expect(result.values).toEqual([new LinPulsarFilterValue(false, '', 'paris')]);
+      expect(result.values).toEqual([
+        new LinPulsarFilterValue(false, '', 'paris'),
+      ]);
     });
 
     it('parses multiple values separated by the OR separator', () => {
