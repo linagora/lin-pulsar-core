@@ -25,7 +25,12 @@ describe('Test class: LinPulsarFilterValue', () => {
       { input: 'gt_18', isNegation: false, operator: 'gt_', value: '18' },
       { input: 'lt_18', isNegation: false, operator: 'lt_', value: '18' },
       { input: 'not_paris', isNegation: true, operator: '', value: 'paris' },
-      { input: 'not_lk_paris', isNegation: true, operator: 'lk_', value: 'paris' },
+      {
+        input: 'not_lk_paris',
+        isNegation: true,
+        operator: 'lk_',
+        value: 'paris',
+      },
     ])(
       'parses "$input" -> isNegation=$isNegation, operator="$operator", value="$value"',
       ({ input, isNegation, operator, value }) => {

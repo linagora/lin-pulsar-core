@@ -12,7 +12,11 @@ describe('Test class: LinPulsarFilterSet', () => {
         ]),
       ];
 
-      const filterSet = new LinPulsarFilterSet('id', 'My Active Projects', filters);
+      const filterSet = new LinPulsarFilterSet(
+        'id',
+        'My Active Projects',
+        filters
+      );
 
       expect(filterSet.id).toBe('id');
       expect(filterSet.label).toBe('My Active Projects');
@@ -22,7 +26,7 @@ describe('Test class: LinPulsarFilterSet', () => {
 
   describe('test method: fromString', () => {
     it('returns an empty filter set for an empty string', () => {
-      const result = LinPulsarFilterSet.fromString('id','My Favorite', '');
+      const result = LinPulsarFilterSet.fromString('id', 'My Favorite', '');
 
       expect(result.id).toBe('id');
       expect(result.label).toBe('My Favorite');
@@ -38,7 +42,11 @@ describe('Test class: LinPulsarFilterSet', () => {
     });
 
     it('returns an empty filter set for undefined', () => {
-      const result = LinPulsarFilterSet.fromString('id', 'My Favorite', undefined);
+      const result = LinPulsarFilterSet.fromString(
+        'id',
+        'My Favorite',
+        undefined
+      );
 
       expect(result.id).toBe('id');
       expect(result.label).toBe('My Favorite');
@@ -47,7 +55,11 @@ describe('Test class: LinPulsarFilterSet', () => {
 
     it('returns an empty filter set for any non-string value', () => {
       [42, false, {}, []].forEach((value) => {
-        const result = LinPulsarFilterSet.fromString('id', 'My Favorite', value);
+        const result = LinPulsarFilterSet.fromString(
+          'id',
+          'My Favorite',
+          value
+        );
 
         expect(result.filters).toEqual([]);
       });
@@ -86,7 +98,11 @@ describe('Test class: LinPulsarFilterSet', () => {
     });
 
     it('ignores a pair with no "=" instead of guessing a name and value', () => {
-      const result = LinPulsarFilterSet.fromString('id', 'My Favorite', 'status');
+      const result = LinPulsarFilterSet.fromString(
+        'id',
+        'My Favorite',
+        'status'
+      );
 
       expect(result.filters).toEqual([]);
     });
@@ -151,35 +167,33 @@ describe('Test class: LinPulsarFilterSet', () => {
     });
   });
 
-    it('restores each parsed filter from the definition carrying the same name', () => {
-      const dynamicLabelOptions = { url: '/organizational-units/{{ value }}' };
-      const definitions = [
-        new LinPulsarFilter(
-          'organizationalUnitId',
-          'tree',
-          { url: '/organizational-units' },
-          [],
-          dynamicLabelOptions
-        ),
-      ];
-
-      const result = LinPulsarFilterSet.fromString(
-        'fav-1',
-        'My favorite',
-        'organizationalUnitId=1&status=active',
-        definitions
-      );
-
-      expect(result.filters[0].type).toBe('tree');
-      expect(result.filters[0].options).toEqual({
-        url: '/organizational-units',
-      });
-      expect(result.filters[0].dynamicLabelOptions).toEqual(
+  it('restores each parsed filter from the definition carrying the same name', () => {
+    const dynamicLabelOptions = { url: '/organizational-units/{{ value }}' };
+    const definitions = [
+      new LinPulsarFilter(
+        'organizationalUnitId',
+        'tree',
+        { url: '/organizational-units' },
+        [],
         dynamicLabelOptions
-      );
-      expect(result.filters[1].type).toBe('text');
-      expect(result.filters[1].dynamicLabelOptions).toBeUndefined();
+      ),
+    ];
+
+    const result = LinPulsarFilterSet.fromString(
+      'fav-1',
+      'My favorite',
+      'organizationalUnitId=1&status=active',
+      definitions
+    );
+
+    expect(result.filters[0].type).toBe('tree');
+    expect(result.filters[0].options).toEqual({
+      url: '/organizational-units',
     });
+    expect(result.filters[0].dynamicLabelOptions).toEqual(dynamicLabelOptions);
+    expect(result.filters[1].type).toBe('text');
+    expect(result.filters[1].dynamicLabelOptions).toBeUndefined();
+  });
 
   describe('test method: toString', () => {
     it('reconstructs an empty string when there are no filters', () => {

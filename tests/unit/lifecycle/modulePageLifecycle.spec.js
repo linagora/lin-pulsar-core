@@ -99,7 +99,8 @@ describe('Test function: createModulePageLifecycle', () => {
       await module.postInit(config);
       await module.postInit(config);
 
-      const entries = useLinPulsarZoneStore().zones['base-layout.dialogComponent'];
+      const entries =
+        useLinPulsarZoneStore().zones['base-layout.dialogComponent'];
       expect(entries.map((entry) => entry.plugin)).toEqual([
         'testModule/ConfirmationDialog',
         'testModule/FormDialog',
