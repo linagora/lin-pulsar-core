@@ -204,7 +204,9 @@ describe('Test object: linPulsarModuleFederation', () => {
     });
 
     it('should skip and log a module whose configuration file fails to load', async () => {
-      const errorSpy = vi.spyOn(globalThis.console, 'error').mockImplementation(() => {});
+      const errorSpy = vi
+        .spyOn(globalThis.console, 'error')
+        .mockImplementation(() => {});
       vi.stubGlobal(
         'fetch',
         vi.fn(async () => ({ ok: false, status: 404 }))

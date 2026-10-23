@@ -701,20 +701,17 @@ describe('Test composable: useFieldValidation', () => {
         value: '2026-06-14',
         expected: 'translated.validation.fromDate.{"compareTo":"2026-06-15"}',
       },
-    ])(
-      'should return $expected for value $value',
-      ({ value, expected }) => {
-        const { fromDate } = useFieldValidation('test-instance.date');
+    ])('should return $expected for value $value', ({ value, expected }) => {
+      const { fromDate } = useFieldValidation('test-instance.date');
 
-        const result = fromDate(value, '2026-06-15', 'YYYY-MM-DD');
-        expect(result).toBe(expected);
-        if (typeof expected === 'string') {
-          expect(mockT).toHaveBeenCalledWith('validation.fromDate', {
-            compareTo: '2026-06-15',
-          });
-        }
+      const result = fromDate(value, '2026-06-15', 'YYYY-MM-DD');
+      expect(result).toBe(expected);
+      if (typeof expected === 'string') {
+        expect(mockT).toHaveBeenCalledWith('validation.fromDate', {
+          compareTo: '2026-06-15',
+        });
       }
-    );
+    });
 
     it('should return true for null, undefined or empty string', () => {
       const { fromDate } = useFieldValidation('test-instance.date');
@@ -764,20 +761,17 @@ describe('Test composable: useFieldValidation', () => {
         value: '2026-06-16',
         expected: 'translated.validation.upToDate.{"compareTo":"2026-06-15"}',
       },
-    ])(
-      'should return $expected for value $value',
-      ({ value, expected }) => {
-        const { upToDate } = useFieldValidation('test-instance.date');
+    ])('should return $expected for value $value', ({ value, expected }) => {
+      const { upToDate } = useFieldValidation('test-instance.date');
 
-        const result = upToDate(value, '2026-06-15', 'YYYY-MM-DD');
-        expect(result).toBe(expected);
-        if (typeof expected === 'string') {
-          expect(mockT).toHaveBeenCalledWith('validation.upToDate', {
-            compareTo: '2026-06-15',
-          });
-        }
+      const result = upToDate(value, '2026-06-15', 'YYYY-MM-DD');
+      expect(result).toBe(expected);
+      if (typeof expected === 'string') {
+        expect(mockT).toHaveBeenCalledWith('validation.upToDate', {
+          compareTo: '2026-06-15',
+        });
       }
-    );
+    });
 
     it('should return true for null, undefined or empty string', () => {
       const { upToDate } = useFieldValidation('test-instance.date');
