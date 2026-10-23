@@ -8,7 +8,7 @@ This document explains how to use the field validation composables to dynamicall
 
 This module provides three composables for field validation, each in its own file:
 
-- **`useFieldValidation`** (from `composables/useFieldValidation.ts`): Base validation functions that take two parameters (value, config)
+- **`useFieldValidation`** (from `composables/useFieldValidation.ts`): Base validation functions that take the value to check, followed by the validator parameters (e.g. `minLength(value, min)`), except `validateFromApi` which takes the value as last parameter
 - **`useQuasarFieldValidation`** (from `composables/useQuasarFieldValidation.ts`): Quasar-compatible curried validation functions
 - **`useQuasarRules`** (from `composables/useQuasarRules.ts`): Helper to automatically generate Quasar validation rules from attribute configuration
 
@@ -21,13 +21,20 @@ This module provides three composables for field validation, each in its own fil
 
 ### Prerequisites
 
+The three composables read the shared Dayjs instance as soon as they are called, so the host must register it
+with `setDayjsInstance` first (see [Dates](./dayjs.md#prerequisites)). Otherwise they throw
+`[LinPulsar Core] Dayjs instance is not initialized. Call setDayjsInstance() first.`, even when no date validator is
+used.
+
 The date validators (`validDate`, `afterDate`, `beforeDate`, `fromDate`, `upToDate`) rely on dayjs's [`customParseFormat`](https://day.js.org/docs/en/plugin/custom-parse-format) plugin to perform strict format parsing. The plugin **must be registered once** in your application entry point, before any date validator runs:
 
 ```ts
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { setDayjsInstance } from '@linagora/lin-pulsar-core';
 
 dayjs.extend(customParseFormat);
+setDayjsInstance(dayjs);
 ```
 
 > Without this step, dayjs falls back to non-strict parsing: strings that do not match the expected format may be silently accepted, and calendrically invalid dates such as `'2026-02-30'` will not be detected.
@@ -56,10 +63,12 @@ const quasarValidation = useQuasarFieldValidation('user-module.fields.email');
 // Usage in Quasar rules: [quasarValidation.minLength(5)]
 
 // Option 3: Auto-generate rules from attribute configuration
-const rules = useQuasarRules('user-module', attributeConfig, [
-  'minLength',
-  'maxLength',
-]);
+const rules = useQuasarRules(
+  'user-module',
+  attributeConfig,
+  ['minLength', 'maxLength'],
+  'user-module.fields.email'
+);
 // Returns ready-to-use Quasar rules array in the specified order
 ```
 
@@ -113,7 +122,8 @@ const rules = useQuasarRules('user-module', attributeConfig, [
 
 ### 3.1 Common Behavior
 
-- **Scoped i18n**: All validators use the field's i18n scope (`${instanceId}.fields.${fieldName}`) for error messages
+- **Scoped i18n**: All validators translate their error messages under the `i18nScope` given to the composable
+  (`${i18nScope}.validation.<rule>`, e.g. `user-module.fields.email.validation.minLength`)
 - **Backend validation** (`validateFromApi`):
   - Calls the backend API with the provided value
   - Returns the internationalized `error` field from `LinPulsarApiErrorResponseBody` for HTTP 400 (Bad Request) and 404 (Not Found) status codes
@@ -143,7 +153,8 @@ useQuasarRules (automation layer)
 
 #### useFieldValidation
 
-- Returns functions that take two parameters: `(value, config)`
+- Returns functions that take the value first, then the validator parameters (none for `required` and `email`), except
+  `validateFromApi` which takes the value as last parameter: `(instanceId, fieldName, value)`
 - Example: `minLength('test', 5)`
 - Use case: Custom validation logic outside Quasar components
 
@@ -161,7 +172,8 @@ useQuasarRules (automation layer)
 - Returns an empty array if `attributeConfig.hasValidations` is `false`, `required` is `false`, and no validators are specified
 - Handles `required` based on `attributeConfig.required`
 - `required` validator is the first in the list if `attributeConfig.required` is `true`
-- Filters validators based on available `inputSettings`
+- Filters validators based on available `inputSettings`, except `email` which takes no setting and is always added
+  when listed
 - Follows the order of `validatorNames` parameter
 - Includes `validateFromApi` at the end if `attributeConfig.hasValidations` is `true`
 - Implementation: Uses `useQuasarFieldValidation` internally
@@ -233,6 +245,8 @@ const username = ref('');
 // Attribute configurations (typically from backend/store)
 const emailConfig: LinPulsarAttributeConfiguration = {
   name: 'email',
+  type: 'String',
+  input: 'Email',
   hasValidations: true,
   required: true,
   inputSettings: {
@@ -244,6 +258,8 @@ const emailConfig: LinPulsarAttributeConfiguration = {
 
 const usernameConfig: LinPulsarAttributeConfiguration = {
   name: 'username',
+  type: 'String',
+  input: 'Text',
   hasValidations: true,
   required: false,
   inputSettings: {
@@ -469,10 +485,13 @@ const emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
 
 ```ts
 import { useQuasarRules } from '@linagora/lin-pulsar-core';
+import type { LinPulsarAttributeConfiguration } from '@linagora/lin-pulsar-core';
 
 // Attribute configuration
-const emailConfig = {
+const emailConfig: LinPulsarAttributeConfiguration = {
   name: 'email',
+  type: 'String',
+  input: 'Email',
   hasValidations: true,
   required: true,
   inputSettings: {
@@ -567,15 +586,11 @@ function useQuasarFieldValidation(i18nScope: string): {
   validateFromApi: (
     instanceId: string,
     fieldName: string
-  ) => (value: unknown) => Promise<true | string>;
+  ) => (value: string) => Promise<true | string>;
   required: (value: unknown) => true | string;
   email: (value: unknown) => true | string;
-  minLength: (
-    minValue: number
-  ) => (value: string | null | undefined) => true | string;
-  maxLength: (
-    maxValue: number
-  ) => (value: string | null | undefined) => true | string;
+  minLength: (minValue: number) => (value: string) => true | string;
+  maxLength: (maxValue: number) => (value: string) => true | string;
   min: (minValue: number) => (value: string | number) => true | string;
   max: (maxValue: number) => (value: string | number) => true | string;
   pattern: (pattern: string) => (value: string) => true | string;
@@ -628,21 +643,15 @@ type ValidatorName =
   | 'maxFileSize'
   | 'allowedExtensions';
 
-// LinPulsarAttributeConfiguration interface (simplified)
-interface LinPulsarAttributeConfiguration<T> {
+// LinPulsarAttributeConfiguration interface
+interface LinPulsarAttributeConfiguration<T = Record<string, unknown>> {
   name: string;
+  type: string;
+  required: boolean;
   hasValidations: boolean;
-  required?: boolean;
-  inputSettings?: {
-    min?: number;
-    max?: number;
-    minLength?: number;
-    maxLength?: number;
-    pattern?: string;
-    unique?: unknown[];
-    maxFileSize?: number;
-    allowedExtensions?: string[];
-  };
+  input: AttributeInputType;
+  // Read by useQuasarRules: min, max, minLength, maxLength, pattern, unique, maxFileSize, allowedExtensions
+  inputSettings: T;
 }
 ```
 
@@ -652,7 +661,7 @@ interface LinPulsarAttributeConfiguration<T> {
 
 - **instanceId**: `string` - The unique identifier of the module instance
 - **fieldName**: `string` - The name of the field to validate
-- **Returns**: `(value: unknown) => Promise<true | string>` - A Quasar-compatible validator bound to the given instance and field
+- **Returns**: `(value: string) => Promise<true | string>` - A Quasar-compatible validator bound to the given instance and field
 - **Use case**: Server-side business validation
 - **Error handling**:
   - For HTTP 400/404 responses: Returns the `error` field from `LinPulsarApiErrorResponseBody` (already internationalized by backend)
@@ -677,27 +686,29 @@ interface LinPulsarAttributeConfiguration<T> {
 #### minLength(minValue)
 
 - **minValue**: `number` - Minimum string length
-- **Returns**: `(value: string | null | undefined) => true | string` - Validator function
+- **Returns**: `(value: string) => true | string` - Validator function
 - **Use case**: Text input minimum length
 - **Note**: Returns `true` if value is `null` or `undefined` (allows optional fields)
 
 #### maxLength(maxValue)
 
 - **maxValue**: `number` - Maximum string length
-- **Returns**: `(value: string | null | undefined) => true | string` - Validator function
+- **Returns**: `(value: string) => true | string` - Validator function
 - **Use case**: Text input maximum length
 - **Note**: Returns `true` if value is `null` or `undefined` (allows optional fields)
 
 #### min(minValue)
 
 - **minValue**: `number` - Minimum numeric value
-- **Returns**: `(value: number) => true | string` - Validator function
+- **Returns**: `(value: string | number) => true | string` - Validator function, a string value is parsed with
+  `parseFloat`
 - **Use case**: Numeric input lower bound
 
 #### max(maxValue)
 
 - **maxValue**: `number` - Maximum numeric value
-- **Returns**: `(value: number) => true | string` - Validator function
+- **Returns**: `(value: string | number) => true | string` - Validator function, a string value is parsed with
+  `parseFloat`
 - **Use case**: Numeric input upper bound
 
 #### pattern(pattern)
@@ -759,7 +770,8 @@ interface LinPulsarAttributeConfiguration<T> {
 - **Behavior**:
   - Returns empty array if `attributeConfig.hasValidations` is `false`, `required` is `false`, and no validators are specified
   - Includes `required` validator if `attributeConfig.required` is `true`
-  - Only includes validators that have values in `attributeConfig.inputSettings`
+  - Only includes validators that have values in `attributeConfig.inputSettings`, except `email` which takes no setting
+    and is always added when listed
   - Includes `validateFromApi` at the end if `attributeConfig.hasValidations` is `true`
 
 > **Note**: All validators return `true | string` following the [Quasar validation rules](https://quasar.dev/vue-components/input#validation-rules) contract.
@@ -770,7 +782,8 @@ interface LinPulsarAttributeConfiguration<T> {
 
 ### Required i18n Keys
 
-All validation error messages must be defined in your i18n files under the scope `${instanceId}.fields.${fieldName}.validation`.
+All validation error messages must be defined in your i18n files under `${i18nScope}.validation`, where `i18nScope` is
+the scope given to the composable (`user-module.fields.email` in the example below).
 
 ```json
 {
@@ -779,6 +792,7 @@ All validation error messages must be defined in your i18n files under the scope
       "email": {
         "validation": {
           "required": "This field is required.",
+          "email": "Invalid email address.",
           "minLength": "Must be at least {min} characters.",
           "maxLength": "Must not exceed {max} characters.",
           "pattern": "Invalid format. Expected pattern: {pattern}",
@@ -798,7 +812,10 @@ All validation error messages must be defined in your i18n files under the scope
         "validation": {
           "required": "Birth date is required.",
           "invalidDate": "Invalid date. Expected format: {format}.",
-          "dateInPast": "Date must be today or in the future.",
+          "afterDate": "Date must be after {compareTo}.",
+          "beforeDate": "Date must be before {compareTo}.",
+          "fromDate": "Date must be {compareTo} or later.",
+          "upToDate": "Date must be {compareTo} or earlier.",
           "unknownError": "Unknown error while validating the date."
         }
       },
@@ -821,6 +838,7 @@ All validation error messages must be defined in your i18n files under the scope
 - **min/max**: `{ min }` or `{ max }`
 - **pattern**: `{ pattern }`
 - **invalidDate**: `{ format }` — the format string passed to `validDate`
+- **afterDate/beforeDate/fromDate/upToDate**: `{ compareTo }` — the compared date, displayed in the validator format
 - **maxFileSize**: `{ maxFileSize }` — the maximum size in megabytes
 - **allowedExtensions**: `{ extensions }` — the allowed extensions, normalized and comma-separated (e.g. `png, jpg`)
 
@@ -844,7 +862,7 @@ All validation error messages must be defined in your i18n files under the scope
   - For other validators (`minLength`, `maxLength`, `min`, `max`, `pattern`), call them with the parameter to get the validator function
 - When using `useQuasarRules`:
   - Only specify validators that have corresponding values in `inputSettings`
-  - The composable automatically filters out validators without configuration
+  - The composable automatically filters out validators without configuration, except `email` which takes none
   - No need to manually add `required` or `validateFromApi` - they are handled automatically
 
 ### 8.3 Example: Migrating to useQuasarRules
@@ -866,9 +884,11 @@ const emailRules = [
 **After (automated approach):**
 
 ```ts
-const emailRules = useQuasarRules('user-module', emailConfig, [
-  'minLength',
-  'maxLength',
-]);
+const emailRules = useQuasarRules(
+  'user-module',
+  emailConfig,
+  ['minLength', 'maxLength'],
+  'user-module.fields.email'
+);
 // Automatically includes required and validateFromApi based on config
 ```

@@ -54,7 +54,7 @@ export interface LinPulsarAttributeConfiguration<T = Record<string, unknown>> {
    * entity (e.g., "extraParameters.login").
    */
   name: string;
-  /** The backend type of the attribute (e.g., "string", "integer"). */
+  /** The backend type of the attribute (e.g., "String", "Integer"). */
   type: string;
   /** Whether the attribute is required. */
   required: boolean;
