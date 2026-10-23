@@ -162,6 +162,7 @@ And consumed in a component:
 ```vue
 <script setup lang="ts">
 import { useValueFormatter } from '@linagora/lin-pulsar-core';
+import type { ColumnDefinition } from './columnDefinition'; // the interface declared above
 
 const { formatValue } = useValueFormatter();
 defineProps<{ row: Record<string, unknown>; columns: ColumnDefinition[] }>();

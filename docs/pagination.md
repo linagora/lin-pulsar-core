@@ -126,15 +126,17 @@ pagination.value = toQuasarPagination(apiResponse, pagination.value);
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { usePagination } from '@linagora/lin-pulsar-core';
+import { getEntities, usePagination } from '@linagora/lin-pulsar-core';
 import type {
   QTableRequestEvent,
   QuasarPagination,
 } from '@linagora/lin-pulsar-core';
 
+type User = { id: string; name: string };
+
 const { toPagination, toQuasarPagination } = usePagination();
 
-const rows = ref([]);
+const rows = ref<unknown[]>([]);
 const loading = ref(false);
 const pagination = ref<QuasarPagination>({
   page: 1,
@@ -147,19 +149,21 @@ const pagination = ref<QuasarPagination>({
 async function onRequest(props: QTableRequestEvent) {
   loading.value = true;
 
-  // Convert Quasar pagination to API format
-  const apiPagination = toPagination(props.pagination);
+  try {
+    // Convert Quasar pagination to API format
+    const apiPagination = toPagination(props.pagination);
 
-  // Call your API with the converted pagination
-  const response = await fetchEntities(apiPagination);
+    // Call the API of the module instance with the converted pagination
+    const response = await getEntities<User>('my-module', {}, apiPagination);
 
-  // Update rows
-  rows.value = response.content;
+    // Update rows
+    rows.value = response.content;
 
-  // Convert API response back to Quasar format, preserving sort state
-  pagination.value = toQuasarPagination(response, pagination.value);
-
-  loading.value = false;
+    // Convert API response back to Quasar format, preserving sort state
+    pagination.value = toQuasarPagination(response, pagination.value);
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 

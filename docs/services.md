@@ -316,8 +316,8 @@ const plugins = ['remote1/ComponentA', 'remote2/ComponentB'];
 If the remote module cannot be loaded:
 
 ```typescript
-const component.value = loadAsyncComponent('invalidRemote/Component');
-// Throws: Error loading remote module
+const component = loadAsyncComponent('invalidRemote/Component');
+// Nothing is thrown here: once the component is mounted, the Module Federation runtime error is reported through Vue's error handling (`onErrorCaptured` / `app.config.errorHandler`)
 ```
 
 ##### Missing Default Export
@@ -326,8 +326,8 @@ If the module doesn't export a default component:
 
 ```typescript
 // Remote module exports: export { MyComponent }
-const component.value = loadAsyncComponent('myRemote/MyComponent');
-// Throws: Failed to load component from myRemote/MyComponent
+const component = loadAsyncComponent('myRemote/MyComponent');
+// Nothing is thrown here: once the component is mounted, the loader rejects with "Failed to load component from myRemote/MyComponent", reported through Vue's error handling (`onErrorCaptured` / `app.config.errorHandler`)
 ```
 
 **Solution:** Ensure your remote module exports a default component:
@@ -1065,21 +1065,21 @@ Recursively renames the keys of a plain object using a provided key modifier fun
 #### Signature
 
 ```ts
-renameKeys(obj: unknown, keyModifier: (key: string) => string): unknown;
+renameKeys(obj: object, keyModifier: (key: string) => string): object;
 ```
 
 #### Parameters
 
 | Parameter     | Type                      | Description                                          |
 | ------------- | ------------------------- | ---------------------------------------------------- |
-| `obj`         | `unknown`                 | The object whose keys will be renamed                |
+| `obj`         | `object`                  | The object whose keys will be renamed                |
 | `keyModifier` | `(key: string) => string` | Function that receives a key and returns the new key |
 
 #### Returns
 
-| Type      | Description                                |
-| --------- | ------------------------------------------ |
-| `unknown` | A new object with keys renamed recursively |
+| Type     | Description                                |
+| -------- | ------------------------------------------ |
+| `object` | A new object with keys renamed recursively |
 
 #### Behavior
 
