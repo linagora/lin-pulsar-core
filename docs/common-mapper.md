@@ -161,6 +161,7 @@ toDateISO('2024-06-30T12:00:00', 'application.dateFormat'); // '' — missing ti
 
 // Invalid calendar dates
 toDateISO('2024-99-99T99:99:99Z', 'application.dateFormat'); // '' — semantically invalid
+toDateISO('2026-02-30T00:00:00Z', 'application.dateFormat'); // '' — no February 30th
 
 // Locale-formatted input (e.g., French format 'DD/MM/YYYY')
 toDateISO('24/07/2025', 'application.dateFormat'); // '2025-07-24T00:00:00.000Z'
