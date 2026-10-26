@@ -87,9 +87,20 @@ jobs:
       - name: Build library
         run: pnpm build
 
-      - name: Publish to npm
-        run: |
-          echo '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' >> .npmrc
-          pnpm publish --access public --no-git-checks
+      - name: Configure npm authentication
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_IN_VAULT }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM token is empty (secret NPM_TOKEN_IN_VAULT not available)"
+            exit 1
+          fi
+          # User-level config: pnpm 11 ignores auth tokens from the project .npmrc
+          pnpm config set "//registry.npmjs.org/:_authToken" "$NODE_AUTH_TOKEN"
+
+      - name: Check npm authentication
+        run: pnpm whoami --registry https://registry.npmjs.org/
+
+      - name: Publish to npm
+        # Trusted publishing not usable yet: package must exist on npm first and runner is self-hosted
+        run: pnpm publish --access public --no-git-checks # zizmor: ignore[use-trusted-publishing]
