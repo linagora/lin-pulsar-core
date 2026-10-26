@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/linagora/lin-pulsar-core/compare/v0.1.0...v0.1.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* npm publication due to pnpm 11 ([0b2a870](https://github.com/linagora/lin-pulsar-core/commit/0b2a8702b82a134ae45a03fbeb7c1a7869714cd7))
+
 ## [0.1.0](https://github.com/linagora/lin-pulsar-core/compare/v0.0.109...v0.1.0) (2026-10-23)
 
 
