@@ -314,6 +314,7 @@ A `Dayjs` instance if the input is valid and parseable, or `null` if:
 
 - The input is falsy (`null`, `undefined`, empty string)
 - The input cannot be parsed as a valid date
+- The input starts with an ISO 8601 date or time that does not exist in the calendar (e.g., `'2026-02-30'`)
 
 ### Behavior
 
@@ -335,6 +336,7 @@ toDayJs(''); // null
 
 // Invalid dates
 toDayJs('not-a-valid-date'); // null
+toDayJs('2026-02-30T00:00:00Z'); // null — no February 30th
 ```
 
 ---

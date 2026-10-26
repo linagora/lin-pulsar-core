@@ -206,6 +206,8 @@ describe('Test mapper: useCommonMapper', () => {
 
       expect(result?.isValid()).toBe(true);
       expect(result?.toISOString()).toBe('2025-07-24T12:34:56.000Z');
+      expect(toDayJs('2024-02-29')?.format('YYYY-MM-DD')).toBe('2024-02-29');
+      expect(toDayJs(new Date('2024-06-30T00:00:00Z'))?.isValid()).toBe(true);
     });
 
     it('should return null for falsy values (null/undefined/empty)', () => {
@@ -216,10 +218,16 @@ describe('Test mapper: useCommonMapper', () => {
       expect(toDayJs('')).toBeNull();
     });
 
-    it('should return null for an invalid date string', () => {
+    it.each([
+      'not-a-valid-date',
+      '2026-02-30',
+      '2026-02-30T10:00:00',
+      '2026-02-30T00:00:00Z',
+      '2026-02-28T25:00:00Z',
+    ])('should return null for the invalid date %s', (value) => {
       const { toDayJs } = useCommonMapper();
 
-      expect(toDayJs('not-a-valid-date')).toBeNull();
+      expect(toDayJs(value)).toBeNull();
     });
   });
 });

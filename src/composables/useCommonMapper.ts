@@ -155,8 +155,8 @@ export function useCommonMapper() {
     Object.fromEntries(fields.map((field) => [field.name, ''])) as unknown as T;
 
   /**
-   * Parses a date value into a {@link Dayjs} object. Returns null when the input is falsy, or
-   * cannot be parsed by dayjs.
+   * Parses a date value into a {@link Dayjs} object. Returns null when the input is falsy, cannot be parsed
+   * by dayjs, or starts with an ISO 8601 date or time that does not exist in the calendar.
    * @param value Date value to parse (typically an ISO 8601 string from the API).
    * @returns A Dayjs object, or null when the input is invalid or absent.
    */
@@ -166,7 +166,7 @@ export function useCommonMapper() {
       return null;
     }
     const date = dayjs(v);
-    return date.isValid() ? date : null;
+    return hasValidIsoDateTime(v) && date.isValid() ? date : null;
   };
 
   return {
