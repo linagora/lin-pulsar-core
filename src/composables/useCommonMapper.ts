@@ -35,6 +35,31 @@ dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 
 /**
+ * Matches the ISO 8601 date a string starts with, followed by its time when present (e.g. `2024-06-30` or
+ * `2024-06-30T12:34:56`).
+ */
+const ISO_DATE_TIME_PREFIX = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/;
+
+/**
+ * Checks that the ISO 8601 date and time a string starts with exist in the calendar. Since dayjs parses such
+ * strings leniently and rolls an impossible date over (2026-02-30 becomes 2026-03-02), they are parsed strictly here.
+ * A string that does not start with an ISO 8601 date is left to dayjs.
+ * @param value - The string to check.
+ * @returns `false` when the leading ISO 8601 date or time does not exist, `true` otherwise.
+ */
+function hasValidIsoDateTime(value: string): boolean {
+  const match = ISO_DATE_TIME_PREFIX.exec(value);
+
+  if (!match) {
+    return true;
+  }
+
+  const format = match[1] ? 'YYYY-MM-DD[T]HH:mm:ss' : 'YYYY-MM-DD';
+
+  return dayjs(match[0], format, true).isValid();
+}
+
+/**
  * Common mapper for data transformations.
  * @returns Functions to convert datas.
  */
@@ -73,9 +98,9 @@ export function useCommonMapper() {
 
   /**
    * Convert a date string to an ISO 8601 string for API consumption. If the input matches the ISO 8601 datetime
-   * pattern (detected via regex), it is validated by dayjs and returned as-is, offset included. If the input does not
-   * match the ISO pattern, strict parsing is applied using the locale format retrieved from the `formatKey`
-   * (e.g., "DD/MM/YYYY") and the result is converted to a UTC ISO string.
+   * pattern (detected via regex), its date and time are strictly validated and it is returned as-is, offset included.
+   * If the input does not match the ISO pattern, strict parsing is applied using the locale format retrieved from the
+   * `formatKey` (e.g., "DD/MM/YYYY") and the result is converted to a UTC ISO string.
    * @param value Date string to be converted to ISO format for API consumption. The value must either be a valid ISO
    *   8601 string, or match the format pattern retrieved from `formatKey`; strict parsing is enforced in
    *   both cases, so any value that does not exactly match the expected format or is semantically invalid will return
@@ -92,8 +117,7 @@ export function useCommonMapper() {
     }
 
     if (ISO_REGEX.test(v)) {
-      const date = dayjs(v);
-      return date.isValid() ? v : '';
+      return hasValidIsoDateTime(v) && dayjs(v).isValid() ? v : '';
     }
 
     const date = dayjs.utc(v, t(formatKey), true);
