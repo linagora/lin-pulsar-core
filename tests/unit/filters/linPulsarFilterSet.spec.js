@@ -165,34 +165,36 @@ describe('Test class: LinPulsarFilterSet', () => {
       expect(result.filters[0].id).toEqual(expect.any(String));
       expect(result.filters[0].id).not.toBe(result.filters[1].id);
     });
-  });
 
-  it('restores each parsed filter from the definition carrying the same name', () => {
-    const dynamicLabelOptions = { url: '/organizational-units/{{ value }}' };
-    const definitions = [
-      new LinPulsarFilter(
-        'organizationalUnitId',
-        'tree',
-        { url: '/organizational-units' },
-        [],
+    it('restores each parsed filter from the definition carrying the same name', () => {
+      const dynamicLabelOptions = { url: '/organizational-units/{{ value }}' };
+      const definitions = [
+        new LinPulsarFilter(
+          'organizationalUnitId',
+          'tree',
+          { url: '/organizational-units' },
+          [],
+          dynamicLabelOptions
+        ),
+      ];
+
+      const result = LinPulsarFilterSet.fromString(
+        'fav-1',
+        'My favorite',
+        'organizationalUnitId=1&status=active',
+        definitions
+      );
+
+      expect(result.filters[0].type).toBe('tree');
+      expect(result.filters[0].options).toEqual({
+        url: '/organizational-units',
+      });
+      expect(result.filters[0].dynamicLabelOptions).toEqual(
         dynamicLabelOptions
-      ),
-    ];
-
-    const result = LinPulsarFilterSet.fromString(
-      'fav-1',
-      'My favorite',
-      'organizationalUnitId=1&status=active',
-      definitions
-    );
-
-    expect(result.filters[0].type).toBe('tree');
-    expect(result.filters[0].options).toEqual({
-      url: '/organizational-units',
+      );
+      expect(result.filters[1].type).toBe('text');
+      expect(result.filters[1].dynamicLabelOptions).toBeUndefined();
     });
-    expect(result.filters[0].dynamicLabelOptions).toEqual(dynamicLabelOptions);
-    expect(result.filters[1].type).toBe('text');
-    expect(result.filters[1].dynamicLabelOptions).toBeUndefined();
   });
 
   describe('test method: toString', () => {
