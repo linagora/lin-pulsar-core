@@ -1,6 +1,6 @@
 # **CONTRIBUTING 🤝**
 
-Thank you for contributing to **lin-pulsar-core**, the core front-end library of LinPulsar, the component catalog of the linOpenFactory platform.
+Thank you for contributing to **lin-pulsar-core**, the core front-end library of LinPulsar, the component catalog of the LinOpenFactory platform.
 This document explains the conventions, workflows, and best practices to follow when contributing.
 
 ---

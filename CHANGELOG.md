@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file. See [standa
 * the package is now published as @linagora/lin-pulsar-core.
 All Linid*/useLinid*/LINID_* exports are renamed to LinPulsar*/useLinPulsar*/LIN_PULSAR_*,
 Pinia store ids are renamed, build outputs are now lin-pulsar-core.{es,umd}.js,
-and license references move from LinID Identity Manager to linOpenFactory.
+and license references move from LinID Identity Manager to LinOpenFactory.
 
 ### Features
 

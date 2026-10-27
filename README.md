@@ -2,28 +2,28 @@
 
 ## **🧩 Overview**
 
-`lin-pulsar-core` is the core front-end library of **LinPulsar**, the component catalog of **linOpenFactory**.
+`lin-pulsar-core` is the core front-end library of **LinPulsar**, the component catalog of **LinOpenFactory**.
 
-linOpenFactory is a front-end and API building block to quickly create configurable applications. On the front-end
+LinOpenFactory is a front-end and API building block to quickly create configurable applications. On the front-end
 side, an application is made of:
 
 | Part                 | Role                                                                                                  |
 | -------------------- | ----------------------------------------------------------------------------------------------------- |
-| **linOpenFactoryUi** | Default host application: bootstrap, BFF, authentication, loading of the application `config.json`.   |
+| **LinOpenFactoryUi** | Default host application: bootstrap, BFF, authentication, loading of the application `config.json`.   |
 | **linPulsar**        | Module Federation remote providing the component catalog: components, generic pages, default modules. |
 | Business remotes     | Optional Module Federation remotes providing application-specific modules and components.             |
 | **lin-pulsar-core**  | This library: the contracts and the shared runtime used by the host and by every remote.              |
 
 ```mermaid
 flowchart LR
-  config[config.json] --> host[linOpenFactoryUi<br/>host]
+  config[config.json] --> host[LinOpenFactoryUi<br/>host]
   host -- Module Federation --> pulsar[linPulsar<br/>catalog remote]
   host -- Module Federation --> business[Business<br/>remotes]
   core((lin-pulsar-core<br/>shared singleton))
   host --- core
   pulsar --- core
   business --- core
-  host --> api[linOpenFactory API]
+  host --> api[LinOpenFactory API]
 ```
 
 lin-pulsar-core is shared as a **singleton** between the host and all remotes: every application part uses the same

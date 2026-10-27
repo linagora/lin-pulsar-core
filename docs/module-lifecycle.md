@@ -685,7 +685,7 @@ linPulsarModuleFederation.init(options)
 
 ### Application Configuration
 
-The host application (by default `linOpenFactoryUi`) is driven by a single `config.json` file. Only some of its
+The host application (by default `LinOpenFactoryUi`) is driven by a single `config.json` file. Only some of its
 entries are consumed by lin-pulsar-core, the others are handled by the host itself:
 
 ```json

@@ -605,15 +605,15 @@ Represents a REST route (method, path, entity, variables). Returned by `/metadat
 
 ---
 
-## 🌐 linOpenFactory API Response Types
+## 🌐 LinOpenFactory API Response Types
 
-Types representing standard response structures returned by linOpenFactory backend APIs.
+Types representing standard response structures returned by LinOpenFactory backend APIs.
 
 ### LinPulsarApiErrorResponseBody
 
-Represents the structure of an error response body returned by linOpenFactory APIs.
+Represents the structure of an error response body returned by LinOpenFactory APIs.
 
-This structure is used across all linOpenFactory API error responses to provide consistent error handling with internationalized
+This structure is used across all LinOpenFactory API error responses to provide consistent error handling with internationalized
 messages.
 
 ```ts
@@ -650,7 +650,7 @@ export interface LinPulsarApiErrorResponseBody {
 
 - Used by [`useFieldValidation`](./field-validation.md#51-backend-validation) to extract error messages from backend
   validation responses
-- Returned by all linOpenFactory API endpoints for HTTP errors
+- Returned by all LinOpenFactory API endpoints for HTTP errors
 - The `error` field contains the already-internationalized error message ready for display
 - The `errorKey` and `errorContext` can be used for custom error handling if needed
 
@@ -1989,7 +1989,7 @@ if (typeof rendered.label === 'string') {
 | `LinPulsarAttributeConfiguration`      | Generic interface describing an entity attribute                                                 |
 | `ValidatorName`                        | Available validator names for field validation                                                   |
 | `LinPulsarEntityConfiguration`         | Describes an entity and its attributes                                                           |
-| `LinPulsarApiErrorResponseBody`        | Standard error response structure from linOpenFactory APIs                                       |
+| `LinPulsarApiErrorResponseBody`        | Standard error response structure from LinOpenFactory APIs                                       |
 | `LinPulsarApiEndpointConfiguration`    | Describes a REST route                                                                           |
 | `LinPulsarRoute`                       | Defines the structure of a route (recursive children)                                            |
 | `LinPulsarRoutes`                      | Array of LinPulsarRoute for nested routes                                                        |
