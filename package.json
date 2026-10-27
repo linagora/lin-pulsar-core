@@ -1,7 +1,7 @@
 {
   "name": "@linagora/lin-pulsar-core",
   "version": "0.1.1",
-  "description": "Core library of LinPulsar, the component catalog of linOpenFactory. Provides shared types, services, components, and utilities for front-end and plugin, enabling consistent integration across the linOpenFactory ecosystem.",
+  "description": "Core library of LinPulsar, the component catalog of LinOpenFactory. Provides shared types, services, components, and utilities for front-end and plugin, enabling consistent integration across the LinOpenFactory ecosystem.",
   "type": "module",
   "files": [
     "dist"

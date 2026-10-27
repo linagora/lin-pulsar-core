@@ -5,7 +5,7 @@ detailed documentation.
 
 ```mermaid
 sequenceDiagram
-  participant Host as Host (linOpenFactoryUi)
+  participant Host as Host (LinOpenFactoryUi)
   participant Core as lin-pulsar-core
   participant Remote as Remotes (linPulsar, ...)
   Host->>Host: Load config.json
@@ -21,7 +21,7 @@ sequenceDiagram
 
 ## 1. Host application
 
-The host application (by default `linOpenFactoryUi`) owns the boot sequence: it creates the shared instances, hands
+The host application (by default `LinOpenFactoryUi`) owns the boot sequence: it creates the shared instances, hands
 them to lin-pulsar-core, authenticates the user, then initializes the federated modules.
 
 ### 1.1 Load the application configuration
