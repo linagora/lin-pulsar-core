@@ -63,13 +63,13 @@
   "homepage": "https://github.com/linagora/lin-pulsar-core#readme",
   "peerDependencies": {
     "@module-federation/enhanced": "2.7.0",
-    "axios": "1.18.1",
+    "axios": "1.20.0",
     "dayjs": "1.11.21",
     "interactjs": "1.10.27",
     "pinia": "3.0.4",
-    "quasar": "2.21.1",
+    "quasar": "2.32.2",
     "rxjs": "7.8.2",
-    "vue": "3.5.39",
+    "vue": "3.5.44",
     "vue-i18n": "11.4.6",
     "vue-router": "5.1.0"
   },
