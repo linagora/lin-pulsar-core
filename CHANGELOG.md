@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/linagora/lin-pulsar-core/compare/v0.1.2...v0.1.3) (2026-10-28)
+
+
+### Bug Fixes
+
+* reject calendrically invalid dates in toDayJs ([dbbb9be](https://github.com/linagora/lin-pulsar-core/commit/dbbb9bee2ecd12107d9f134c7c00db4fea0b6d2a))
+* reject calendrically invalid ISO dates in toDateISO ([a433096](https://github.com/linagora/lin-pulsar-core/commit/a433096322ca8549f5324ba8d461866aaf8351de))
+
 ### [0.1.2](https://github.com/linagora/lin-pulsar-core/compare/v0.1.1...v0.1.2) (2026-10-28)
 
 
