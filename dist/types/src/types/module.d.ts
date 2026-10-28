@@ -1,0 +1,186 @@
+import type { Component } from 'vue';
+import type { LinPulsarZoneEntry } from './linPulsarZone';
+import type { ModuleLifecycleHooks } from './moduleLifecycle';
+/**
+ * A value registrable under a local name: a Vue component, or any module element referenced from a module
+ * configuration (lifecycle implementation, route definitions, i18n messages).
+ */
+export type LocalComponent = Component | object;
+/**
+ * Reference to a module element (lifecycle, routes, i18n messages or component) in a module configuration.
+ *
+ * A plain string references an element exposed through Module Federation (e.g. `linPulsar/PageLifecycle`), as does a
+ * {@link FederatedLinPulsarZoneEntry}. A {@link ComponentLinPulsarZoneEntry} references an element registered locally through
+ * the `localComponents` initialization option, without any Module Federation loading. The `props` field of an entry is
+ * not used for module element references.
+ */
+export type ModuleComponentRef = string | LinPulsarZoneEntry;
+/**
+ * Remote module interface.
+ *
+ * All remote modules exposed via Module Federation should implement this interface.
+ * This is the contract between the host application and remote modules.
+ * @template T Type of the module-specific options provided in the host configuration.
+ */
+export interface RemoteModule<T> extends ModuleLifecycleHooks<T> {
+    /**
+     * Unique identifier for the module.
+     *
+     * Should match the ID in the module configuration.
+     */
+    id: string;
+    /**
+     * Human-readable name of the module.
+     */
+    name: string;
+    /**
+     * Version of the module.
+     *
+     * Should follow semantic versioning (semver).
+     */
+    version: string;
+    /**
+     * Optional description of the module.
+     *
+     * Provide a brief description of what the module does.
+     */
+    description?: string;
+}
+/**
+ * Module configuration in the host (modules/<ModuleName>.json).
+ *
+ * This is what the host provides to each module during the configuration phase.
+ * The host reads this from `modules/<ModuleName>.json` files.
+ * @template T Type of the module-specific options.
+ */
+export interface ModuleHostConfig<T> {
+    /**
+     * Unique identifier for this instance of the module.
+     * Typically used to differentiate multiple instances of the same module within the host.
+     */
+    instanceId: string;
+    /**
+     * Module Federation remote name (must match the `name` of an entry of the `remotes` configuration).
+     *
+     * This is the name used to load the remote module via Module Federation.
+     */
+    remoteName: string;
+    /**
+     * Reference to the element used to load the lifecycle implementation.
+     *
+     * The referenced element should implement the module lifecycle hooks
+     * contract and is typically loaded during the module initialization phase.
+     */
+    lifecycleRemote: ModuleComponentRef;
+    /**
+     * Reference to the element used to load the route definitions.
+     *
+     * The referenced element should hold the routes contributed by the module so
+     * they can be registered by the host application.
+     */
+    routesRemote: ModuleComponentRef;
+    /**
+     * Reference to the element used to load internationalization resources.
+     *
+     * The referenced element should hold the module translations, locale
+     * definitions, or i18n registration logic consumed by the host application.
+     */
+    i18nRemote: ModuleComponentRef;
+    /**
+     * Name of the entity used in the host configuration.
+     * Allows the module to retrieve associated attributes and other information for this entity.
+     */
+    entity: string;
+    /**
+     * Base URL for the module's API endpoints.
+     * All API requests from the module should be prefixed with this endpoint.
+     */
+    apiEndpoint: string;
+    /**
+     * Base path (default route) for the module in the host application.
+     * Used to mount the module at a specific route.
+     */
+    basePath: string;
+    /**
+     * Definitions of the zones where the module will render exposed elements in other modules.
+     *
+     * Zones should always be set (empty array [] when no zones).
+     */
+    zones: ModuleZoneDefinition[];
+    /**
+     * Module-specific options provided in the host configuration.
+     * These options are passed to the module during configuration.
+     */
+    options: T;
+}
+/**
+ * ESM namespace object returned when loading a remote module through
+ * Module Federation (for example via `loadRemote`).
+ *
+ * In a Vite + native ESM environment, federated modules are not auto-unwrapped:
+ * the effective export is exposed on the `default` property of the namespace.
+ * @template T Type of the value exported as `default` by the federated module.
+ */
+export interface FederatedModule<T> {
+    /**
+     * Default export of the federated module.
+     *
+     * This commonly represents a concrete runtime value such as a lifecycle
+     * instance, service, or class instance, but may also be a function, class,
+     * or plain object depending on the remote’s contract.
+     */
+    default: T;
+}
+/**
+ * Fields shared by all UI zone injection variants.
+ * @template T Props type for the injected element.
+ */
+export interface BaseModuleZoneDefinition<T = Record<string, unknown>> {
+    /**
+     * Name of the target zone exposed by another module where the element will be rendered.
+     */
+    zone: string;
+    /**
+     * Optional props to pass to the exposed element rendered in this zone.
+     * The module can define the structure of these props as needed.
+     */
+    props?: T;
+}
+/**
+ * Definition of a UI zone injection rendering an element exposed through module federation.
+ * @template T Props type for the injected element.
+ */
+export interface FederatedModuleZoneDefinition<T = Record<string, unknown>> extends BaseModuleZoneDefinition<T> {
+    /**
+     * Name of the exposed element to render in the zone.
+     */
+    plugin: string;
+    /** Never set on this variant, which is identified by its `plugin` field. */
+    component?: never;
+}
+/**
+ * Definition of a UI zone injection rendering a component by name.
+ *
+ * The name is resolved against the components made available to zones, so no
+ * module federation loading is involved.
+ * @template T Props type for the injected element.
+ */
+export interface ComponentModuleZoneDefinition<T = Record<string, unknown>> extends BaseModuleZoneDefinition<T> {
+    /**
+     * Name of the component to render in the zone.
+     */
+    component: string;
+    /** Never set on this variant, which is identified by its `component` field. */
+    plugin?: never;
+}
+/**
+ * Definition of a UI zone injection.
+ *
+ * Allows a module to declare that an element should be rendered inside a named
+ * zone exposed by another module, optionally with props. The element is either
+ * exposed through module federation ({@link FederatedModuleZoneDefinition}) or
+ * referenced by component name ({@link ComponentModuleZoneDefinition}); the
+ * variant is determined by which of the two fields is set.
+ * @template T Props type for the injected element.
+ */
+export type ModuleZoneDefinition<T = Record<string, unknown>> = FederatedModuleZoneDefinition<T> | ComponentModuleZoneDefinition<T>;
