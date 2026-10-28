@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/linagora/lin-pulsar-core/compare/v0.1.1...v0.1.2) (2026-10-28)
+
+
+### Bug Fixes
+
+* standardize "linOpenFactory" to "LinOpenFactory" across multiple files ([923d8e2](https://github.com/linagora/lin-pulsar-core/commit/923d8e2599a498f5b63610dc1883cc14c8ef0463))
+
 ### [0.1.1](https://github.com/linagora/lin-pulsar-core/compare/v0.1.0...v0.1.1) (2026-10-26)
 
 
