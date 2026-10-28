@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.4](https://github.com/linagora/lin-pulsar-core/compare/v0.1.3...v0.1.4) (2026-10-28)
+
+
+### Bug Fixes
+
+* update dependencies ([d2556e9](https://github.com/linagora/lin-pulsar-core/commit/d2556e9091aa0047d5dcdd13b9f85f6621087da4))
+
 ### [0.1.3](https://github.com/linagora/lin-pulsar-core/compare/v0.1.2...v0.1.3) (2026-10-28)
 
 
