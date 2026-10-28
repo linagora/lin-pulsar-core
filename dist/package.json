@@ -1,0 +1,101 @@
+{
+  "name": "@linagora/lin-pulsar-core",
+  "version": "0.1.4",
+  "description": "Core library of LinPulsar, the component catalog of LinOpenFactory. Provides shared types, services, components, and utilities for front-end and plugin, enabling consistent integration across the LinOpenFactory ecosystem.",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/lin-pulsar-core.umd.js",
+  "module": "./dist/lin-pulsar-core.es.js",
+  "types": "./dist/types/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/lin-pulsar-core.es.js",
+      "types": "./dist/types/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.lib.json",
+    "test": "vitest run",
+    "test:coverage": "vitest --run --coverage",
+    "test:watch": "vitest",
+    "test:ci": "vitest run --coverage --reporter=dot",
+    "dev": "vite",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "lint:sonarjs": "eslint . --max-warnings 0 --config eslint.sonarjs.config.js",
+    "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss,md}\" \"tests/**/*.js\" \"docs/**/*.md\" README.md CONTRIBUTING.md",
+    "format:check": "prettier --check \"src/**/*.{js,ts,vue,json,css,scss,md}\" \"tests/**/*.js\" \"docs/**/*.md\" README.md CONTRIBUTING.md",
+    "type-check": "vue-tsc --noEmit",
+    "validate": "pnpm type-check && pnpm lint && pnpm format:check && pnpm lint:sonarjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linagora/lin-pulsar-core.git"
+  },
+  "contributors": [
+    {
+      "name": "Vincent Moittie",
+      "email": "moittie.vincent@gmail.com",
+      "url": "https://github.com/Zorin95670"
+    },
+    {
+      "name": "Jordy Cabannes",
+      "email": "jcabannes@linagora.com",
+      "url": "https://github.com/jcabannes"
+    },
+    {
+      "name": "Christophe Chevalier",
+      "email": "cchevalier@linagora.com",
+      "url": "https://github.com/christophechevalier"
+    },
+    {
+      "name": "Adrien Céré",
+      "email": "acere@linagora.com",
+      "url": "https://github.com/Hamilcar31"
+    }
+  ],
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/linagora/lin-pulsar-core/issues"
+  },
+  "homepage": "https://github.com/linagora/lin-pulsar-core#readme",
+  "peerDependencies": {
+    "@module-federation/enhanced": "2.7.0",
+    "axios": "1.20.0",
+    "dayjs": "1.11.21",
+    "interactjs": "1.10.27",
+    "pinia": "3.0.4",
+    "quasar": "2.32.2",
+    "rxjs": "7.8.2",
+    "vue": "3.5.44",
+    "vue-i18n": "11.4.6",
+    "vue-router": "5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.5",
+    "@types/nunjucks": "3.2.6",
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vitest/coverage-v8": "5.0.5",
+    "@vue/eslint-config-prettier": "10.2.0",
+    "@vue/eslint-config-typescript": "14.9.0",
+    "@vue/test-utils": "2.5.1",
+    "eslint": "10.13.0",
+    "eslint-plugin-headers": "1.3.5",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-jsdoc": "65.4.2",
+    "eslint-plugin-sonarjs": "4.2.2",
+    "eslint-plugin-vue": "10.12.0",
+    "happy-dom": "21.0.4",
+    "oidc-client-ts": "3.5.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vite-tsconfig-paths": "6.1.1",
+    "vitest": "5.0.5",
+    "vue-tsc": "3.3.13"
+  },
+  "packageManager": "pnpm@12.16.1"
+}
