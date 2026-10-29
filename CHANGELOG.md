@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.5](https://github.com/linagora/lin-pulsar-core/compare/v0.1.4...v0.1.5) (2026-10-29)
+
+
+### Bug Fixes
+
+* update axios, quasar and vue ([b6921f2](https://github.com/linagora/lin-pulsar-core/commit/b6921f2a51feed7073aec9b53a88eea47c60d105))
+
 ### [0.1.4](https://github.com/linagora/lin-pulsar-core/compare/v0.1.3...v0.1.4) (2026-10-28)
 
 
