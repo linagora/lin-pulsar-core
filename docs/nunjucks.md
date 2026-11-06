@@ -6,12 +6,13 @@ This document describes the `useNunjucks` composable, which exposes utility func
 
 ## Overview
 
-`useNunjucks` provides two functions:
+`useNunjucks` provides three functions:
 
-| Function                        | Description                                                                |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| [`render`](#render)             | Recursively renders all string properties of a value as Nunjucks templates |
-| [`renderString`](#renderstring) | Renders a single template string, always returning a string                |
+| Function                        | Description                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [`render`](#render)             | Recursively renders all string properties of a value as Nunjucks templates                       |
+| [`renderJson`](#renderjson)     | Recursively renders a JSON value, such as a request body, keeping the type of single expressions |
+| [`renderString`](#renderstring) | Renders a single template string, always returning a string                                      |
 
 ### Prerequisites
 
@@ -42,7 +43,7 @@ XSS safety of the rendered output depends entirely on the Nunjucks environment p
 ```ts
 import { useNunjucks } from '@linagora/lin-pulsar-core';
 
-const { render, renderString } = useNunjucks();
+const { render, renderJson, renderString } = useNunjucks();
 ```
 
 ---
@@ -119,6 +120,45 @@ render(date, {}); // → the original Date instance, untouched
 // Null — returned as-is
 render(null, {}); // → null
 ```
+
+---
+
+## `renderJson`
+
+Recursively renders a JSON value whose strings are Nunjucks templates, typically the body of a request. Unlike
+[`render`](#render), a string made of a **single output tag**, such as `{{ form.end or none }}`, returns the value of
+its expression with its type: `null`, number, boolean, string, array or object. An expression without value renders as
+`null`. Any other string (text around the tag, several tags, `{% %}` blocks) is rendered as a string, and non-string
+values are returned as-is.
+
+```ts
+renderJson(value: unknown, context: Record<string, unknown>): unknown
+```
+
+Use `none`, the Nunjucks `null` literal, to send `null` for an empty field:
+
+```ts
+const { renderJson } = useNunjucks();
+
+renderJson(
+  {
+    suspensionPeriod: {
+      start: '{{ form.start }}',
+      end: '{{ form.end or none }}',
+    },
+    count: '{{ form.count }}',
+    label: 'Suspended by {{ user.name }}',
+  },
+  {
+    form: { start: '2026-12-01T00:00:00+01:00', end: '', count: 3 },
+    user: { name: 'Alice' },
+  }
+);
+// → { suspensionPeriod: { start: '2026-12-01T00:00:00+01:00', end: null }, count: 3, label: 'Suspended by Alice' }
+```
+
+The values are never escaped, even when the environment sets `autoescape`, and a value holding quotes or braces stays a
+single string.
 
 ---
 
