@@ -103,6 +103,61 @@ function resolveObjectExpression(
   return isPlainObject(current) ? structuredClone(toRaw(current)) : null;
 }
 
+/**
+ * Maps the strings of a value, recursing into arrays and plain objects. Any other value is returned as-is.
+ * @param value - The value to map.
+ * @param map - The function mapping each string.
+ * @returns The mapped value.
+ */
+function mapStrings(
+  value: unknown,
+  map: (template: string) => unknown
+): unknown {
+  if (typeof value === 'string') {
+    return map(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => mapStrings(item, map));
+  }
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, mapStrings(v, map)])
+    );
+  }
+  return value;
+}
+
+/**
+ * Parses a rendered string as JSON.
+ * @param output - The rendered string.
+ * @returns `null` for an empty string, the parsed value for valid JSON, otherwise the string itself.
+ * @throws {Error} When the output holds a stringified object, which would otherwise be sent silently.
+ */
+function parseJson(output: string): unknown {
+  if (output === '') {
+    return null;
+  }
+  if (output.includes('[object Object]')) {
+    throw new Error(
+      `[LinPulsar Core] Cannot render an object as JSON: "${output}". Use the \`dump\` filter.`
+    );
+  }
+  try {
+    return JSON.parse(output);
+  } catch {
+    return output;
+  }
+}
+
+/** The Nunjucks environment with its runtime options, missing from its typings. */
+type EnvironmentWithOptions = {
+  /** The runtime options of the environment. */
+  opts: {
+    /** Whether the output is HTML-escaped. */
+    autoescape: boolean;
+  };
+};
+
 /** Result of rendering a string: either the Nunjucks output, or a plain object for a direct dotted lookup. */
 type StringRenderResult = string | Record<string, unknown>;
 
@@ -133,6 +188,7 @@ export type RenderResult<T> = T extends string
  * Composable exposing utility functions for working with Nunjucks templates.
  * It provides a method to recursively render all string properties of an object as Nunjucks templates using a shared Nunjucks environment.
  * A string that is a single dotted property lookup resolving to a plain object yields that object instead of a string.
+ * It also provides a method to render a JSON value, such as a request body, whose rendered strings are parsed as JSON.
  * The Nunjucks environment must be initialized and set in the `nunjucksService` before using this composable.
  *
  * **Security note:** XSS safety of the rendered output depends entirely on the Nunjucks environment
@@ -157,24 +213,12 @@ export function useNunjucks() {
     context: Record<string, unknown>
   ): RenderResult<T>;
   function render<T>(value: T, context: Record<string, unknown>): unknown {
-    if (typeof value === 'string') {
-      const resolved = resolveObjectExpression(value, context);
-
-      if (resolved !== null) {
-        return resolved;
-      }
-
-      return nunjucksEnv.renderString(value, context);
-    }
-    if (Array.isArray(value)) {
-      return value.map((item) => render(item, context));
-    }
-    if (isPlainObject(value)) {
-      return Object.fromEntries(
-        Object.entries(value).map(([k, v]) => [k, render(v, context)])
-      );
-    }
-    return value;
+    return mapStrings(
+      value,
+      (template) =>
+        resolveObjectExpression(template, context) ??
+        nunjucksEnv.renderString(template, context)
+    );
   }
 
   /**
@@ -192,8 +236,40 @@ export function useNunjucks() {
     return nunjucksEnv.renderString(template, context);
   }
 
+  /**
+   * Recursively renders a JSON value whose strings are Nunjucks templates, such as a request body.
+   * Each string is rendered like with `render`, then turned into JSON: an empty output gives `null`, a valid JSON output
+   * gives its parsed value (number, boolean, `null`, array, object, quoted string), any other output stays a string.
+   * The output is never HTML-escaped, even when the environment sets `autoescape`. Non-string values are returned as-is.
+   * An output holding `[object Object]` throws, since an object must be rendered with the `dump` filter.
+   * @param value - The JSON value to render.
+   * @param context - The context object to be used when rendering the templates.
+   * @returns The rendered JSON value.
+   * @throws {Error} When a template renders an object without the `dump` filter.
+   */
+  function renderJson(
+    value: unknown,
+    context: Record<string, unknown>
+  ): unknown {
+    const { opts } = nunjucksEnv as unknown as EnvironmentWithOptions;
+    const autoescape = opts.autoescape;
+
+    opts.autoescape = false;
+    try {
+      return mapStrings(
+        value,
+        (template) =>
+          resolveObjectExpression(template, context) ??
+          parseJson(nunjucksEnv.renderString(template, context))
+      );
+    } finally {
+      opts.autoescape = autoescape;
+    }
+  }
+
   return {
     render,
+    renderJson,
     renderString,
   };
 }
