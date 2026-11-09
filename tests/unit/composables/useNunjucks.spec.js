@@ -1,11 +1,13 @@
+import nunjucks from 'nunjucks';
 import { useNunjucks } from 'src/composables/useNunjucks';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
 const mockRenderString = vi.hoisted(() => vi.fn((str) => `rendered:${str}`));
+const mockEnv = vi.hoisted(() => ({ current: null }));
 
 vi.mock('src/services/nunjucksService', () => ({
-  getNunjucksEnv: () => ({ renderString: mockRenderString }),
+  getNunjucksEnv: () => mockEnv.current ?? { renderString: mockRenderString },
 }));
 
 describe('Test composable: useNunjucks', () => {
@@ -205,6 +207,121 @@ describe('Test composable: useNunjucks', () => {
       ]) {
         expect(render(tpl, context)).toBe(`rendered:${tpl}`);
       }
+    });
+  });
+
+  describe('Test function: renderJson', () => {
+    const context = {
+      form: {
+        name: 'A&B <"C">',
+        comment: '',
+        count: 3,
+        enabled: false,
+        period: { start: '2026-12-01T00:00:00+01:00', end: null },
+        tags: ['a', 'b'],
+      },
+    };
+
+    /**
+     * Renders a value with `renderJson` over a real Nunjucks environment.
+     * @param value - The JSON value to render.
+     * @param autoescape - Whether the environment escapes its output.
+     * @returns The rendered value.
+     */
+    function renderJson(value, autoescape = false) {
+      mockEnv.current = new nunjucks.Environment(null, { autoescape });
+      return useNunjucks().renderJson(value, context);
+    }
+
+    afterEach(() => {
+      mockEnv.current = null;
+    });
+
+    it('should parse the outputs that are valid JSON', () => {
+      expect(
+        renderJson({
+          count: '{{- form.count -}}',
+          enabled: '{{form.enabled}}',
+          period: '{{ form.period }}',
+          tags: '{{ form.tags | dump }}',
+          quoted: '{{ form.name | dump }}',
+          none: '{{ none | dump }}',
+        })
+      ).toEqual({
+        count: 3,
+        enabled: false,
+        period: context.form.period,
+        tags: ['a', 'b'],
+        quoted: 'A&B <"C">',
+        none: null,
+      });
+    });
+
+    it('should render the empty outputs as null', () => {
+      expect(
+        renderJson({
+          comment: '{{ form.comment }}',
+          end: '{{ form.period.end }}',
+          unknown: '{{ form.unknown }}',
+          block: '{% if false %}x{% endif %}',
+        })
+      ).toEqual({ comment: null, end: null, unknown: null, block: null });
+    });
+
+    it('should not escape the values, even with autoescape', () => {
+      const env = new nunjucks.Environment(null, { autoescape: true });
+      mockEnv.current = env;
+
+      expect(
+        useNunjucks().renderJson(
+          {
+            name: '{{ form.name }}',
+            label: "{{ 'many' if form.count > 2 else 'few' }}",
+            escaped: '{{ form.name | escape }}',
+          },
+          context
+        )
+      ).toEqual({
+        name: 'A&B <"C">',
+        label: 'many',
+        escaped: 'A&amp;B &lt;&quot;C&quot;&gt;',
+      });
+      expect(env.opts.autoescape).toBe(true);
+    });
+
+    it('should throw on an object rendered without dump', () => {
+      expect(() => renderJson({ item: '{{ form.period or none }}' })).toThrow(
+        'Use the `dump` filter'
+      );
+      expect(() => renderJson(['[{{ [form.period] }}]'])).toThrow(
+        'Cannot render an object as JSON'
+      );
+    });
+
+    it('should restore autoescape when the render throws', () => {
+      const env = new nunjucks.Environment(null, {
+        autoescape: true,
+        throwOnUndefined: true,
+      });
+      mockEnv.current = env;
+
+      expect(() =>
+        useNunjucks().renderJson({ unknown: '{{ form.unknown }}' }, context)
+      ).toThrow();
+      expect(env.opts.autoescape).toBe(true);
+    });
+
+    it('should keep the other outputs as strings, recursively', () => {
+      const date = new Date('2026-06-15T00:00:00.000Z');
+
+      expect(
+        renderJson({
+          text: 'Count: {{ form.count }}',
+          tags: ['#{{ form.count }}', '{% if form.count %}yes{% endif %}'],
+          date,
+          number: 2,
+        })
+      ).toEqual({ text: 'Count: 3', tags: ['#3', 'yes'], date, number: 2 });
     });
   });
 
