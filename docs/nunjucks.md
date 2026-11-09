@@ -6,12 +6,13 @@ This document describes the `useNunjucks` composable, which exposes utility func
 
 ## Overview
 
-`useNunjucks` provides two functions:
+`useNunjucks` provides three functions:
 
-| Function                        | Description                                                                |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| [`render`](#render)             | Recursively renders all string properties of a value as Nunjucks templates |
-| [`renderString`](#renderstring) | Renders a single template string, always returning a string                |
+| Function                        | Description                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------- |
+| [`render`](#render)             | Recursively renders all string properties of a value as Nunjucks templates            |
+| [`renderJson`](#renderjson)     | Recursively renders a JSON value, such as a request body, parsing its outputs as JSON |
+| [`renderString`](#renderstring) | Renders a single template string, always returning a string                           |
 
 ### Prerequisites
 
@@ -42,7 +43,7 @@ XSS safety of the rendered output depends entirely on the Nunjucks environment p
 ```ts
 import { useNunjucks } from '@linagora/lin-pulsar-core';
 
-const { render, renderString } = useNunjucks();
+const { render, renderJson, renderString } = useNunjucks();
 ```
 
 ---
@@ -119,6 +120,66 @@ render(date, {}); // → the original Date instance, untouched
 // Null — returned as-is
 render(null, {}); // → null
 ```
+
+---
+
+## `renderJson`
+
+Recursively renders a JSON value whose strings are Nunjucks templates, typically the body of a request. Each string is
+rendered like with [`render`](#render), then its output is turned into JSON:
+
+| Output                                         | Result            |
+| ---------------------------------------------- | ----------------- |
+| empty (`''`)                                   | `null`            |
+| valid JSON (`3`, `true`, `null`, `[...]`, ...) | the parsed value  |
+| anything else                                  | the string itself |
+
+A single dotted lookup resolving to a plain object returns that object, as with `render`. Non-string values are
+returned as-is.
+
+```ts
+renderJson(value: unknown, context: Record<string, unknown>): unknown
+```
+
+```ts
+const { renderJson } = useNunjucks();
+
+renderJson(
+  {
+    suspensionPeriod: {
+      start: '{{ form.start }}',
+      end: '{{ form.end }}',
+    },
+    count: '{{ form.count }}',
+    tags: '{{ form.tags | dump }}',
+    code: '{{ form.code | dump }}',
+    label: 'Suspended by {{ user.name }}',
+  },
+  {
+    form: {
+      start: '2026-12-01T00:00:00+01:00',
+      end: '',
+      count: 3,
+      tags: ['a'],
+      code: '0042',
+    },
+    user: { name: 'Alice' },
+  }
+);
+// → {
+//   suspensionPeriod: { start: '2026-12-01T00:00:00+01:00', end: null },
+//   count: 3,
+//   tags: ['a'],
+//   code: '0042',
+//   label: 'Suspended by Alice',
+// }
+```
+
+- Use the `dump` filter to send an array or an object. An output holding `[object Object]` throws an error.
+- A string value that looks like JSON (`'42'`, `'true'`, `'1e5'`) is parsed. A long numeric identifier such as
+  `'12345678901234567890'` even loses precision (`12345678901234567000`). Use the `dump` filter
+  (`'{{ form.code | dump }}'`) for any string field that may hold such a value, to keep it a string.
+- The output is never HTML-escaped, even when the environment sets `autoescape`.
 
 ---
 
