@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.7](https://github.com/linagora/lin-pulsar-core/compare/v0.1.6...v0.1.7) (2026-11-09)
+
+
+### Features
+
+* add renderJson to useNunjucks ([96587a3](https://github.com/linagora/lin-pulsar-core/commit/96587a306c719b8ed5c974c84aec337f68be081d))
+
 ### [0.1.6](https://github.com/linagora/lin-pulsar-core/compare/v0.1.5...v0.1.6) (2026-11-02)
 
 
