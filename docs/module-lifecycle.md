@@ -267,7 +267,7 @@ return {
 
 For a standard page module, you do not need to write a lifecycle class at all. lin-pulsar-core provides a `createModulePageLifecycle` factory that returns a ready-to-expose module instance with the default page integration behavior:
 
-- Optionally registers an entry in the host application's main navigation menu during `postInit`, when the host configuration sets `options.addNavigationMenu` to `true`. The menu item uses the module instance identifier as id, the i18n key `<instanceId>.NavigationMenu.label` as label key, and the configured base path as target.
+- Optionally registers an entry in the host application's main navigation menu during `postInit`, when the host configuration sets `options.addNavigationMenu` to `true`. The menu item uses the module instance identifier as id, the i18n key `<instanceId>.NavigationMenu.label` as label key, and the configured base path as target. When the host configuration also sets `options.navigationMenuActiveRegex`, it is propagated as the `activeRegex` of the menu item, so the host navigation menu uses this regular expression, instead of the base path prefix, to decide when the entry is active.
 - Registers the given dialog components once in the host layout dialog zone during `postInit`. The zone is provided through the required `dialogZone` option (e.g. `base-layout.dialogComponent`).
 
 ```typescript
@@ -317,7 +317,20 @@ The options of `createModulePageLifecycle` are typed by `ModulePageLifecycleOpti
 | `dialogComponents` | no       | Zone component names registered once in `dialogZone` during `postInit`.                     |
 | `hooks`            | no       | Per-phase overrides; an overridden phase fully replaces the default behavior of that phase. |
 
-The module-specific options type can extend `ModulePageLifecycleHostOptions` so typed hooks keep access to the shared `addNavigationMenu` option.
+The module-specific options type can extend `ModulePageLifecycleHostOptions` so typed hooks keep access to the shared `addNavigationMenu` and `navigationMenuActiveRegex` options.
+
+For example, the following host configuration keeps the navigation entry of the module active on `/accounts` and its sub-routes:
+
+```json
+{
+  "instanceId": "moduleAccountsPage",
+  "basePath": "/accounts",
+  "options": {
+    "addNavigationMenu": true,
+    "navigationMenuActiveRegex": "^/accounts(?:/.*)?$"
+  }
+}
+```
 
 ### Initialization
 
