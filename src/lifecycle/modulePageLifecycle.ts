@@ -76,7 +76,9 @@ class ModulePageLifecycle<
    * {@link ModulePageLifecycleHostOptions.addNavigationMenu} option. When
    * enabled, the menu item uses the module instance identifier for its id, an
    * i18n key for its label, and the configured base path as its navigation
-   * target.
+   * target. The optional
+   * {@link ModulePageLifecycleHostOptions.navigationMenuActiveRegex} option is
+   * propagated as the activation regex of the menu item.
    * @param config - The configuration object provided by the host application.
    * @returns A promise that resolves to the result of the module lifecycle operation.
    */
@@ -88,6 +90,7 @@ class ModulePageLifecycle<
         id: config.instanceId,
         labelKey: `${config.instanceId}.NavigationMenu.label`,
         path: config.basePath,
+        activeRegex: config.options.navigationMenuActiveRegex,
       });
     }
 

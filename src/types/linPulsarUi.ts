@@ -34,4 +34,10 @@ export interface NavigationMenuItem {
   labelKey: string;
   /** Path/route of the navigation item. */
   path: string;
+  /**
+   * Optional regular expression, evaluated against the current route path,
+   * that defines when the navigation item is active.
+   * When omitted, the item is active on its path and its sub-paths.
+   */
+  activeRegex?: string;
 }
