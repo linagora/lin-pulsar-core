@@ -1057,6 +1057,12 @@ export interface ModulePageLifecycleHostOptions {
    * navigation menu during the post-initialization phase.
    */
   addNavigationMenu?: boolean;
+
+  /**
+   * Optional regular expression, evaluated against the current route path,
+   * that defines when the module's navigation menu entry is active.
+   */
+  navigationMenuActiveRegex?: string;
 }
 ```
 
@@ -1064,6 +1070,9 @@ export interface ModulePageLifecycleHostOptions {
 
 - When `addNavigationMenu` is `true`, `postInit` adds a main navigation menu item whose `id` is the module instance
   identifier, whose `labelKey` is `<instanceId>.NavigationMenu.label` and whose `path` is the module base path.
+- When `navigationMenuActiveRegex` is also set, it is propagated as the `activeRegex` of that menu item (see
+  [`NavigationMenuItem`](#navigationmenuitem)). It is ignored when `addNavigationMenu` is not `true`.
+- Without `navigationMenuActiveRegex`, the menu item is active on the module base path and its sub-paths.
 - Module-specific option types extend this interface, so typed hooks keep access to `addNavigationMenu` (see the
   example below).
 
@@ -1582,8 +1591,19 @@ export interface NavigationMenuItem {
   labelKey: string;
   /** Path/route of the navigation item. */
   path: string;
+  /**
+   * Optional regular expression, evaluated against the current route path,
+   * that defines when the navigation item is active.
+   * When omitted, the item is active on its path and its sub-paths.
+   */
+  activeRegex?: string;
 }
 ```
+
+**Usage:**
+
+- `activeRegex` is a regular expression source string (e.g. `^/accounts(?:/.*)?$`), compiled without flags by the
+  navigation menu of the host application and tested against the current route path.
 
 ---
 
