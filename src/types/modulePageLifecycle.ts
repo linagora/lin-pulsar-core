@@ -38,6 +38,16 @@ export interface ModulePageLifecycleHostOptions {
    * navigation menu during the post-initialization phase.
    */
   addNavigationMenu?: boolean;
+
+  /**
+   * Optional regular expression, evaluated against the current route path,
+   * that defines when the module's navigation menu entry is active.
+   *
+   * Only used when {@link ModulePageLifecycleHostOptions.addNavigationMenu} is
+   * enabled. When omitted, the entry is active on its base path and its
+   * sub-paths (path prefix matching).
+   */
+  navigationMenuActiveRegex?: string;
 }
 
 /**

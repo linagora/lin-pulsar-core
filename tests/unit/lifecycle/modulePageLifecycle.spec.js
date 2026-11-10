@@ -70,6 +70,66 @@ describe('Test function: createModulePageLifecycle', () => {
       ]);
     });
 
+    it('should propagate navigationMenuActiveRegex as the activation regex of the navigation menu item', async () => {
+      const module = createModulePageLifecycle({
+        id: 'test-module',
+        name: 'Test Module',
+        version: '1.0.0',
+        dialogZone: 'base-layout.dialogComponent',
+      });
+
+      await module.postInit({
+        ...config,
+        options: {
+          addNavigationMenu: true,
+          navigationMenuActiveRegex: '^/test-module(?:/.*)?$',
+        },
+      });
+
+      expect(useLinPulsarUiStore().mainNavigationItems).toEqual([
+        {
+          id: 'test-module',
+          labelKey: 'test-module.NavigationMenu.label',
+          path: '/test-module',
+          activeRegex: '^/test-module(?:/.*)?$',
+        },
+      ]);
+    });
+
+    it('should not set an activation regex on the navigation menu item when navigationMenuActiveRegex is not provided', async () => {
+      const module = createModulePageLifecycle({
+        id: 'test-module',
+        name: 'Test Module',
+        version: '1.0.0',
+        dialogZone: 'base-layout.dialogComponent',
+      });
+
+      await module.postInit({
+        ...config,
+        options: { addNavigationMenu: true },
+      });
+
+      expect(
+        useLinPulsarUiStore().mainNavigationItems[0].activeRegex
+      ).toBeUndefined();
+    });
+
+    it('should not register a navigation menu item when only navigationMenuActiveRegex is provided', async () => {
+      const module = createModulePageLifecycle({
+        id: 'test-module',
+        name: 'Test Module',
+        version: '1.0.0',
+        dialogZone: 'base-layout.dialogComponent',
+      });
+
+      await module.postInit({
+        ...config,
+        options: { navigationMenuActiveRegex: '^/test-module$' },
+      });
+
+      expect(useLinPulsarUiStore().mainNavigationItems).toEqual([]);
+    });
+
     it('should not register a navigation menu item when addNavigationMenu is disabled', async () => {
       const module = createModulePageLifecycle({
         id: 'test-module',
