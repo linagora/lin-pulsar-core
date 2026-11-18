@@ -1276,6 +1276,10 @@ See description in [Ui design documentation](./ui-design.md#q-spinner).
 
 See description in [Ui design documentation](./ui-design.md#q-btn-dropdown).
 
+### LinPulsarQBtnGroupProps
+
+See description in [Ui design documentation](./ui-design.md#q-btn-group).
+
 ### LinPulsarQLayoutProps
 
 See description in [Ui design documentation](./ui-design.md#q-layout).
@@ -2055,6 +2059,7 @@ if (typeof rendered.label === 'string') {
 | `LinPulsarQSeparatorProps`             | QSeparator component properties supported by Ui Design                                           |
 | `LinPulsarQSpinnerProps`               | QSpinner component properties supported by Ui Design                                             |
 | `LinPulsarQBtnDropdownProps`           | QBtnDropdown component properties supported by Ui Design                                         |
+| `LinPulsarQBtnGroupProps`              | QBtnGroup component properties supported by Ui Design                                            |
 | `LinPulsarQListProps`                  | QList component properties supported by Ui Design                                                |
 | `LinPulsarQItemProps`                  | QItem component properties supported by Ui Design                                                |
 | `LinPulsarQItemSectionProps`           | QItemSection component properties supported by Ui Design                                         |

@@ -30,6 +30,7 @@ import type {
   QBadgeProps,
   QBannerProps,
   QBtnDropdownProps,
+  QBtnGroupProps,
   QBtnProps,
   QCardActionsProps,
   QCardProps,
@@ -596,6 +597,22 @@ const Q_BTN_DROPDOWN_PROPS = [
 ] as const;
 
 /**
+ * List of QBtnGroupProps keys for type-safe UI design retrieval.
+ */
+const Q_BTN_GROUP_PROPS = [
+  'spread',
+  'vertical',
+  'stretch',
+  'outline',
+  'flat',
+  'unelevated',
+  'rounded',
+  'square',
+  'push',
+  'glossy',
+] as const;
+
+/**
  * List of QLayoutProps keys for type-safe UI design retrieval.
  */
 const Q_LAYOUT_PROPS = ['view', 'container'] as const;
@@ -795,6 +812,7 @@ export const Q_COMPONENT_PROPS: Record<QComponentName, readonly string[]> = {
   'q-banner': Q_BANNER_PROPS,
   'q-btn': Q_BTN_PROPS,
   'q-btn-dropdown': Q_BTN_DROPDOWN_PROPS,
+  'q-btn-group': Q_BTN_GROUP_PROPS,
   'q-card': Q_CARD_PROPS,
   'q-card-actions': Q_CARD_ACTIONS_PROPS,
   'q-card-section': Q_CARD_SECTION_PROPS,
@@ -1043,6 +1061,14 @@ export type LinPulsarQBtnDropdownProps = Pick<
 >;
 
 /**
+ * Subset of QBtnGroup props supported in UI design configuration.
+ */
+export type LinPulsarQBtnGroupProps = Pick<
+  QBtnGroupProps,
+  (typeof Q_BTN_GROUP_PROPS)[number]
+>;
+
+/**
  * Subset of QLayoutProps props supported in UI design configuration.
  */
 export type LinPulsarQLayoutProps = Pick<
@@ -1220,6 +1246,7 @@ export type LinPulsarQComponentProps =
   | LinPulsarQBadgeProps
   | LinPulsarQBannerProps
   | LinPulsarQBtnDropdownProps
+  | LinPulsarQBtnGroupProps
   | LinPulsarQBtnProps
   | LinPulsarQCardActionsProps
   | LinPulsarQCardProps
@@ -1263,6 +1290,7 @@ export type QComponentName =
   | 'q-banner'
   | 'q-btn'
   | 'q-btn-dropdown'
+  | 'q-btn-group'
   | 'q-card'
   | 'q-card-actions'
   | 'q-card-section'

@@ -170,6 +170,7 @@ export type {
   LinPulsarQBadgeProps,
   LinPulsarQBannerProps,
   LinPulsarQBtnDropdownProps,
+  LinPulsarQBtnGroupProps,
   LinPulsarQBtnProps,
   LinPulsarQCardActionsProps,
   LinPulsarQCardProps,
