@@ -293,6 +293,7 @@ export type QComponentName =
   | 'q-banner'
   | 'q-btn'
   | 'q-btn-dropdown'
+  | 'q-btn-group'
   | 'q-card'
   | 'q-card-actions'
   | 'q-card-section'
@@ -336,6 +337,7 @@ export type LinPulsarQComponentProps =
   | LinPulsarQBannerProps
   | LinPulsarQBtnProps
   | LinPulsarQBtnDropdownProps
+  | LinPulsarQBtnGroupProps
   | LinPulsarQCardProps
   | LinPulsarQCardActionsProps
   | LinPulsarQCardSectionProps
@@ -1001,6 +1003,25 @@ transitionDuration
 ```
 
 For details, refer to the [Quasar QBtnDropdown API documentation](https://quasar.dev/vue-components/button-dropdown#qbtndropdown-api).
+
+### q-btn-group
+
+The following props are officially supported and design-validated in our system:
+
+```
+spread
+vertical
+stretch
+outline
+flat
+unelevated
+rounded
+square
+push
+glossy
+```
+
+For details, refer to the [Quasar QBtnGroup API documentation](https://quasar.dev/vue-components/button-group#qbtngroup-api).
 
 ### q-layout
 
