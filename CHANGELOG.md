@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.9](https://github.com/linagora/lin-pulsar-core/compare/v0.1.8...v0.1.9) (2026-11-19)
+
+
+### Features
+
+* add q-btn-group ui design ([e0aeee7](https://github.com/linagora/lin-pulsar-core/commit/e0aeee7c574be739fbd5e91f6a8c8098b89bb667))
+
 ### [0.1.8](https://github.com/linagora/lin-pulsar-core/compare/v0.1.7...v0.1.8) (2026-11-10)
 
 
