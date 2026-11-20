@@ -1,6 +1,7 @@
 import { useQuasarFieldValidation } from 'src/composables/useQuasarFieldValidation';
 import { validate } from 'src/services/linPulsarEntityService';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ref } from 'vue';
 
 const mockT = vi.fn((key, params) => {
   if (params) {
@@ -70,7 +71,70 @@ describe('Test composable: useQuasarFieldValidation', () => {
       expect(validate).toHaveBeenCalledWith(
         'test-instance',
         'username',
-        'john'
+        'john',
+        {}
+      );
+    });
+
+    it('should pass the context of a templated apiEndpoint to the validation', async () => {
+      vi.mocked(validate).mockResolvedValue({});
+      const context = { params: { parentId: '7' } };
+
+      const { validateFromApi } = useQuasarFieldValidation(
+        'test-instance.fields.username'
+      );
+      const result = await validateFromApi(
+        'test-instance',
+        'username',
+        context
+      )('john');
+
+      expect(result).toBe(true);
+      expect(validate).toHaveBeenCalledWith(
+        'test-instance',
+        'username',
+        'john',
+        context
+      );
+    });
+
+    it('should read a reactive context at validation time', async () => {
+      vi.mocked(validate).mockResolvedValue({});
+      const context = ref({ params: { parentId: '7' } });
+
+      const { validateFromApi } = useQuasarFieldValidation(
+        'test-instance.fields.username'
+      );
+      const rule = validateFromApi('test-instance', 'username', context);
+      context.value = { params: { parentId: '8' } };
+      await rule('john');
+
+      expect(validate).toHaveBeenCalledWith(
+        'test-instance',
+        'username',
+        'john',
+        { params: { parentId: '8' } }
+      );
+    });
+
+    it('should read a context getter at validation time', async () => {
+      vi.mocked(validate).mockResolvedValue({});
+      let parentId = '7';
+
+      const { validateFromApi } = useQuasarFieldValidation(
+        'test-instance.fields.username'
+      );
+      const rule = validateFromApi('test-instance', 'username', () => ({
+        params: { parentId },
+      }));
+      parentId = '8';
+      await rule('john');
+
+      expect(validate).toHaveBeenCalledWith(
+        'test-instance',
+        'username',
+        'john',
+        { params: { parentId: '8' } }
       );
     });
   });

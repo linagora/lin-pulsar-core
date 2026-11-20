@@ -133,6 +133,9 @@ export interface ModuleHostConfig<T> {
   /**
    * Base URL for the module's API endpoints.
    * All API requests from the module should be prefixed with this endpoint.
+   *
+   * It can be a Nunjucks template rendered with the context given to the entity service, to target a nested
+   * resource, e.g. `"api/structures/{{ params.structureId }}/hierarchies"`.
    */
   apiEndpoint: string;
 

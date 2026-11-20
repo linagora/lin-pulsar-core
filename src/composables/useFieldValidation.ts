@@ -97,15 +97,17 @@ export function useFieldValidation(i18nScope: string) {
    * @param instanceId - The unique identifier of the module instance.
    * @param fieldName - The name of the field to validate.
    * @param value - The value to validate.
+   * @param context - The context used to render a templated `apiEndpoint` of the module.
    * @returns `true` if the value is valid, or an error message string if invalid.
    */
   async function validateFromApi(
     instanceId: string,
     fieldName: string,
-    value: unknown
+    value: unknown,
+    context: Record<string, unknown> = {}
   ): Promise<true | string> {
     try {
-      await validate(instanceId, fieldName, value);
+      await validate(instanceId, fieldName, value, context);
       return true;
     } catch (error) {
       return hasTranslatedError(error)

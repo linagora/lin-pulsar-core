@@ -24,6 +24,7 @@
  * LinOpenFactory software.
  */
 
+import { toValue, type MaybeRefOrGetter } from 'vue';
 import { QDATE_DEFAULT_MASK } from '../constants/quasarDate';
 import { useFieldValidation } from './useFieldValidation';
 
@@ -54,9 +55,13 @@ export function useQuasarFieldValidation(i18nScope: string) {
 
   return {
     validateFromApi:
-      (instanceId: string, fieldName: string) =>
+      (
+        instanceId: string,
+        fieldName: string,
+        context: MaybeRefOrGetter<Record<string, unknown>> = {}
+      ) =>
       (value: string): Promise<true | string> =>
-        validateFromApi(instanceId, fieldName, value),
+        validateFromApi(instanceId, fieldName, value, toValue(context)),
     required,
     email,
     min: (minValue: number) => (value: string | number) =>

@@ -1,6 +1,7 @@
 import { useQuasarRules } from 'src/composables/useQuasarRules';
 import { validate } from 'src/services/linPulsarEntityService';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ref } from 'vue';
 
 const mockT = vi.fn((key, params) => {
   if (params) {
@@ -178,6 +179,60 @@ describe('Test composable: useQuasarRules', () => {
     expectIsPatternRule(rules[3], '^(?=.*[A-Z])(?=.*[0-9])');
     expectIsEmailRule(rules[4]);
     await expectIsValidateFromApiRule(rules[5]);
+  });
+
+  it('should pass the context of a templated apiEndpoint to the API validation', async () => {
+    vi.mocked(validate).mockResolvedValue({});
+    const context = { params: { parentId: '7' } };
+    const attributeConfig = {
+      name: 'email',
+      hasValidations: true,
+      required: false,
+    };
+
+    const rules = useQuasarRules(
+      'test-instance',
+      attributeConfig,
+      [],
+      'test-instance.fields.email',
+      context
+    );
+    const result = await rules[0]('test@example.com');
+
+    expect(result).toBe(true);
+    expect(validate).toHaveBeenCalledWith(
+      'test-instance',
+      'email',
+      'test@example.com',
+      context
+    );
+  });
+
+  it('should read a reactive context at API validation time', async () => {
+    vi.mocked(validate).mockResolvedValue({});
+    const context = ref({ params: { parentId: '7' } });
+    const attributeConfig = {
+      name: 'email',
+      hasValidations: true,
+      required: false,
+    };
+
+    const rules = useQuasarRules(
+      'test-instance',
+      attributeConfig,
+      [],
+      'test-instance.fields.email',
+      context
+    );
+    context.value = { params: { parentId: '8' } };
+    await rules[0]('test@example.com');
+
+    expect(validate).toHaveBeenCalledWith(
+      'test-instance',
+      'email',
+      'test@example.com',
+      { params: { parentId: '8' } }
+    );
   });
 });
 
