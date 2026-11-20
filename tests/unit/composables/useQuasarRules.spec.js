@@ -179,6 +179,33 @@ describe('Test composable: useQuasarRules', () => {
     expectIsEmailRule(rules[4]);
     await expectIsValidateFromApiRule(rules[5]);
   });
+
+  it('should pass the context of a templated apiEndpoint to the API validation', async () => {
+    vi.mocked(validate).mockResolvedValue({});
+    const context = { params: { parentId: '7' } };
+    const attributeConfig = {
+      name: 'email',
+      hasValidations: true,
+      required: false,
+    };
+
+    const rules = useQuasarRules(
+      'test-instance',
+      attributeConfig,
+      [],
+      'test-instance.fields.email',
+      context
+    );
+    const result = await rules[0]('test@example.com');
+
+    expect(result).toBe(true);
+    expect(validate).toHaveBeenCalledWith(
+      'test-instance',
+      'email',
+      'test@example.com',
+      context
+    );
+  });
 });
 
 async function expectIsValidateFromApiRule(rule) {

@@ -34,13 +34,15 @@ import { useQuasarFieldValidation } from './useQuasarFieldValidation';
  * @param attributeConfig - The configuration of the attribute being validated.
  * @param validatorsNames - Array of validator names to include.
  * @param i18nScope - The scope for internationalization.
+ * @param context - The context used to render a templated `apiEndpoint` of the module, for the API validation.
  * @returns An array of validation functions compatible with Quasar.
  */
 export function useQuasarRules<T extends Record<string, unknown>>(
   instanceId: string,
   attributeConfig: LinPulsarAttributeConfiguration<T>,
   validatorsNames: ValidatorName[],
-  i18nScope: string
+  i18nScope: string,
+  context: Record<string, unknown> = {}
 ): ValidationRule[] {
   const { required, email, validateFromApi, ...validatorsWithParam } =
     useQuasarFieldValidation(i18nScope);
@@ -60,7 +62,7 @@ export function useQuasarRules<T extends Record<string, unknown>>(
   });
 
   if (attributeConfig.hasValidations) {
-    rules.push(validateFromApi(instanceId, attributeConfig.name));
+    rules.push(validateFromApi(instanceId, attributeConfig.name, context));
   }
 
   return rules;

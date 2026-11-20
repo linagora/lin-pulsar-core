@@ -27,6 +27,50 @@
 import type { Page, Pagination, QueryFilter } from '../types/page';
 import { getHttpClient } from './httpClientService';
 import { getModuleHostConfiguration } from './linPulsarModuleConfigurationService';
+import { getNunjucksEnv } from './nunjucksService';
+
+/**
+ * Encodes the strings of a context as URI components, so that a rendered value stays a single path segment. Arrays and
+ * objects are encoded recursively.
+ * @param value - The value to encode.
+ * @returns The encoded value.
+ */
+function encodeContext(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return encodeURIComponent(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(encodeContext);
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, encodeContext(item)])
+    );
+  }
+  return value;
+}
+
+/**
+ * Resolves the API endpoint of a module instance, by rendering its `apiEndpoint` as a Nunjucks template with the given
+ * context, so that a module can target a nested resource, such as `"api/structures/{{ params.structureId }}/hierarchies"`.
+ * The values of the context are URI-encoded. A plain endpoint is rendered as is.
+ * @param instanceId - The unique identifier of the module instance.
+ * @param context - The context used to render the endpoint.
+ * @returns The resolved API endpoint.
+ */
+function resolveApiEndpoint(
+  instanceId: string,
+  context: Record<string, unknown>
+): string {
+  const { apiEndpoint } = getModuleHostConfiguration(instanceId);
+
+  return getNunjucksEnv()
+    .renderString(
+      apiEndpoint,
+      encodeContext(context) as Record<string, unknown>
+    )
+    .trim();
+}
 
 /**
  * Saves a new entity to the backend.
@@ -34,16 +78,18 @@ import { getModuleHostConfiguration } from './linPulsarModuleConfigurationServic
  * @template Y - Type of the response returned by the server.
  * @param instanceId - The unique identifier of the module instance.
  * @param record - The entity data to be saved.
+ * @param context - The context used to render a templated `apiEndpoint`.
  * @returns A promise that resolves with the saved entity data returned by the server.
  */
 export async function saveEntity<T, Y>(
   instanceId: string,
-  record: T
+  record: T,
+  context: Record<string, unknown> = {}
 ): Promise<Y> {
-  const configuration = getModuleHostConfiguration(instanceId);
+  const apiEndpoint = resolveApiEndpoint(instanceId, context);
 
   return getHttpClient()
-    .post<Y>(`/${configuration.apiEndpoint}`, record)
+    .post<Y>(`/${apiEndpoint}`, record)
     .then(({ data }) => data);
 }
 
@@ -54,17 +100,19 @@ export async function saveEntity<T, Y>(
  * @param instanceId - The unique identifier of the module instance.
  * @param entityId - The identifier of the entity to update.
  * @param record - The updated entity data.
+ * @param context - The context used to render a templated `apiEndpoint`.
  * @returns A promise that resolves with the updated entity data returned by the server.
  */
 export async function updateEntity<T, Y>(
   instanceId: string,
   entityId: string,
-  record: T
+  record: T,
+  context: Record<string, unknown> = {}
 ): Promise<Y> {
-  const configuration = getModuleHostConfiguration(instanceId);
+  const apiEndpoint = resolveApiEndpoint(instanceId, context);
 
   return getHttpClient()
-    .put<Y>(`/${configuration.apiEndpoint}/${entityId}`, record)
+    .put<Y>(`/${apiEndpoint}/${entityId}`, record)
     .then(({ data }) => data);
 }
 
@@ -74,17 +122,19 @@ export async function updateEntity<T, Y>(
  * @param instanceId - The unique identifier of the module instance.
  * @param filters - Filters to apply when querying entities.
  * @param pagination - Pagination settings for the query.
+ * @param context - The context used to render a templated `apiEndpoint`.
  * @returns A promise that resolves with a paginated page of entities.
  */
 export async function getEntities<T>(
   instanceId: string,
   filters: QueryFilter,
-  pagination: Pagination
+  pagination: Pagination,
+  context: Record<string, unknown> = {}
 ): Promise<Page<T>> {
-  const configuration = getModuleHostConfiguration(instanceId);
+  const apiEndpoint = resolveApiEndpoint(instanceId, context);
 
   return getHttpClient()
-    .get<Page<T>>(`/${configuration.apiEndpoint}`, {
+    .get<Page<T>>(`/${apiEndpoint}`, {
       params: { ...filters, ...pagination },
     })
     .then(({ data }) => data);
@@ -95,16 +145,18 @@ export async function getEntities<T>(
  * @template T - Type of the entity being retrieved.
  * @param instanceId - The unique identifier of the module instance.
  * @param entityId - The identifier of the entity to retrieve.
+ * @param context - The context used to render a templated `apiEndpoint`.
  * @returns A promise that resolves with the entity data.
  */
 export async function getEntityById<T>(
   instanceId: string,
-  entityId: string
+  entityId: string,
+  context: Record<string, unknown> = {}
 ): Promise<T> {
-  const configuration = getModuleHostConfiguration(instanceId);
+  const apiEndpoint = resolveApiEndpoint(instanceId, context);
 
   return getHttpClient()
-    .get<T>(`/${configuration.apiEndpoint}/${entityId}`)
+    .get<T>(`/${apiEndpoint}/${entityId}`)
     .then(({ data }) => data);
 }
 
@@ -112,15 +164,17 @@ export async function getEntityById<T>(
  * Delete a single entity by its ID from the backend.
  * @param instanceId - The unique identifier of the module instance.
  * @param entityId - The identifier of the entity to delete.
+ * @param context - The context used to render a templated `apiEndpoint`.
  * @returns An empty promise.
  */
 export async function deleteEntityById(
   instanceId: string,
-  entityId: string
+  entityId: string,
+  context: Record<string, unknown> = {}
 ): Promise<void> {
-  const configuration = getModuleHostConfiguration(instanceId);
+  const apiEndpoint = resolveApiEndpoint(instanceId, context);
 
-  return getHttpClient().delete(`/${configuration.apiEndpoint}/${entityId}`);
+  return getHttpClient().delete(`/${apiEndpoint}/${entityId}`);
 }
 
 /**
@@ -128,17 +182,19 @@ export async function deleteEntityById(
  * @param instanceId - The unique identifier of the module instance.
  * @param fieldName - The name of the field to validate.
  * @param fieldValue - The value of the field to validate.
+ * @param context - The context used to render a templated `apiEndpoint`.
  * @returns An empty promise if the field is valid; otherwise, it throws an error.
  */
 export async function validate(
   instanceId: string,
   fieldName: string,
-  fieldValue: unknown
+  fieldValue: unknown,
+  context: Record<string, unknown> = {}
 ): Promise<void> {
-  const configuration = getModuleHostConfiguration(instanceId);
+  const apiEndpoint = resolveApiEndpoint(instanceId, context);
 
   await getHttpClient().post<void>(
-    `/${configuration.apiEndpoint}/validate/${fieldName}`,
+    `/${apiEndpoint}/validate/${fieldName}`,
     fieldValue,
     { headers: { 'Content-Type': 'application/json' } }
   );
