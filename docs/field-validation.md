@@ -8,7 +8,7 @@ This document explains how to use the field validation composables to dynamicall
 
 This module provides three composables for field validation, each in its own file:
 
-- **`useFieldValidation`** (from `composables/useFieldValidation.ts`): Base validation functions that take the value to check, followed by the validator parameters (e.g. `minLength(value, min)`), except `validateFromApi` which takes the value as last parameter
+- **`useFieldValidation`** (from `composables/useFieldValidation.ts`): Base validation functions that take the value to check, followed by the validator parameters (e.g. `minLength(value, min)`), except `validateFromApi` which takes the value after the instance and the field, before an optional context
 - **`useQuasarFieldValidation`** (from `composables/useQuasarFieldValidation.ts`): Quasar-compatible curried validation functions
 - **`useQuasarRules`** (from `composables/useQuasarRules.ts`): Helper to automatically generate Quasar validation rules from attribute configuration
 
@@ -76,7 +76,7 @@ const rules = useQuasarRules(
 
 #### useFieldValidation
 
-- **`validateFromApi(instanceId, fieldName, value)`**: Validates a value against the backend API
+- **`validateFromApi(instanceId, fieldName, value, context?)`**: Validates a value against the backend API. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module (`{}` by default)
 - **`required(value)`**: Validates that a value is provided
 - **`email(value)`**: Validates that a value matches a basic email shape. Empty values (`null`, `undefined`, `''`) are skipped
 - **`minLength(value, min)`**: Validates minimum string length
@@ -95,7 +95,7 @@ const rules = useQuasarRules(
 
 #### useQuasarFieldValidation (Recommended for Quasar)
 
-- **`validateFromApi(instanceId, fieldName)`**: Returns a validator bound to the given instance and field. The returned function validates a value against the backend API.
+- **`validateFromApi(instanceId, fieldName, context?)`**: Returns a validator bound to the given instance and field. The returned function validates a value against the backend API. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module (`{}` by default). A ref or a getter is read at validation time.
 - **`required`**: Validates that a value is provided (same as above)
 - **`email`**: Validates that a value matches a basic email shape, empty values are skipped (same as above)
 - **`minLength(min)`**: Returns a validator for minimum string length
@@ -114,7 +114,7 @@ const rules = useQuasarRules(
 
 #### useQuasarRules (Easiest for Quasar)
 
-- **`useQuasarRules(instanceId, attributeConfig, validatorNames, i18nScope)`**: Automatically generates an array of Quasar validation rules following the order of validatorNames parameter and based on attribute configuration
+- **`useQuasarRules(instanceId, attributeConfig, validatorNames, i18nScope, context?)`**: Automatically generates an array of Quasar validation rules following the order of validatorNames parameter and based on attribute configuration. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module for the API validation (`{}` by default). A ref or a getter is read at validation time
 
 ---
 
@@ -154,7 +154,8 @@ useQuasarRules (automation layer)
 #### useFieldValidation
 
 - Returns functions that take the value first, then the validator parameters (none for `required` and `email`), except
-  `validateFromApi` which takes the value as last parameter: `(instanceId, fieldName, value)`
+  `validateFromApi` which takes the value after the instance and the field, before an optional context:
+  `(instanceId, fieldName, value, context?)`
 - Example: `minLength('test', 5)`
 - Use case: Custom validation logic outside Quasar components
 
@@ -531,7 +532,8 @@ function useFieldValidation(i18nScope: string): {
   validateFromApi: (
     instanceId: string,
     fieldName: string,
-    value: unknown
+    value: unknown,
+    context?: Record<string, unknown>
   ) => Promise<true | string>;
   required: (value: unknown) => true | string;
   email: (value: unknown) => true | string;
@@ -585,7 +587,8 @@ function useFieldValidation(i18nScope: string): {
 function useQuasarFieldValidation(i18nScope: string): {
   validateFromApi: (
     instanceId: string,
-    fieldName: string
+    fieldName: string,
+    context?: MaybeRefOrGetter<Record<string, unknown>>
   ) => (value: string) => Promise<true | string>;
   required: (value: unknown) => true | string;
   email: (value: unknown) => true | string;
@@ -628,7 +631,8 @@ function useQuasarRules<T extends Record<string, unknown>>(
   instanceId: string,
   attributeConfig: LinPulsarAttributeConfiguration<T>,
   validatorsNames: ValidatorName[],
-  i18nScope: string
+  i18nScope: string,
+  context?: MaybeRefOrGetter<Record<string, unknown>>
 ): ValidationRule[];
 
 // ValidatorName type
@@ -657,10 +661,13 @@ interface LinPulsarAttributeConfiguration<T = Record<string, unknown>> {
 
 ### Method Signatures
 
-#### validateFromApi(instanceId, fieldName)
+#### validateFromApi(instanceId, fieldName, context?)
 
 - **instanceId**: `string` - The unique identifier of the module instance
 - **fieldName**: `string` - The name of the field to validate
+- **context**: `MaybeRefOrGetter<Record<string, unknown>>` - The context used to render a
+  [templated `apiEndpoint`](services.md#templated-endpoint) of the module (optional, `{}` by default). A ref or a getter
+  is read at validation time, so that the validator follows the route
 - **Returns**: `(value: string) => Promise<true | string>` - A Quasar-compatible validator bound to the given instance and field
 - **Use case**: Server-side business validation
 - **Error handling**:
@@ -759,12 +766,14 @@ interface LinPulsarAttributeConfiguration<T = Record<string, unknown>> {
   - Comparison is performed at day granularity (time component is stripped).
   - `afterDate` and `beforeDate` are exclusive; `fromDate` and `upToDate` are inclusive.
 
-#### useQuasarRules(instanceId, attributeConfig, validatorsNames, i18nScope)
+#### useQuasarRules(instanceId, attributeConfig, validatorsNames, i18nScope, context?)
 
 - **instanceId**: `string` - The unique identifier of the module instance
 - **attributeConfig**: `LinPulsarAttributeConfiguration<T>` - The configuration of the attribute being validated
 - **validatorsNames**: `ValidatorName[]` - Array of validator names to include (`'email'`, `'min'`, `'max'`, `'minLength'`, `'maxLength'`, `'pattern'`, `'unique'`, `'maxFileSize'`, `'allowedExtensions'`)
 - **i18nScope**: `string` - The i18n scope passed to `useQuasarFieldValidation` for error message translation (e.g. `'user-module.fields.email'`)
+- **context**: `MaybeRefOrGetter<Record<string, unknown>>` - The context of the API validation, passed to
+  `validateFromApi` (optional, `{}` by default). A ref or a getter is read at validation time
 - **Returns**: `ValidationRule[]` - Array of validation functions ready to use in Quasar's `rules` prop
 - **Use case**: Automatic rule generation from configuration
 - **Behavior**:
