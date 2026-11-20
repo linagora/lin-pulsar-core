@@ -438,7 +438,7 @@ This design guarantees predictable behavior, testability, and runtime safety acr
 
 The **Entity Service** provides a standardized CRUD abstraction for backend entity management. Each operation automatically resolves the correct backend endpoint using the module’s `instanceId` and its registered configuration.
 
-This service builds on top of the HTTP Client Service and the Module Host Configuration Service.
+This service builds on top of the HTTP Client Service, the Module Host Configuration Service and the Nunjucks Service.
 
 | Function                                | Description                            |
 | --------------------------------------- | -------------------------------------- |
@@ -450,16 +450,41 @@ This service builds on top of the HTTP Client Service and the Module Host Config
 
 ---
 
+### Templated endpoint
+
+The `apiEndpoint` of a module can be a Nunjucks template, like those rendered by [`useNunjucks`](nunjucks.md), to target
+a resource nested in another one.
+Each function takes an optional last `context` parameter (`Record<string, unknown>`, `{}` by default) used to render it.
+The context must be plain data, such as `{ params: route.params, query: route.query }` for a page, not the route
+itself: its strings are encoded recursively, and the cyclic references of a route make the rendering fail.
+
+```ts
+// Module configuration: "apiEndpoint": "api/structures/{{ params.structureId }}/hierarchies"
+const hierarchy = await getEntityById<Hierarchy>('hierarchies', '42', {
+  params: { structureId: '7' },
+});
+// GET /api/structures/7/hierarchies/42
+```
+
+- The endpoint is always rendered with the Nunjucks environment set by [`setNunjucksEnv()`](#setnunjucksenv) of the
+  Nunjucks Service. An endpoint without template is rendered as is.
+- The strings of the context are URI-encoded (`encodeURIComponent`), so that a value stays a single path segment. The
+  values of an array are separated by commas, each one encoded.
+- The surrounding whitespace of the rendered endpoint is removed.
+
+---
+
 ### `saveEntity`
 
 Creates and persists a new entity using the backend API associated with the module instance.
 
 #### Parameters
 
-| Parameter    | Type     | Description                       |
-| ------------ | -------- | --------------------------------- |
-| `instanceId` | `string` | Identifier of the module instance |
-| `record`     | `T`      | Entity data to create             |
+| Parameter    | Type                      | Description                                                                  |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------- |
+| `instanceId` | `string`                  | Identifier of the module instance                                            |
+| `record`     | `T`                       | Entity data to create                                                        |
+| `context`    | `Record<string, unknown>` | Context used to render a templated `apiEndpoint` (optional, `{}` by default) |
 
 #### Returns
 
@@ -469,7 +494,8 @@ Creates and persists a new entity using the backend API associated with the modu
 
 #### Behavior
 
-1. Automatically resolves the backend endpoint through `getModuleHostConfiguration`
+1. Automatically resolves the backend endpoint through `getModuleHostConfiguration`, rendering a
+   [templated endpoint](#templated-endpoint) with the `context`
 2. Issues a `POST` request with the entity payload
 3. Returns the deserialized response body
 
@@ -487,11 +513,12 @@ Updates an existing entity in the backend.
 
 #### Parameters
 
-| Parameter    | Type     | Description                       |
-| ------------ | -------- | --------------------------------- |
-| `instanceId` | `string` | Identifier of the module instance |
-| `entityId`   | `string` | The ID of the entity to update    |
-| `record`     | `T`      | New data to update the entity     |
+| Parameter    | Type                      | Description                                                                  |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------- |
+| `instanceId` | `string`                  | Identifier of the module instance                                            |
+| `entityId`   | `string`                  | The ID of the entity to update, URI-encoded in the path                      |
+| `record`     | `T`                       | New data to update the entity                                                |
+| `context`    | `Record<string, unknown>` | Context used to render a templated `apiEndpoint` (optional, `{}` by default) |
 
 #### Returns
 
@@ -507,11 +534,12 @@ Retrieves a paginated list of entities.
 
 #### Parameters
 
-| Parameter    | Type          | Description                       |
-| ------------ | ------------- | --------------------------------- |
-| `instanceId` | `string`      | Identifier of the module instance |
-| `filters`    | `QueryFilter` | Filters to apply to the search    |
-| `pagination` | `Pagination`  | Pagination parameters             |
+| Parameter    | Type                      | Description                                                                  |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------- |
+| `instanceId` | `string`                  | Identifier of the module instance                                            |
+| `filters`    | `QueryFilter`             | Filters to apply to the search                                               |
+| `pagination` | `Pagination`              | Pagination parameters                                                        |
+| `context`    | `Record<string, unknown>` | Context used to render a templated `apiEndpoint` (optional, `{}` by default) |
 
 #### Returns
 
@@ -527,10 +555,11 @@ Fetches a single entity by its unique identifier.
 
 #### Parameters
 
-| Parameter    | Type     | Description                       |
-| ------------ | -------- | --------------------------------- |
-| `instanceId` | `string` | Identifier of the module instance |
-| `entityId`   | `string` | ID of the entity to retrieve      |
+| Parameter    | Type                      | Description                                                                  |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------- |
+| `instanceId` | `string`                  | Identifier of the module instance                                            |
+| `entityId`   | `string`                  | ID of the entity to retrieve, URI-encoded in the path                        |
+| `context`    | `Record<string, unknown>` | Context used to render a templated `apiEndpoint` (optional, `{}` by default) |
 
 #### Returns
 
@@ -546,10 +575,11 @@ Deletes a single entity by ID.
 
 #### Parameters
 
-| Parameter    | Type     | Description                       |
-| ------------ | -------- | --------------------------------- |
-| `instanceId` | `string` | Identifier of the module instance |
-| `entityId`   | `string` | ID of the entity to delete        |
+| Parameter    | Type                      | Description                                                                  |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------- |
+| `instanceId` | `string`                  | Identifier of the module instance                                            |
+| `entityId`   | `string`                  | ID of the entity to delete, URI-encoded in the path                          |
+| `context`    | `Record<string, unknown>` | Context used to render a templated `apiEndpoint` (optional, `{}` by default) |
 
 #### Returns
 
@@ -557,7 +587,7 @@ Deletes a single entity by ID.
 
 #### Behavior
 
-1. Resolves endpoint from module configuration
+1. Resolves endpoint from module configuration, rendering a [templated endpoint](#templated-endpoint) with the `context`
 2. Performs a `DELETE` HTTP request
 3. Returns an empty Promise
 
@@ -584,6 +614,13 @@ const user = await getEntityById<User>('users', '42');
 
 // Delete
 await deleteEntityById('users', '42');
+
+// Retrieve by ID from a templated endpoint,
+// "apiEndpoint": "api/structures/{{ params.structureId }}/hierarchies"
+const hierarchy = await getEntityById<Hierarchy>('hierarchies', '42', {
+  params: { structureId: '7' },
+});
+// GET /api/structures/7/hierarchies/42
 ```
 
 ---
