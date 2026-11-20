@@ -54,9 +54,13 @@ export function useQuasarFieldValidation(i18nScope: string) {
 
   return {
     validateFromApi:
-      (instanceId: string, fieldName: string) =>
+      (
+        instanceId: string,
+        fieldName: string,
+        context: Record<string, unknown> = {}
+      ) =>
       (value: string): Promise<true | string> =>
-        validateFromApi(instanceId, fieldName, value),
+        validateFromApi(instanceId, fieldName, value, context),
     required,
     email,
     min: (minValue: number) => (value: string | number) =>

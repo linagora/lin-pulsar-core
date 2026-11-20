@@ -60,7 +60,29 @@ describe('Test composable: useFieldValidation', () => {
       expect(validate).toHaveBeenCalledWith(
         'test-instance',
         'email',
-        'test@example.com'
+        'test@example.com',
+        {}
+      );
+    });
+
+    it('should pass the context of a templated apiEndpoint to the validation', async () => {
+      vi.mocked(validate).mockResolvedValue({});
+      const context = { params: { parentId: '7' } };
+
+      const { validateFromApi } = useFieldValidation('test-instance.email');
+      const result = await validateFromApi(
+        'test-instance',
+        'email',
+        'test@example.com',
+        context
+      );
+
+      expect(result).toBe(true);
+      expect(validate).toHaveBeenCalledWith(
+        'test-instance',
+        'email',
+        'test@example.com',
+        context
       );
     });
 

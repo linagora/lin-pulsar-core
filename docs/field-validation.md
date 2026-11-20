@@ -76,7 +76,7 @@ const rules = useQuasarRules(
 
 #### useFieldValidation
 
-- **`validateFromApi(instanceId, fieldName, value)`**: Validates a value against the backend API
+- **`validateFromApi(instanceId, fieldName, value, context?)`**: Validates a value against the backend API. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module (`{}` by default)
 - **`required(value)`**: Validates that a value is provided
 - **`email(value)`**: Validates that a value matches a basic email shape. Empty values (`null`, `undefined`, `''`) are skipped
 - **`minLength(value, min)`**: Validates minimum string length
@@ -95,7 +95,7 @@ const rules = useQuasarRules(
 
 #### useQuasarFieldValidation (Recommended for Quasar)
 
-- **`validateFromApi(instanceId, fieldName)`**: Returns a validator bound to the given instance and field. The returned function validates a value against the backend API.
+- **`validateFromApi(instanceId, fieldName, context?)`**: Returns a validator bound to the given instance and field. The returned function validates a value against the backend API. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module (`{}` by default).
 - **`required`**: Validates that a value is provided (same as above)
 - **`email`**: Validates that a value matches a basic email shape, empty values are skipped (same as above)
 - **`minLength(min)`**: Returns a validator for minimum string length
@@ -114,7 +114,7 @@ const rules = useQuasarRules(
 
 #### useQuasarRules (Easiest for Quasar)
 
-- **`useQuasarRules(instanceId, attributeConfig, validatorNames, i18nScope)`**: Automatically generates an array of Quasar validation rules following the order of validatorNames parameter and based on attribute configuration
+- **`useQuasarRules(instanceId, attributeConfig, validatorNames, i18nScope, context?)`**: Automatically generates an array of Quasar validation rules following the order of validatorNames parameter and based on attribute configuration. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module for the API validation (`{}` by default)
 
 ---
 

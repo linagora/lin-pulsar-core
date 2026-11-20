@@ -70,7 +70,30 @@ describe('Test composable: useQuasarFieldValidation', () => {
       expect(validate).toHaveBeenCalledWith(
         'test-instance',
         'username',
-        'john'
+        'john',
+        {}
+      );
+    });
+
+    it('should pass the context of a templated apiEndpoint to the validation', async () => {
+      vi.mocked(validate).mockResolvedValue({});
+      const context = { params: { parentId: '7' } };
+
+      const { validateFromApi } = useQuasarFieldValidation(
+        'test-instance.fields.username'
+      );
+      const result = await validateFromApi(
+        'test-instance',
+        'username',
+        context
+      )('john');
+
+      expect(result).toBe(true);
+      expect(validate).toHaveBeenCalledWith(
+        'test-instance',
+        'username',
+        'john',
+        context
       );
     });
   });
