@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.10](https://github.com/linagora/lin-pulsar-core/compare/v0.1.9...v0.1.10) (2026-11-24)
+
+
+### Features
+
+* render a templated apiEndpoint with a context in the entity service ([b6ebf84](https://github.com/linagora/lin-pulsar-core/commit/b6ebf841895173527cfb7941d534fed7a65b3498))
+
 ### [0.1.9](https://github.com/linagora/lin-pulsar-core/compare/v0.1.8...v0.1.9) (2026-11-19)
 
 
