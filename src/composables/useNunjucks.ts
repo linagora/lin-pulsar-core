@@ -24,7 +24,7 @@
  * LinOpenFactory software.
  */
 
-import { toRaw } from 'vue';
+import { isRef, toRaw } from 'vue';
 import { getNunjucksEnv } from '../services/nunjucksService';
 
 /**
@@ -55,6 +55,64 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
+ * Unwraps the Vue proxies and refs of a value at every level of its arrays and plain objects, which `structuredClone`
+ * cannot clone: a reactive array or object may hold proxies, such as the entries a form field re-emits. A value met
+ * again, through a cycle or a shared reference, gets the copy made the first time, so cycles and sharing are kept.
+ * The children are read through the value itself, the Vue proxy when there is one, so that a `computed` or a watcher
+ * rendering the value tracks them (an item pushed to a reactive array, a nested property changed); the raw value only
+ * identifies what was already copied.
+ * @template T - The type of the value, kept by the unwrapping.
+ * @param value - The value to unwrap.
+ * @param copies - The copies already made, by raw value.
+ * @returns The value with raw arrays and plain objects, any other value as-is.
+ */
+function toRawDeep<T>(value: T, copies = new WeakMap<object, unknown>()): T {
+  const raw: unknown = toRaw(value);
+
+  if (isRef(raw)) {
+    return toRawDeep(raw.value, copies) as T;
+  }
+  if (!Array.isArray(raw) && !isPlainObject(raw)) {
+    return raw as T;
+  }
+  if (copies.has(raw)) {
+    return copies.get(raw) as T;
+  }
+
+  const copy: Record<string, unknown> | unknown[] = Array.isArray(raw)
+    ? new Array(raw.length)
+    : {};
+
+  copies.set(raw, copy);
+  for (const key of Object.keys(value as object)) {
+    // A key such as `__proto__` stays an own property, as `structuredClone` keeps it.
+    Object.defineProperty(copy, key, {
+      value: toRawDeep((value as Record<string, unknown>)[key], copies),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+  }
+  return copy as T;
+}
+
+/**
+ * Clones a resolved value, unwrapping its Vue proxies and refs first.
+ * @param value - The resolved plain object or array.
+ * @returns A deep clone of the value, or `null` when it holds a value `structuredClone` cannot clone, such as a
+ * function or a proxy inside a `Map`, a `Set` or a class instance.
+ */
+function cloneResolvedValue(
+  value: Record<string, unknown> | unknown[]
+): Record<string, unknown> | unknown[] | null {
+  try {
+    return structuredClone(toRawDeep(value));
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Extracts the path segments of a template made of a single property lookup (e.g. `{{ entity }}` or `{{ entity.details }}`).
  * @param template - The template string to inspect.
  * @returns The resolved path segments, or `null` when the template is not a plain property lookup.
@@ -80,12 +138,12 @@ function toPathSegments(template: string): string[] | null {
  * Resolves a single-expression template directly against the context, bypassing the Nunjucks render.
  * @param template - The template string to resolve.
  * @param context - The context object the path is resolved against.
- * @returns A deep clone of the resolved plain object, or `null` when the template is not a plain property lookup or does not resolve to a plain object.
+ * @returns A deep clone of the resolved plain object or array, or `null` when the template is not a plain property lookup, does not resolve to a plain object or an array, or resolves to a value that cannot be cloned.
  */
 function resolveObjectExpression(
   template: string,
   context: Record<string, unknown>
-): Record<string, unknown> | null {
+): Record<string, unknown> | unknown[] | null {
   const segments = toPathSegments(template);
 
   if (segments === null) {
@@ -100,7 +158,9 @@ function resolveObjectExpression(
     }
     current = current[segment];
   }
-  return isPlainObject(current) ? structuredClone(toRaw(current)) : null;
+  return isPlainObject(current) || Array.isArray(current)
+    ? cloneResolvedValue(current)
+    : null;
 }
 
 /**
@@ -139,7 +199,7 @@ function parseJson(output: string): unknown {
   }
   if (output.includes('[object Object]')) {
     throw new Error(
-      `[LinPulsar Core] Cannot render an object as JSON: "${output}". Use the \`dump\` filter.`
+      `[LinPulsar Core] Cannot render an object as JSON: "${output}". Use a single lookup (\`{{ form.tags }}\`) on a value structuredClone can copy (no function), or the \`dump\` filter.`
     );
   }
   try {
@@ -158,8 +218,8 @@ type EnvironmentWithOptions = {
   };
 };
 
-/** Result of rendering a string: either the Nunjucks output, or a plain object for a direct dotted lookup. */
-type StringRenderResult = string | Record<string, unknown>;
+/** Result of rendering a string: either the Nunjucks output, or a plain object or an array for a direct dotted lookup. */
+type StringRenderResult = string | Record<string, unknown> | unknown[];
 
 /** Result of rendering an array: each element mapped through {@link RenderResult}. */
 type ArrayRenderResult<U> = RenderResult<U>[];
@@ -171,7 +231,7 @@ type ObjectRenderResult<T extends Record<string, unknown>> = {
 
 /**
  * The return type of {@link render}, computed recursively from the input type `T`.
- * - `string`                   → `StringRenderResult` (rendered output or a plain object)
+ * - `string`                   → `StringRenderResult` (rendered output, a plain object or an array)
  * - `ReadonlyArray<U>`         → `ArrayRenderResult<U>` (elements mapped recursively)
  * - `Record<string, unknown>`  → `ObjectRenderResult<T>` (same shape, values mapped)
  * - anything else              → `T` unchanged.
@@ -187,13 +247,15 @@ export type RenderResult<T> = T extends string
 /**
  * Composable exposing utility functions for working with Nunjucks templates.
  * It provides a method to recursively render all string properties of an object as Nunjucks templates using a shared Nunjucks environment.
- * A string that is a single dotted property lookup resolving to a plain object yields that object instead of a string.
+ * A string that is a single dotted property lookup resolving to a plain object or an array yields that value instead of a string.
  * It also provides a method to render a JSON value, such as a request body, whose rendered strings are parsed as JSON.
  * The Nunjucks environment must be initialized and set in the `nunjucksService` before using this composable.
  *
  * **Security note:** XSS safety of the rendered output depends entirely on the Nunjucks environment
  * provided by the caller. If the output is injected into the DOM as raw HTML (e.g. Via `v-html`),
- * ensure the environment is configured with `autoescape: true`. Template strings (`value`) must be
+ * ensure the environment is configured with `autoescape: true`. A single dotted lookup resolving to a plain object or
+ * an array returns that value as is, never escaped whatever `autoescape`: its strings must not be injected as raw HTML.
+ * Template strings (`value`) must be
  * developer-controlled; passing user-supplied strings as templates is not supported and may introduce
  * template injection risks.
  * @returns An object containing utility methods for rendering Nunjucks templates within objects.
@@ -223,7 +285,7 @@ export function useNunjucks() {
 
   /**
    * Renders a single template string, always returning a string.
-   * Unlike `render`, a single dotted lookup resolving to a plain object is not short-circuited: it goes through Nunjucks like any other expression.
+   * Unlike `render`, a single dotted lookup resolving to a plain object or an array is not short-circuited: it goes through Nunjucks like any other expression.
    * Use it for values that must stay strings, such as URLs or any typed string property.
    * @param template - The template string to render.
    * @param context - The context object to be used when rendering the template.
@@ -241,11 +303,13 @@ export function useNunjucks() {
    * Each string is rendered like with `render`, then turned into JSON: an empty output gives `null`, a valid JSON output
    * gives its parsed value (number, boolean, `null`, array, object, quoted string), any other output stays a string.
    * The output is never HTML-escaped, even when the environment sets `autoescape`. Non-string values are returned as-is.
-   * An output holding `[object Object]` throws, since an object must be rendered with the `dump` filter.
+   * An output holding `[object Object]` throws, since an object or an array must be rendered by a single dotted lookup
+   * (`{{ form.tags }}`) on a value `structuredClone` can copy (no function), or with the `dump` filter.
    * @param value - The JSON value to render.
    * @param context - The context object to be used when rendering the templates.
    * @returns The rendered JSON value.
-   * @throws {Error} When a template renders an object without the `dump` filter.
+   * @throws {Error} When a template renders an object other than by a single dotted lookup on a value `structuredClone`
+   * can copy, or the `dump` filter.
    */
   function renderJson(
     value: unknown,

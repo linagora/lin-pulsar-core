@@ -1945,7 +1945,7 @@ value. Shown here with its internal helper aliases inlined.
 
 ```ts
 export type RenderResult<T> = T extends string
-  ? string | Record<string, unknown>
+  ? string | Record<string, unknown> | unknown[]
   : T extends ReadonlyArray<infer U>
     ? RenderResult<U>[]
     : T extends Record<string, unknown>
@@ -1955,8 +1955,8 @@ export type RenderResult<T> = T extends string
 
 **Usage:**
 
-- A string becomes `string | Record<string, unknown>`: a single dotted lookup resolving to a plain object (e.g.
-  `'{{ entity.details }}'`) returns that object. Narrow with `typeof` before use.
+- A string becomes `string | Record<string, unknown> | unknown[]`: a single dotted lookup resolving to a plain object
+  or an array (e.g. `'{{ entity.details }}'`) returns that value. Narrow with `typeof` or `Array.isArray` before use.
 - Arrays and plain object types are mapped element by element and property by property; any other type is returned
   unchanged.
 - An `interface` is not assignable to `Record<string, unknown>` (no implicit index signature): `RenderResult<MyInterface>`
@@ -1980,9 +1980,9 @@ const field = {
 const rendered = render(field, { entity });
 // RenderResult<typeof field>:
 // {
-//   label: string | Record<string, unknown>;
+//   label: string | Record<string, unknown> | unknown[];
 //   size: number;
-//   tags: (string | Record<string, unknown>)[];
+//   tags: (string | Record<string, unknown> | unknown[])[];
 // }
 
 if (typeof rendered.label === 'string') {
