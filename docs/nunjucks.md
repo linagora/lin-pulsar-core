@@ -34,6 +34,7 @@ setNunjucksEnv(env);
 XSS safety of the rendered output depends entirely on the Nunjucks environment provided by the caller:
 
 - If rendered strings are injected into the DOM as raw HTML (e.g. via `v-html`), configure the environment with `autoescape: true`.
+- A single dotted lookup resolving to a plain object or an array (see [`render`](#render)) returns that value as is: its strings are never escaped, whatever `autoescape`. `String(render('{{ entity.tags }}', ctx))` gives raw HTML for a tag holding HTML, so such a value must not be injected as raw HTML.
 - **Template strings must be developer-controlled.** Passing user-supplied strings as template values is not supported and may introduce template injection risks.
 
 ---
@@ -52,7 +53,7 @@ const { render, renderJson, renderString } = useNunjucks();
 
 Recursively renders all string values within a structure (string, array, or plain object) as Nunjucks templates, using the provided context. Non-string values and non-plain objects are returned as-is.
 
-A string that is a **single dotted lookup** resolving to a plain object yields that object rather than a string. Everything else keeps its string form.
+A string that is a **single dotted lookup** resolving to a plain object or an array yields that value rather than a string. Everything else keeps its string form.
 
 ```ts
 render<T>(value: T, context: Record<string, unknown>): RenderResult<T>
@@ -69,20 +70,20 @@ render<T>(value: T, context: Record<string, unknown>): RenderResult<T>
 
 The processed value with the same shape as the input:
 
-- **`string`** → a deep clone of the resolved plain object when the string is a single property lookup pointing to one (see below), otherwise the string rendered via `nunjucksEnv.renderString(value, context)`
+- **`string`** → a deep clone of the resolved plain object or array when the string is a single property lookup pointing to one (see below), otherwise the string rendered via `nunjucksEnv.renderString(value, context)`
 - **`Array`** → new array with `render` applied recursively to each item
 - **Plain object** (i.e. `Object.getPrototypeOf(value) === Object.prototype`) → new object with `render` applied recursively to each property value
 - **Anything else** (`number`, `boolean`, `null`, `Date`, class instances, …) → returned unchanged
 
-### When a string becomes an object
+### When a string becomes an object or an array
 
-If the whole string is a single property lookup — `{{ entity }}`, `{{ entity.details }}`, `{{ entity.details.nested }}` — and it resolves to a plain object in the context, a deep clone of that object is returned (`structuredClone`). This is required because Nunjucks always returns a string and would coerce the object to `'[object Object]'`.
+If the whole string is a single property lookup — `{{ entity }}`, `{{ entity.details }}`, `{{ entity.details.nested }}` — and it resolves to a plain object or an array in the context, a deep clone of that value is returned (`structuredClone`). This is required because Nunjucks always returns a string and would coerce the object to `'[object Object]'` and the array to its items joined by commas (`'a,b'`).
 
-> **Note.** The returned value is a fully independent copy — mutating it does not affect the context. Nested functions will cause `structuredClone` to throw; class instances are cloned as plain objects (their prototype is lost).
+> **Note.** The returned value is a fully independent copy — mutating it does not affect the context. A value `structuredClone` cannot clone, such as a nested function or a Vue proxy inside a `Map`, a `Set` or a class instance, is not resolved: the string is rendered by Nunjucks instead. Class instances are cloned as plain objects (their prototype is lost).
 
-Every segment in the path must be an own property of a plain object. Class instances and arrays are not traversed. Vue `reactive()` proxies over plain objects are treated as plain objects and are traversed. Everything else stays a string: templates with multiple expressions, filters, operators, function calls, bracket notation (`{{ entity['details'] }}`), lookups that resolve to a non-plain-object, and whitespace-control syntax (`{{- entity.details -}}`). Path segments named `__proto__`, `constructor` or `prototype` are never resolved.
+Every segment in the path must be an own property of a plain object. Class instances and arrays are not traversed. Vue `reactive()` proxies over plain objects are treated as plain objects and are traversed, and those over arrays are resolved as arrays. The Vue proxies and refs nested in the arrays and plain objects of the resolved value are unwrapped before it is cloned, and its cycles and shared references are kept. Everything else stays a string: templates with multiple expressions, filters, operators, function calls, bracket notation (`{{ entity['details'] }}`), lookups that resolve to anything other than a plain object or an array, and whitespace-control syntax (`{{- entity.details -}}`). Path segments named `__proto__`, `constructor` or `prototype` are never resolved.
 
-> Because a template can yield an object here, `render` is typed `string | Record<string, unknown>` for a string input. When a single value must be a string, use [`renderString`](#renderstring) instead.
+> Because a template can yield an object or an array here, `render` is typed `string | Record<string, unknown> | unknown[]` for a string input. When a single value must be a string, use [`renderString`](#renderstring) instead.
 
 ### Examples
 
@@ -97,6 +98,10 @@ render('Hello {{ name }}!', { name: 'Alice' });
 const ctx = { entity: { details: { id: 7, tags: ['a'] } } };
 render('{{ entity.details }}', ctx);
 // → { id: 7, tags: ['a'] }
+
+// Single dotted lookup resolving to an array — a deep clone of the array is returned
+render('{{ entity.details.tags }}', ctx);
+// → ['a']
 
 // Bracket notation — falls back to a regular render
 render("{{ entity['details'] }}", ctx); // → '[object Object]'
@@ -134,7 +139,7 @@ rendered like with [`render`](#render), then its output is turned into JSON:
 | valid JSON (`3`, `true`, `null`, `[...]`, ...) | the parsed value  |
 | anything else                                  | the string itself |
 
-A single dotted lookup resolving to a plain object returns that object, as with `render`. Non-string values are
+A single dotted lookup resolving to a plain object or an array returns that value, as with `render`. Non-string values are
 returned as-is.
 
 ```ts
@@ -151,7 +156,8 @@ renderJson(
       end: '{{ form.end }}',
     },
     count: '{{ form.count }}',
-    tags: '{{ form.tags | dump }}',
+    roles: '{{ form.roles }}', // a single dotted lookup keeps the array
+    tags: '{{ form.tags | dump }}', // so does the dump filter, in any expression
     code: '{{ form.code | dump }}',
     label: 'Suspended by {{ user.name }}',
   },
@@ -160,6 +166,7 @@ renderJson(
       start: '2026-12-01T00:00:00+01:00',
       end: '',
       count: 3,
+      roles: ['admin'],
       tags: ['a'],
       code: '0042',
     },
@@ -169,13 +176,14 @@ renderJson(
 // → {
 //   suspensionPeriod: { start: '2026-12-01T00:00:00+01:00', end: null },
 //   count: 3,
+//   roles: ['admin'],
 //   tags: ['a'],
 //   code: '0042',
 //   label: 'Suspended by Alice',
 // }
 ```
 
-- Use the `dump` filter to send an array or an object. An output holding `[object Object]` throws an error.
+- Use a single dotted lookup (`'{{ form.tags }}'`) on a value `structuredClone` can copy (no function), or the `dump` filter, to send an array or an object. An output holding `[object Object]` throws an error, also for a single lookup whose value holds a function: it falls back to the Nunjucks render.
 - A string value that looks like JSON (`'42'`, `'true'`, `'1e5'`) is parsed. A long numeric identifier such as
   `'12345678901234567890'` even loses precision (`12345678901234567000`). Use the `dump` filter
   (`'{{ form.code | dump }}'`) for any string field that may hold such a value, to keep it a string.
@@ -185,7 +193,7 @@ renderJson(
 
 ## `renderString`
 
-Renders a single template string, always returning a `string`. It is the plain Nunjucks behavior: unlike [`render`](#render), a single dotted lookup resolving to a plain object is **not** short-circuited — it goes through Nunjucks like any other expression and comes out stringified.
+Renders a single template string, always returning a `string`. It is the plain Nunjucks behavior: unlike [`render`](#render), a single dotted lookup resolving to a plain object or an array is **not** short-circuited — it goes through Nunjucks like any other expression and comes out stringified.
 
 ```ts
 renderString(template: string, context: Record<string, unknown>): string
@@ -206,9 +214,9 @@ The template rendered via `nunjucksEnv.renderString(template, context)` — alwa
 
 Use `render` to process a **configuration tree** whose values legitimately have mixed types — a request body where one property must stay an object, for instance. Use `renderString` for a **single value that must be a string**: a URL, an i18n key, a CSS class, any property typed `string` by the API you hand it to.
 
-The difference that matters is the return type. `render` on a string is typed `string | Record<string, unknown>`, so every caller that needs a string has to narrow or cast it, even when the object branch can never fire for that template. `renderString` returns `string` and removes that friction.
+The difference that matters is the return type. `render` on a string is typed `string | Record<string, unknown> | unknown[]`, so every caller that needs a string has to narrow or cast it, even when the object branch can never fire for that template. `renderString` returns `string` and removes that friction.
 
-> `renderString` performs **no validation**. A template that would have resolved to an object under `render` renders as `'[object Object]'` here, silently. Picking the right function is the whole contract.
+> `renderString` performs **no validation**. A template that would have resolved to an object under `render` renders as `'[object Object]'` here, silently, and one resolving to an array as its items joined by commas. Picking the right function is the whole contract.
 
 ### Examples
 

@@ -1,7 +1,7 @@
 import nunjucks from 'nunjucks';
 import { useNunjucks } from 'src/composables/useNunjucks';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 const mockRenderString = vi.hoisted(() => vi.fn((str) => `rendered:${str}`));
 const mockEnv = vi.hoisted(() => ({ current: null }));
@@ -136,11 +136,137 @@ describe('Test composable: useNunjucks', () => {
       );
     });
 
+    it('should return an array resolved by a single lookup without rendering it', () => {
+      expect(render('{{ list }}', context)).toEqual([details]);
+      expect(
+        render({ items: '{{ entity.tags }}' }, { entity: { tags: ['a', 'b'] } })
+      ).toEqual({
+        items: ['a', 'b'],
+      });
+      expect(mockRenderString).not.toHaveBeenCalled();
+    });
+
+    it('should return an empty array resolved by a single lookup', () => {
+      expect(render('{{ entity.rows }}', { entity: { rows: [] } })).toEqual([]);
+    });
+
+    it('should return a deep clone of a resolved array', () => {
+      const ctx = { entity: { rows: [{ id: 1 }] } };
+      const result = render('{{ entity.rows }}', ctx);
+      result[0].id = 99;
+      result.push({ id: 2 });
+      expect(ctx.entity.rows).toEqual([{ id: 1 }]);
+    });
+
+    it('should resolve an array through a Vue reactive context', () => {
+      const ctx = reactive({ entity: { rows: [{ id: 1, values: ['a'] }] } });
+      expect(render('{{ entity.rows }}', ctx)).toEqual([
+        { id: 1, values: ['a'] },
+      ]);
+      expect(mockRenderString).not.toHaveBeenCalled();
+    });
+
+    it('should resolve an array whose entries hold Vue proxies', () => {
+      const form = ref({ rows: [{ id: 'R1', values: ['P1'] }] });
+      form.value.rows = form.value.rows.map(({ id, values }) => ({
+        id,
+        values,
+      }));
+
+      expect(
+        render('{{ entity.rows }}', { entity: { ...form.value } })
+      ).toEqual([{ id: 'R1', values: ['P1'] }]);
+    });
+
+    it('should resolve an object whose properties hold Vue proxies', () => {
+      const form = ref({ details: { nested: { id: 1 } } });
+      form.value.details = { nested: form.value.details.nested };
+
+      expect(
+        render('{{ entity.details }}', { entity: { ...form.value } })
+      ).toEqual({ nested: { id: 1 } });
+    });
+
+    it('should resolve a cyclic value, keeping its cycle', () => {
+      const node = { id: 1, children: [] };
+      node.children.push(node);
+
+      const result = render('{{ entity.node }}', { entity: { node } });
+
+      expect(result.children[0]).toBe(result);
+      expect(result).not.toBe(node);
+    });
+
+    it('should resolve a value shared twice as one copy', () => {
+      const shared = reactive({ id: 'R1' });
+      const ctx = { entity: { rows: [shared, shared] } };
+
+      const result = render('{{ entity.rows }}', ctx);
+
+      expect(result[0]).toBe(result[1]);
+      expect(result[0]).toEqual({ id: 'R1' });
+    });
+
+    it('should resolve a Vue ref nested in the value as its value', () => {
+      const ctx = {
+        entity: { rows: [{ id: ref('R1'), values: ref(['P1']) }] },
+      };
+
+      expect(render('{{ entity.rows }}', ctx)).toEqual([
+        { id: 'R1', values: ['P1'] },
+      ]);
+    });
+
+    it('should keep a `__proto__` key as an own property', () => {
+      const rows = JSON.parse('[{"__proto__": {"polluted": true}}]');
+
+      const result = render('{{ entity.rows }}', { entity: { rows } });
+
+      expect(Object.hasOwn(result[0], '__proto__')).toBe(true);
+      expect(result[0].polluted).toBeUndefined();
+      expect({}.polluted).toBeUndefined();
+    });
+
+    it('should render normally when the resolved value cannot be cloned', () => {
+      const ctx = { entity: { rows: [{ onClick: () => {} }] } };
+
+      expect(render('{{ entity.rows }}', ctx)).toBe(
+        'rendered:{{ entity.rows }}'
+      );
+    });
+
+    it('should keep a computed over a resolved array reactive to its items', () => {
+      const entity = reactive({ rows: [{ id: 1 }] });
+      const rows = computed(() => render('{{ entity.rows }}', { entity }));
+
+      expect(rows.value).toEqual([{ id: 1 }]);
+      entity.rows.push({ id: 2 });
+      expect(rows.value).toEqual([{ id: 1 }, { id: 2 }]);
+      entity.rows[0].id = 3;
+      expect(rows.value).toEqual([{ id: 3 }, { id: 2 }]);
+    });
+
+    it('should keep a computed over a resolved object reactive to its nested properties', () => {
+      const entity = reactive({ details: { nested: { id: 1 } } });
+      const details = computed(() =>
+        render('{{ entity.details }}', { entity })
+      );
+
+      expect(details.value).toEqual({ nested: { id: 1 } });
+      entity.details.nested.id = 2;
+      expect(details.value).toEqual({ nested: { id: 2 } });
+    });
+
+    it('should render normally when the lookup walks through an array', () => {
+      expect(render('{{ list.length }}', context)).toBe(
+        'rendered:{{ list.length }}'
+      );
+    });
+
     it('should render normally when the lookup does not resolve to a plain object', () => {
       expect(render('{{ entity.missing }}', context)).toBe(
         'rendered:{{ entity.missing }}'
       );
-      expect(render('{{ list }}', context)).toBe('rendered:{{ list }}');
       expect(render('{{ name.length }}', context)).toBe(
         'rendered:{{ name.length }}'
       );
@@ -219,6 +345,7 @@ describe('Test composable: useNunjucks', () => {
         enabled: false,
         period: { start: '2026-12-01T00:00:00+01:00', end: null },
         tags: ['a', 'b'],
+        rows: [],
       },
     };
 
@@ -257,6 +384,16 @@ describe('Test composable: useNunjucks', () => {
       });
     });
 
+    it('should keep an array resolved by a single lookup, without dump', () => {
+      expect(renderJson({ tags: '{{ form.tags }}' })).toEqual({
+        tags: ['a', 'b'],
+      });
+    });
+
+    it('should keep an empty array resolved by a single lookup, not null', () => {
+      expect(renderJson({ rows: '{{ form.rows }}' })).toEqual({ rows: [] });
+    });
+
     it('should render the empty outputs as null', () => {
       expect(
         renderJson({
@@ -289,9 +426,20 @@ describe('Test composable: useNunjucks', () => {
       expect(env.opts.autoescape).toBe(true);
     });
 
+    it('should name the copyable values when a single lookup resolves to one it cannot copy', () => {
+      mockEnv.current = new nunjucks.Environment(null, {});
+
+      expect(() =>
+        useNunjucks().renderJson(
+          { rows: '{{ form.rows }}' },
+          { form: { rows: [{ onClick: () => {} }] } }
+        )
+      ).toThrow('on a value structuredClone can copy (no function)');
+    });
+
     it('should throw on an object rendered without dump', () => {
       expect(() => renderJson({ item: '{{ form.period or none }}' })).toThrow(
-        'Use the `dump` filter'
+        'Use a single lookup (`{{ form.tags }}`) on a value structuredClone can copy (no function), or the `dump` filter'
       );
       expect(() => renderJson(['[{{ [form.period] }}]'])).toThrow(
         'Cannot render an object as JSON'
@@ -350,13 +498,14 @@ describe('Test composable: useNunjucks', () => {
       expect(renderString('hello', context)).toBe('hello:Alice');
     });
 
-    it('should never short-circuit a shape that render resolves to an object', () => {
+    it('should never short-circuit a shape that render resolves to an object or an array', () => {
       const { render } = useNunjucks();
 
       for (const tpl of [
         '{{ entity }}',
         '{{ entity.details }}',
         '{{ entity.details.nested }}',
+        '{{ list }}',
       ]) {
         expect(render(tpl, context)).toBeTypeOf('object');
         expect(renderString(tpl, context)).toBe(`rendered:${tpl}`);
@@ -371,7 +520,6 @@ describe('Test composable: useNunjucks', () => {
         '/users',
         '{{ entity.id }}',
         '{{ 1 + 2 }}',
-        '{{ list }}',
         '{{ entity.missing }}',
       ]) {
         expect(renderString(tpl, context)).toBe(render(tpl, context));
