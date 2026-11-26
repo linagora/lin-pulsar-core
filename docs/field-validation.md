@@ -77,7 +77,7 @@ const rules = useQuasarRules(
 #### useFieldValidation
 
 - **`validateFromApi(instanceId, fieldName, value, context?)`**: Validates a value against the backend API. `context` renders a [templated `apiEndpoint`](services.md#templated-endpoint) of the module (`{}` by default)
-- **`required(value)`**: Validates that a value is provided
+- **`required(value)`**: Validates that a value is provided: `null`, `undefined`, an empty string and an empty array are missing
 - **`email(value)`**: Validates that a value matches a basic email shape. Empty values (`null`, `undefined`, `''`) are skipped
 - **`minLength(value, min)`**: Validates minimum string length
 - **`maxLength(value, max)`**: Validates maximum string length

@@ -117,12 +117,17 @@ export function useFieldValidation(i18nScope: string) {
   }
 
   /**
-   * Validates that a field value is present (not null, undefined, or empty).
+   * Validates that a field value is present (not null, undefined, an empty string or an empty array).
    * @param value - The value to validate.
    * @returns `true` if the value is present, or an error message string if not.
    */
   function required(value: unknown): true | string {
-    if (value === null || value === undefined || value === '') {
+    if (
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
       return t('validation.required');
     }
     return true;

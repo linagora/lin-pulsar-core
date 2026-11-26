@@ -179,6 +179,13 @@ describe('Test composable: useFieldValidation', () => {
       expect(required(null)).toBe('translated.validation.required');
       expect(required(undefined)).toBe('translated.validation.required');
     });
+
+    it('should read an empty array as missing and a filled one as present', () => {
+      const { required } = useFieldValidation('test-instance.email');
+
+      expect(required([])).toBe('translated.validation.required');
+      expect(required(['a'])).toBe(true);
+    });
   });
 
   describe('Test function: email', () => {
