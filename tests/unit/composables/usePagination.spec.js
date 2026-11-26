@@ -12,10 +12,9 @@ describe('Test composable: usePagination', () => {
         sortBy: null,
         descending: false,
       });
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         page: 0,
         size: 5,
-        sort: 'updateDate,asc',
       });
 
       result = toPagination({
@@ -53,7 +52,7 @@ describe('Test composable: usePagination', () => {
       ).toBe('name,desc');
     });
 
-    it('should apply the direction to the default sort column when no sort is active', () => {
+    it('should omit the sort when no sort column is active, whatever the direction', () => {
       const { toPagination } = usePagination();
 
       expect(
@@ -62,18 +61,28 @@ describe('Test composable: usePagination', () => {
           rowsPerPage: 5,
           sortBy: null,
           descending: true,
-        }).sort
-      ).toBe('updateDate,desc');
+        })
+      ).not.toHaveProperty('sort');
+      expect(
+        toPagination({
+          page: 1,
+          rowsPerPage: 5,
+          sortBy: undefined,
+          descending: true,
+        })
+      ).not.toHaveProperty('sort');
+      expect(
+        toPagination({ page: 1, rowsPerPage: 5, sortBy: '', descending: true })
+      ).not.toHaveProperty('sort');
     });
 
     it('should return the default values when no input is provided', () => {
       const { toPagination } = usePagination();
 
       const result = toPagination({});
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         page: 0,
         size: 5,
-        sort: 'updateDate,asc',
       });
     });
   });

@@ -819,6 +819,9 @@ export interface Pagination {
 
 - `sort` follows the Spring Data convention and combines the column and the direction in one value.
   There is no separate `direction` field.
+- `sort` is omitted by `usePagination().toPagination()` when no sort column is active, so that no `sort`
+  query parameter is sent and the order then depends entirely on the backend; configure a default sort if the
+  backend does not enforce one.
 
 ---
 

@@ -43,17 +43,22 @@ export function usePagination() {
    * Converts a Quasar-style pagination object to a generic `Pagination` format.
    * @param pagination - The Quasar pagination object.
    * @returns A new pagination object, whose `sort` combines the column and the
-   * direction in a single `'<column>,<direction>'` string.
+   * direction in a single `'<column>,<direction>'` string. `sort` is omitted when
+   * no sort column is active, so that no sort parameter is sent to the backend.
    */
   function toPagination(pagination: QuasarPagination): Pagination {
-    const sortBy = pagination.sortBy || 'updateDate';
-    const direction = pagination.descending ? 'desc' : 'asc';
-
-    return {
+    const result: Pagination = {
       page: (pagination.page || 1) - 1,
       size: pagination.rowsPerPage || 5,
-      sort: `${sortBy},${direction}`,
     };
+
+    if (pagination.sortBy) {
+      const direction = pagination.descending ? 'desc' : 'asc';
+
+      result.sort = `${pagination.sortBy},${direction}`;
+    }
+
+    return result;
   }
 
   /**
