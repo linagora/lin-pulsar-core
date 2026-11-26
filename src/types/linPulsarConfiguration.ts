@@ -38,7 +38,8 @@ export type AttributeInputType =
   | 'TextArea'
   | 'Email'
   | 'File'
-  | 'Tree';
+  | 'Tree'
+  | 'GroupedDynamicList';
 
 /**
  * Describes a single attribute of an entity.
