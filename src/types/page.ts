@@ -164,7 +164,8 @@ export interface Pagination {
 
   /**
    * Ordering, as a single `'<column>,<direction>'` string (e.g. `'name,desc'`),
-   * following the Spring Data convention expected by the backend.
+   * following the Spring Data convention expected by the backend. Omitted when
+   * no sort column is active.
    */
   sort?: string;
 }

@@ -48,10 +48,9 @@ function toPagination(pagination: QuasarPagination): Pagination;
 
 - `page`: Quasar uses 1-based indexing → API uses 0-based indexing (`page - 1`)
 - `size`: Maps from `rowsPerPage` (defaults to 5)
-- `sort`: A single `'<column>,<direction>'` string. The column maps from `sortBy`, defaulting to
-  `'updateDate'` when no sort is active. The direction is `'desc'` when `descending` is true,
-  otherwise `'asc'`, and is applied even when no column is active — so an unset `sortBy` with
-  `descending: true` asks for the default column, newest first
+- `sort`: A single `'<column>,<direction>'` string. The column maps from `sortBy`. The direction is
+  `'desc'` when `descending` is true, otherwise `'asc'`
+- When no sort is active (`sortBy` is `null`, `undefined` or empty), `sort` is **omitted**
 
 > **Why `sort` is a single string**
 >
@@ -71,6 +70,9 @@ const quasarPagination = {
 
 const apiPagination = toPagination(quasarPagination);
 // Result: { page: 1, size: 10, sort: 'name,desc' }
+
+toPagination({ page: 1, rowsPerPage: 10, sortBy: null, descending: true });
+// Result: { page: 0, size: 10 } (no sort parameter sent)
 ```
 
 ### 3.2 toQuasarPagination
@@ -189,7 +191,7 @@ The following types are used by this composable and are exported from the librar
 interface Pagination {
   page: number; // 0-based page index
   size: number; // Number of items per page
-  sort?: string; // '<column>,<direction>', e.g. 'name,desc'
+  sort?: string; // '<column>,<direction>', e.g. 'name,desc'; omitted when no sort is active
 }
 ```
 
@@ -201,7 +203,7 @@ interface QuasarPagination {
   rowsPerPage: number;
   rowsNumber?: number; // Total number of rows
   sortBy: string | null; // null when no sort is active
-  descending: boolean; // applied even when sortBy is null
+  descending: boolean; // ignored by toPagination when sortBy is not set
 }
 ```
 
