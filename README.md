@@ -90,16 +90,16 @@ The library expects the following exact versions, which must be the same in the 
 
 | Package                       | Version   |
 | ----------------------------- | --------- |
-| `vue`                         | `3.5.44`  |
-| `quasar`                      | `2.35.2`  |
-| `vue-router`                  | `5.4.0`   |
-| `vue-i18n`                    | `11.4.16` |
+| `vue`                         | `3.5.46`  |
+| `quasar`                      | `2.35.6`  |
+| `vue-router`                  | `5.5.1`   |
+| `vue-i18n`                    | `11.4.23` |
 | `pinia`                       | `4.1.0`   |
-| `axios`                       | `1.21.0`  |
+| `axios`                       | `1.21.1`  |
 | `rxjs`                        | `7.8.2`   |
 | `dayjs`                       | `1.11.23` |
 | `interactjs`                  | `1.10.28` |
-| `@module-federation/enhanced` | `2.9.2`   |
+| `@module-federation/enhanced` | `2.9.4`   |
 
 ### **Module Federation sharing**
 
