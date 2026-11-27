@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.11](https://github.com/linagora/lin-pulsar-core/compare/v0.1.10...v0.1.11) (2026-11-27)
+
+
+### Features
+
+* add the GroupedDynamicList input type ([ddc4953](https://github.com/linagora/lin-pulsar-core/commit/ddc495326dedef4d3d2a2ec89f79b93a80806dca))
+* keep an array resolved by a single lookup in render ([f8f53e7](https://github.com/linagora/lin-pulsar-core/commit/f8f53e741c34585d113c6cbc468050174df89e04))
+* read an empty array as missing in the required rule ([e59c227](https://github.com/linagora/lin-pulsar-core/commit/e59c227950b091fdfc9c99c14c187cac58399ca7))
+
 ### [0.1.10](https://github.com/linagora/lin-pulsar-core/compare/v0.1.9...v0.1.10) (2026-11-24)
 
 
