@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.12](https://github.com/linagora/lin-pulsar-core/compare/v0.1.11...v0.1.12) (2026-11-27)
+
+
+### Features
+
+* omit the sort of the pagination when no sort column is active ([f3a2a14](https://github.com/linagora/lin-pulsar-core/commit/f3a2a1460fe3587a236220e32a9e656877034ea3))
+
 ### [0.1.11](https://github.com/linagora/lin-pulsar-core/compare/v0.1.10...v0.1.11) (2026-11-27)
 
 
